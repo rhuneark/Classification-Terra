@@ -1,12 +1,42 @@
+import { useState, useEffect } from 'react';
 import { useStore } from '../state/store.ts';
 import { PAPERCLIPS } from '../game/items.ts';
 import { RARITY_COLORS } from '../game/types.ts';
+import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 interface Props { onClose: () => void; }
 
 export default function ExplorerBoard({ onClose }: Props) {
     const foundUniqueIds = useStore(s => s.foundUniqueIds);
     const foundCount = foundUniqueIds.length;
+
+    // First-finder names keyed by paperclip id; null = nobody yet; undefined = loading
+    const [firstFinders, setFirstFinders] = useState<Record<string, string | null>>({});
+    const [findersLoaded, setFindersLoaded] = useState(false);
+
+    useEffect(() => {
+        let alive = true;
+        async function fetchFinders() {
+            const map: Record<string, string | null> = {};
+            await Promise.allSettled(
+                PAPERCLIPS.map(async (pc, idx) => {
+                    const mode = `paperclip-${10 - idx}`;
+                    try {
+                        const res = await RundotGameAPI.leaderboard.getPagedScores({ mode, limit: 1 });
+                        map[pc.id] = res.entries[0]?.username ?? null;
+                    } catch {
+                        map[pc.id] = null;
+                    }
+                })
+            );
+            if (alive) {
+                setFirstFinders(map);
+                setFindersLoaded(true);
+            }
+        }
+        fetchFinders();
+        return () => { alive = false; };
+    }, []);
 
     return (
         <div className="absolute inset-0 flex flex-col" style={{ background: 'rgba(0,0,0,0.92)', zIndex: 80 }}>
@@ -40,6 +70,7 @@ export default function ExplorerBoard({ onClose }: Props) {
                         const rateLabel = pc.uniqueDropRate
                             ? `1 in ${(1 / pc.uniqueDropRate).toLocaleString()}`
                             : '—';
+                        const finderName = firstFinders[pc.id];
 
                         return (
                             <div
@@ -85,6 +116,18 @@ export default function ExplorerBoard({ onClose }: Props) {
                                             <span className="text-[0.7rem]" style={{ color: '#4a6a4c' }}>
                                                 Drop rate: {rateLabel}
                                             </span>
+                                        </div>
+                                        {/* First-finder record */}
+                                        <div className="mt-1.5 pl-1" style={{ borderLeft: '2px solid #1a3e1c' }}>
+                                            {!findersLoaded ? (
+                                                <span className="text-[0.7rem]" style={{ color: '#2a4a2c' }}>...</span>
+                                            ) : finderName ? (
+                                                <span className="text-[0.72rem]" style={{ color: '#7aaa7c' }}>
+                                                    World first: <span style={{ color: '#9aca9c' }}>{finderName}</span>
+                                                </span>
+                                            ) : (
+                                                <span className="text-[0.7rem]" style={{ color: '#2a4a2c' }}>Not yet claimed</span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

@@ -5,6 +5,7 @@ import { rollLootEvent, eventToLogEntry } from '../game/loot.ts';
 import type { LootEvent, Location } from '../game/types.ts';
 import { DANGER_COLORS, DANGER_LABELS, RARITY_COLORS, RARITY_LABELS, randomResearchDuration } from '../game/types.ts';
 import { updateSave, getSave, markUniqueFound, addEarnedScrip } from '../state/save.ts';
+import { PAPERCLIPS } from '../game/items.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 let _instanceCounter = Date.now();
@@ -231,6 +232,17 @@ export default function LootScreen() {
         if (item.rarity === 'unique') {
             markUniqueFound(item.id);
             store.patch({ foundUniqueIds: [...s.foundUniqueIds.filter(id => id !== item.id), item.id] });
+            // Submit first-finder leaderboard entry (lowest score = earliest = world first)
+            const pcIdx = PAPERCLIPS.findIndex(p => p.id === item.id);
+            if (pcIdx !== -1) {
+                const pcNumber = 10 - pcIdx;
+                RundotGameAPI.leaderboard.submitScore({
+                    score: Math.floor((Date.now() - 1700000000000) / 1000),
+                    duration: 1,
+                    mode: `paperclip-${pcNumber}`,
+                    metadata: { paperclipNumber: pcNumber },
+                }).catch(() => {});
+            }
         }
 
         // Queue secondary items
