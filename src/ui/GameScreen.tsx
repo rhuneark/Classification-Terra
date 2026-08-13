@@ -23,28 +23,40 @@ export default function GameScreen() {
     const backpack = useStore(s => s.backpack);
     const wc = computeWeightClass(backpack);
 
+    const energyPct = maxEnergy > 0 ? (energy / maxEnergy) * 100 : 0;
+    const energyColor = energy >= maxEnergy * 0.6 ? '#4ade80' : energy >= maxEnergy * 0.3 ? '#facc15' : '#f97316';
+
     function handleTab(id: GameScreenType) {
         store.patch({ screen: id, selectedInventoryItemId: null });
     }
 
     return (
-        <div className="flex h-full flex-col" style={{ background: '#050d07' }}>
+        <div className="flex h-full flex-col" style={{ background: '#070e08' }}>
             {/* Top status bar */}
             <div
-                className="shrink-0 flex items-center justify-between px-4 py-2 pt-safe-top"
-                style={{ background: '#060e08', borderBottom: '1px solid #0b1a0d' }}
+                className="shrink-0 px-4 pt-2 pb-1.5 pt-safe-top"
+                style={{ background: '#0a1a0c', borderBottom: '1px solid #142816' }}
             >
-                <div className="flex items-center gap-3">
-                    <div className="text-[0.8rem]" style={{ color: '#4ade80' }}>
-                        ⚡ {energy}<span style={{ color: '#2a3a2c' }}>/{maxEnergy}</span>
+                <div className="flex items-center justify-between gap-4">
+                    {/* Energy */}
+                    <div className="flex items-center gap-2 min-w-0">
+                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#142816', width: '48px' }}>
+                            <div className="h-full rounded-full" style={{ width: `${energyPct}%`, background: energyColor }} />
+                        </div>
+                        <span className="text-[0.8rem] font-bold tabular-nums" style={{ color: energyColor }}>
+                            {energy}<span style={{ color: '#3a5a3c' }}>/{maxEnergy}</span>
+                        </span>
+                        <span className="text-[0.75rem]" style={{ color: '#4a6a4c' }}>⚡</span>
                     </div>
-                    <div className="text-[0.8rem]" style={{ color: '#fb923c' }}>
-                        {currency} <span style={{ color: '#4a3020' }}>scrip</span>
+                    {/* Scrip */}
+                    <div className="flex items-center gap-1">
+                        <span className="text-[0.9rem] font-bold tabular-nums" style={{ color: '#fb923c' }}>{currency}</span>
+                        <span className="text-[0.72rem]" style={{ color: '#5a4a30' }}>scrip</span>
                     </div>
-                </div>
-                <div className="text-right">
-                    <div className="text-[0.8rem] font-bold text-white">
-                        WC <span style={{ color: wc > 0 ? '#7ccf5a' : '#3a4a3c' }}>{wc}</span>
+                    {/* Weight Class */}
+                    <div className="flex items-center gap-1">
+                        <span className="text-[0.72rem]" style={{ color: '#4a6a4c' }}>WC</span>
+                        <span className="text-[0.9rem] font-bold" style={{ color: wc > 0 ? '#7ccf5a' : '#3a4a3c' }}>{wc}</span>
                     </div>
                 </div>
             </div>
@@ -56,12 +68,10 @@ export default function GameScreen() {
                 {screen === 'arena' && <ArenaScreen />}
                 {screen === 'trader' && <TraderScreen />}
 
-                {/* Passive results popup */}
                 <PassiveResultsPopup />
 
-                {/* Paused overlay */}
                 {paused && (
-                    <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.75)', zIndex: 60 }}>
+                    <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.78)', zIndex: 60 }}>
                         <div className="text-[1.5rem] font-bold tracking-widest text-primary">PAUSED</div>
                     </div>
                 )}
@@ -70,19 +80,15 @@ export default function GameScreen() {
             {/* Bottom tab bar */}
             <div
                 className="shrink-0 grid pb-safe-bottom"
-                style={{
-                    gridTemplateColumns: `repeat(${TABS.length}, 1fr)`,
-                    background: '#060e08',
-                    borderTop: '1px solid #0b1a0d',
-                }}
+                style={{ gridTemplateColumns: `repeat(${TABS.length}, 1fr)`, background: '#0a1a0c', borderTop: '1px solid #142816' }}
             >
                 {TABS.map(tab => (
                     <button
                         key={tab.id}
                         type="button"
-                        className="py-3 text-[0.7rem] font-bold tracking-widest transition-colors active:opacity-70"
+                        className="py-3 text-[0.72rem] font-bold tracking-widest transition-colors active:opacity-70"
                         style={{
-                            color: screen === tab.id ? '#7ccf5a' : '#3a4a3c',
+                            color: screen === tab.id ? '#7ccf5a' : '#4a6a4c',
                             borderBottom: screen === tab.id ? '2px solid #7ccf5a' : '2px solid transparent',
                         }}
                         onClick={() => handleTab(tab.id)}

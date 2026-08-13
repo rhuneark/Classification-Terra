@@ -77,6 +77,8 @@ export interface PassiveResults {
 }
 
 export const BACKPACK_SLOTS = 8;
+export const MAX_ENERGY = 20;
+export const ENERGY_REGEN_MINUTES = 5;
 
 export const RARITY_COLORS: Record<Rarity, string> = {
     common: '#9ca3af',

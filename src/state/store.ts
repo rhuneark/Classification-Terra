@@ -8,7 +8,7 @@ import type {
     PassiveResults,
     GameScreen,
 } from '../game/types.ts';
-import { BACKPACK_SLOTS } from '../game/types.ts';
+import { BACKPACK_SLOTS, MAX_ENERGY } from '../game/types.ts';
 import { NPC_OPPONENTS } from '../game/opponents.ts';
 
 export interface AppState {
@@ -31,6 +31,7 @@ export interface AppState {
     lastBattle: BattleResult | null;
 
     traderInventory: Item[];
+    traderLastRefresh: number;
 
     passiveResults: PassiveResults | null;
     luckBonusActive: boolean;
@@ -44,8 +45,8 @@ let state: AppState = {
     screen: 'loot',
     loadProgress: 0,
     paused: false,
-    energy: 10,
-    maxEnergy: 10,
+    energy: MAX_ENERGY,
+    maxEnergy: MAX_ENERGY,
     currency: 0,
     inventory: [],
     backpack: Array(BACKPACK_SLOTS).fill(null) as (Item | null)[],
@@ -54,6 +55,7 @@ let state: AppState = {
     arenaOpponents: NPC_OPPONENTS,
     lastBattle: null,
     traderInventory: [],
+    traderLastRefresh: 0,
     passiveResults: null,
     luckBonusActive: false,
     selectedInventoryItemId: null,

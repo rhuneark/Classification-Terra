@@ -1,7 +1,7 @@
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { sdkReady } from '../sdk/runSdk.ts';
 import type { Item, LogEntry, Rarity, ItemType, SpecialTag, LogType } from '../game/types.ts';
-import { BACKPACK_SLOTS } from '../game/types.ts';
+import { BACKPACK_SLOTS, MAX_ENERGY } from '../game/types.ts';
 import { getItemById } from '../game/items.ts';
 
 const SAVE_KEY = 'spore-run:save:v1';
@@ -19,7 +19,7 @@ export interface SaveData {
 
 const DEFAULTS: SaveData = {
     currency: 50,
-    energy: 8,
+    energy: 18,
     inventory: [
         getItemById('damp-bandana')!,
         getItemById('cracked-face-shield')!,
@@ -86,7 +86,7 @@ function parse(raw: string | null): SaveData | null {
         }
         return {
             currency: Math.max(0, Number(p.currency) || 0),
-            energy: Math.min(10, Math.max(0, Number(p.energy) || 0)),
+            energy: Math.min(MAX_ENERGY, Math.max(0, Number(p.energy) || 0)),
             inventory: Array.isArray(p.inventory)
                 ? p.inventory.map(parseItem).filter(Boolean) as Item[]
                 : [],

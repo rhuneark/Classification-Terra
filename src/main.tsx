@@ -9,6 +9,7 @@ import { warmAssets } from './assets/preload.ts';
 import { NPC_OPPONENTS, getRandomNPCOpponent } from './game/opponents.ts';
 import { computeWeightClass } from './game/weightClass.ts';
 import type { PassiveResults } from './game/types.ts';
+import { MAX_ENERGY, ENERGY_REGEN_MINUTES } from './game/types.ts';
 import './styles/app.css';
 
 async function boot() {
@@ -19,7 +20,7 @@ async function boot() {
     const save = await loadSave();
     const now = Date.now();
     const minutesAway = save.lastOnline > 0 ? Math.floor((now - save.lastOnline) / 60000) : 0;
-    const energyGained = Math.min(Math.floor(minutesAway / 30), 10 - save.energy);
+    const energyGained = Math.min(Math.floor(minutesAway / ENERGY_REGEN_MINUTES), MAX_ENERGY - save.energy);
     const passiveBattleCount = Math.min(Math.floor(minutesAway / 120), 5);
 
     let passiveWins = 0;
@@ -36,11 +37,11 @@ async function boot() {
         }
     }
 
-    const newEnergy = Math.min(save.energy + energyGained, 10);
+    const newEnergy = Math.min(save.energy + energyGained, MAX_ENERGY);
     const newCurrency = save.currency + passiveCurrency;
 
     let passiveResults: PassiveResults | null = null;
-    if (minutesAway >= 30 && save.lastOnline > 0) {
+    if (minutesAway >= ENERGY_REGEN_MINUTES && save.lastOnline > 0) {
         passiveResults = {
             battlesCount: passiveBattleCount,
             wins: passiveWins,
@@ -62,7 +63,7 @@ async function boot() {
 
     store.patch({
         energy: newEnergy,
-        maxEnergy: 10,
+        maxEnergy: MAX_ENERGY,
         currency: newCurrency,
         inventory: save.inventory,
         backpack: save.backpack,

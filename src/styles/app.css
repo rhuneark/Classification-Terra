@@ -2,10 +2,10 @@
 
 @theme {
     --color-primary: #7ccf5a;
-    --color-surface: #050d07;
-    --color-surface-2: #0b1a0d;
-    --color-border: #1a2e1c;
-    --color-text-muted: #6b7a6c;
+    --color-surface: #070e08;
+    --color-surface-2: #0e2010;
+    --color-border: #243e26;
+    --color-text-muted: #a0c0a2;
 }
 
 :root {
