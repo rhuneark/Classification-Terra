@@ -1,6 +1,8 @@
 {
+  "gameId": "4O4wSf7hOFTVxcXXLpd5",
   "relativePathToDistFolder": "dist",
   "usesPreloader": false,
-  "orientation": "portrait",
+  "orientation": "both",
+  "keywords": null,
   "kitId": "cant-stop-now-bare-bones"
 }
