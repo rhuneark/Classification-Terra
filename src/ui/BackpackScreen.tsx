@@ -4,6 +4,7 @@ import { computeWeightClass, getActiveComboLabels } from '../game/weightClass.ts
 import { BACKPACK_SLOTS, RARITY_COLORS, RARITY_LABELS } from '../game/types.ts';
 import type { Item, ResearchQueueItem } from '../game/types.ts';
 import { updateSave } from '../state/save.ts';
+import { primeEnergyRegenTimer } from '../game/energyRegen.ts';
 import StatsCard from './StatsCard.tsx';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
@@ -256,6 +257,7 @@ export default function BackpackScreen() {
             const boostUntil = Date.now() + item.energyBoostDuration;
             updates.energyBoostUntil = boostUntil;
             updateSave({ energyBoostUntil: boostUntil });
+            primeEnergyRegenTimer(); // first boosted tick fires within 10s
             RundotGameAPI.analytics.recordCustomEvent('consumable_used', { itemId: item.id, type: 'energy_boost' }).catch(() => {});
         }
         store.patch(updates);

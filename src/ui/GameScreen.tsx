@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { store, useStore } from '../state/store.ts';
 import type { GameScreen as GameScreenType } from '../game/types.ts';
 import { computeWeightClass } from '../game/weightClass.ts';
 import { startAmbient, applyMuteState, playClick } from '../game/audio.ts';
 import { updateSave } from '../state/save.ts';
 import { MAX_ENERGY, ENERGY_REGEN_MINUTES } from '../game/types.ts';
+import { lastEnergyRegenAt, touchEnergyRegenTimer } from '../game/energyRegen.ts';
 import LootScreen from './LootScreen.tsx';
 import BackpackScreen from './BackpackScreen.tsx';
 import CodexScreen from './CodexScreen.tsx';
@@ -25,6 +26,7 @@ export default function GameScreen() {
     const energy = useStore(s => s.energy);
     const maxEnergy = useStore(s => s.maxEnergy);
     const currency = useStore(s => s.currency);
+    const energyBoostUntil = useStore(s => s.energyBoostUntil);
     const backpack = useStore(s => s.backpack);
     const wc = computeWeightClass(backpack);
     const muteSfx = useStore(s => s.muteSfx);
@@ -36,27 +38,29 @@ export default function GameScreen() {
     // Sync mute state to audio engine whenever it changes
     useEffect(() => { applyMuteState(muteSfx, muteMusic); }, [muteSfx, muteMusic]);
 
-    // Live energy regen ticker — checks every 10s, adds 1 energy per interval
-    const lastRegenRef = useRef(Date.now());
+    // Live energy regen ticker — checks every 5s, adds 1 energy per threshold
     useEffect(() => {
         const interval = setInterval(() => {
             const s = store.get();
             if (s.energy >= MAX_ENERGY || s.paused) return;
-            const boosted = s.energyBoostUntil > Date.now();
-            const regenMs = boosted ? 60_000 : ENERGY_REGEN_MINUTES * 60_000;
             const now = Date.now();
-            if (now - lastRegenRef.current >= regenMs) {
+            const boosted = s.energyBoostUntil > now;
+            const regenMs = boosted ? 60_000 : ENERGY_REGEN_MINUTES * 60_000;
+            if (now - lastEnergyRegenAt >= regenMs) {
                 const newEnergy = Math.min(s.energy + 1, MAX_ENERGY);
-                lastRegenRef.current = now;
+                touchEnergyRegenTimer();
                 store.patch({ energy: newEnergy });
                 updateSave({ energy: newEnergy });
             }
-        }, 10_000);
+        }, 5_000);
         return () => clearInterval(interval);
     }, []);
 
     const energyPct = maxEnergy > 0 ? (energy / maxEnergy) * 100 : 0;
     const energyColor = energy >= maxEnergy * 0.6 ? '#4ade80' : energy >= maxEnergy * 0.3 ? '#facc15' : '#f97316';
+    const now = Date.now();
+    const boosted = energyBoostUntil > now;
+    const boostMinsLeft = boosted ? Math.ceil((energyBoostUntil - now) / 60_000) : 0;
 
     function handleTab(id: GameScreenType) {
         playClick();
@@ -72,12 +76,17 @@ export default function GameScreen() {
                     {/* Energy */}
                     <div className="flex items-center gap-2 min-w-0">
                         <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#142816', width: '48px' }}>
-                            <div className="h-full rounded-full" style={{ width: `${energyPct}%`, background: energyColor }} />
+                            <div className="h-full rounded-full" style={{ width: `${energyPct}%`, background: boosted ? '#60c5ff' : energyColor }} />
                         </div>
-                        <span className="text-[0.8rem] font-bold tabular-nums" style={{ color: energyColor }}>
+                        <span className="text-[0.8rem] font-bold tabular-nums" style={{ color: boosted ? '#60c5ff' : energyColor }}>
                             {energy}<span style={{ color: '#5a7e5c' }}>/{maxEnergy}</span>
                         </span>
                         <span className="text-[0.75rem]" style={{ color: '#6a9e6c' }}>⚡</span>
+                        {boosted && (
+                            <span className="rounded px-1 text-[0.6rem] font-bold" style={{ background: '#0a1a2a', color: '#60c5ff', border: '1px solid #3a8acc' }}>
+                                +1/MIN {boostMinsLeft}m
+                            </span>
+                        )}
                     </div>
                     {/* Scrip */}
                     <div className="flex items-center gap-1">
