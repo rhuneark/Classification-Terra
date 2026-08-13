@@ -10,6 +10,9 @@ import { getDailyChallengeLocation, getTodayStr } from '../game/dailyChallenge.t
 import { scheduleResearchNotif } from '../game/notifications.ts';
 import { playScavenge, playItemFound } from '../game/audio.ts';
 import { FORMAT_LABELS } from '../game/terras.ts';
+import { ALL_EXCURSIONS } from '../game/excursions.ts';
+import type { ExcursionDef } from '../game/excursions.ts';
+import ExcursionModal from './ExcursionModal.tsx';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 const _dailyChallenge = getDailyChallengeLocation();
@@ -83,6 +86,43 @@ function LocationCard({ location, onTap, isChallenge, challengeDone }: {
                 <span className="text-[0.72rem]" style={{ color: '#8aaa8c' }}>
                     {RARITY_LABELS[location.minRarity]}–{RARITY_LABELS[location.maxRarity]}
                 </span>
+            </div>
+        </button>
+    );
+}
+
+function ExcursionCard({ exc, onTap }: { exc: ExcursionDef; onTap: () => void }) {
+    const energy = useStore(s => s.energy);
+    const canAfford = energy >= exc.energyCost;
+    return (
+        <button
+            type="button"
+            className="w-full rounded p-4 text-left transition-transform active:scale-[0.98]"
+            style={{
+                background: '#0e1c18',
+                border: `1px solid ${canAfford ? '#2a4a3a' : '#1a2810'}`,
+                opacity: canAfford ? 1 : 0.5,
+            }}
+            onClick={onTap}
+            disabled={!canAfford}
+        >
+            <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                        <div className="text-[0.6rem] font-bold tracking-widest" style={{ color: '#4a8a6c' }}>FIELD OPERATION</div>
+                    </div>
+                    <div className="text-[1rem] font-bold text-white">{exc.name}</div>
+                    <div className="mt-0.5 text-[0.82rem] leading-snug" style={{ color: '#c4dcc5' }}>
+                        {exc.description}
+                    </div>
+                </div>
+                <div className="shrink-0 text-right">
+                    <div className="text-[0.8rem] font-bold" style={{ color: '#4ade80' }}>{exc.energyCost} ⚡</div>
+                    <div className="text-[0.65rem] mt-0.5" style={{ color: '#6a8e6c' }}>{exc.stages.length} stages</div>
+                </div>
+            </div>
+            <div className="mt-1.5 flex items-center gap-1">
+                <span className="text-[0.65rem]" style={{ color: '#4a6a5c' }}>📍 {exc.location}</span>
             </div>
         </button>
     );
@@ -249,7 +289,6 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
                     </div>
                 )}
 
-                {/* Terra lore snippet attached to this ambush */}
                 {event.terraSnippetText && (
                     <div className="mt-3 rounded p-3" style={{ background: '#0a1010', border: '1px solid #2a4a3c' }}>
                         {snippetFormatLabel && (
@@ -276,14 +315,53 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
     );
 }
 
+function LogPanel() {
+    const eventLog = useStore(s => s.eventLog);
+    if (eventLog.length === 0) {
+        return (
+            <div className="flex-1 flex items-center justify-center">
+                <p className="text-[0.85rem]" style={{ color: '#3a5a3c' }}>No entries yet. Go scavenge something.</p>
+            </div>
+        );
+    }
+    return (
+        <div className="scroll-area flex-1 px-3 py-3 space-y-1">
+            {eventLog.map(entry => (
+                <div key={entry.id} className="py-1 text-[0.82rem] leading-snug" style={{ borderBottom: '1px solid #0e1c10' }}>
+                    <div className="flex items-start gap-1.5">
+                        {entry.rarity ? (
+                            <span className="shrink-0 text-[0.65rem] font-bold mt-0.5" style={{ color: RARITY_COLORS[entry.rarity] }}>
+                                [{entry.rarity.toUpperCase().slice(0, 3)}]
+                            </span>
+                        ) : entry.type === 'ambush' ? (
+                            <span className="shrink-0 text-[0.65rem] font-bold mt-0.5" style={{ color: '#f97316' }}>[AMB]</span>
+                        ) : entry.type === 'battle-win' ? (
+                            <span className="shrink-0 text-[0.65rem] font-bold mt-0.5" style={{ color: '#4ade80' }}>[WIN]</span>
+                        ) : entry.type === 'battle-loss' ? (
+                            <span className="shrink-0 text-[0.65rem] font-bold mt-0.5" style={{ color: '#f43f5e' }}>[LOS]</span>
+                        ) : entry.type === 'lore' ? (
+                            <span className="shrink-0 text-[0.65rem] font-bold mt-0.5" style={{ color: '#c084fc' }}>[LOG]</span>
+                        ) : (
+                            <span className="shrink-0 text-[0.65rem] font-bold mt-0.5" style={{ color: '#4a6a4c' }}>[---]</span>
+                        )}
+                        <span style={{ color: '#a8c4aa' }}>{entry.message}</span>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
 export default function LootScreen() {
     const energy = useStore(s => s.energy);
     const maxEnergy = useStore(s => s.maxEnergy);
-    const eventLog = useStore(s => s.eventLog);
     const activeLootEvent = useStore(s => s.activeLootEvent);
     const luckBonusActive = useStore(s => s.luckBonusActive);
     const today = getTodayStr();
     const challengeDone = getSave().lastDailyChallengeDay === today;
+
+    const [ruinsTab, setRuinsTab] = useState<'scavenge' | 'log'>('scavenge');
+    const [activeExcursion, setActiveExcursion] = useState<ExcursionDef | null>(null);
 
     function handleLocationTap(location: Location) {
         const s = store.get();
@@ -330,7 +408,6 @@ export default function LootScreen() {
             }
         }
 
-        // Handle lore item: unlock terra entry + go to inventory
         let newDiscoveredTerraIds = s.discoveredTerraIds;
         let newCollectedLoreIds = s.collectedLoreIds;
         if (isLoreItem && item.loreTerraId && item.loreSnippetId) {
@@ -346,7 +423,6 @@ export default function LootScreen() {
             }).catch(() => {});
         }
 
-        // Queue secondary items
         let newQueue = s.researchQueue;
         if (event.secondaryItems.length > 0) {
             const secondaryQueueItems = event.secondaryItems.map(si => ({
@@ -358,7 +434,6 @@ export default function LootScreen() {
             newQueue = [...s.researchQueue, ...secondaryQueueItems];
         }
 
-        // Consumables go to inventory; lore items unlock Codex only (no inventory); gear goes to research
         let newInventory = s.inventory;
         let finalQueue = newQueue;
         if (item.type === 'consumable') {
@@ -372,7 +447,6 @@ export default function LootScreen() {
             }];
         }
 
-        // Lore co-drop: unlock Codex entry only, no inventory item
         const newInventoryWithLore = newInventory;
         if (event.loreItem && event.loreItem.loreTerraId && event.loreItem.loreSnippetId) {
             const li = event.loreItem;
@@ -442,7 +516,6 @@ export default function LootScreen() {
         if (event.lostItem) newInventory = s.inventory.filter(i => i !== event.lostItem);
         if (event.energyLost) newEnergy = Math.max(0, s.energy - event.energyLost);
 
-        // Register terra encounter from ambush snippet
         let newDiscoveredTerraIds = s.discoveredTerraIds;
         let newCollectedLoreIds = s.collectedLoreIds;
         if (event.terraId && !newDiscoveredTerraIds.includes(event.terraId)) {
@@ -472,50 +545,77 @@ export default function LootScreen() {
         RundotGameAPI.analytics.recordCustomEvent('loot_ambush_triggered', { locationName: event.locationName }).catch(() => {});
     }
 
-    const recentLog = eventLog.slice(0, 8);
+    function handleExcursionTap(exc: ExcursionDef) {
+        const s = store.get();
+        if (s.energy < exc.energyCost) return;
+        const newEnergy = s.energy - exc.energyCost;
+        store.patch({ energy: newEnergy });
+        updateSave({ energy: newEnergy });
+        setActiveExcursion(exc);
+        RundotGameAPI.analytics.recordCustomEvent('excursion_started', { excursionId: exc.id }).catch(() => {});
+    }
 
     return (
         <div className="relative flex h-full flex-col" style={{ background: '#0d1a10' }}>
+            {/* Header */}
             <div className="shrink-0 px-4 pt-3 pb-2" style={{ borderBottom: '1px solid #1c3820' }}>
                 <div className="flex items-center justify-between">
                     <div className="text-[1rem] font-bold tracking-widests text-primary">RUINS</div>
                     <EnergyBar energy={energy} max={maxEnergy} />
                 </div>
-                <p className="mt-0.5 text-[0.72rem]" style={{ color: '#6a8e6c' }}>
-                    Tap a location to scavenge.
-                    {luckBonusActive && <span style={{ color: '#fb923c' }}> LUCK ACTIVE.</span>}
-                </p>
+                {luckBonusActive && (
+                    <p className="mt-0.5 text-[0.72rem]" style={{ color: '#fb923c' }}>LUCK ACTIVE.</p>
+                )}
             </div>
 
-            <div className="scroll-area flex-1 space-y-2 p-3 pb-2">
-                {ALL_LOCATIONS.map(loc => (
-                    <LocationCard
-                        key={loc.id}
-                        location={loc}
-                        onTap={() => handleLocationTap(loc)}
-                        isChallenge={loc.id === _dailyChallenge.id}
-                        challengeDone={challengeDone}
-                    />
+            {/* Sub-tabs */}
+            <div className="shrink-0 flex" style={{ borderBottom: '1px solid #1c3820' }}>
+                {(['scavenge', 'log'] as const).map(tab => (
+                    <button key={tab} type="button"
+                        className="flex-1 py-2 text-[0.75rem] font-bold tracking-widest transition-colors"
+                        style={{
+                            color: ruinsTab === tab ? '#7ccf5a' : '#4a6a4c',
+                            borderBottom: ruinsTab === tab ? '2px solid #7ccf5a' : '2px solid transparent',
+                            background: 'transparent',
+                        }}
+                        onClick={() => setRuinsTab(tab)}
+                    >
+                        {tab.toUpperCase()}
+                    </button>
                 ))}
             </div>
 
-            {recentLog.length > 0 && (
-                <div className="shrink-0 px-3 pt-2 pb-1" style={{ borderTop: '1px solid #1c3820' }}>
-                    <div className="mb-1 text-[0.68rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>RECENT LOG</div>
-                    {recentLog.map(entry => (
-                        <div key={entry.id} className="py-0.5 text-[0.78rem] leading-snug" style={{ color: '#8aaa8c' }}>
-                            {entry.rarity ? (
-                                <span style={{ color: RARITY_COLORS[entry.rarity] }}>[{entry.rarity.toUpperCase().slice(0,3)}] </span>
-                            ) : entry.type === 'ambush' ? <span style={{ color: '#f97316' }}>[AMB] </span>
-                            : entry.type === 'battle-win' ? <span style={{ color: '#4ade80' }}>[WIN] </span>
-                            : entry.type === 'battle-loss' ? <span style={{ color: '#f43f5e' }}>[LOSS] </span>
-                            : entry.type === 'lore' ? <span style={{ color: '#c084fc' }}>[LOG] </span>
-                            : null}
-                            {entry.message.length > 80 ? entry.message.slice(0, 80) + '…' : entry.message}
-                        </div>
+            {ruinsTab === 'scavenge' && (
+                <div className="scroll-area flex-1 space-y-2 p-3 pb-4">
+                    {ALL_LOCATIONS.map(loc => (
+                        <LocationCard
+                            key={loc.id}
+                            location={loc}
+                            onTap={() => handleLocationTap(loc)}
+                            isChallenge={loc.id === _dailyChallenge.id}
+                            challengeDone={challengeDone}
+                        />
                     ))}
+
+                    {/* Excursions section */}
+                    <div className="pt-2">
+                        <div className="mb-2 px-1 text-[0.65rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>
+                            FIELD OPERATIONS
+                        </div>
+                        <div className="space-y-2">
+                            {ALL_EXCURSIONS.map(exc => (
+                                <ExcursionCard
+                                    key={exc.id}
+                                    exc={exc}
+                                    onTap={() => handleExcursionTap(exc)}
+                                />
+                            ))}
+                        </div>
+                    </div>
                 </div>
             )}
+
+            {ruinsTab === 'log' && <LogPanel />}
 
             {activeLootEvent && (
                 <LootEventModal
@@ -523,6 +623,13 @@ export default function LootScreen() {
                     onTake={handleTake}
                     onScrap={handleScrap}
                     onDismiss={handleAmbushDismiss}
+                />
+            )}
+
+            {activeExcursion && (
+                <ExcursionModal
+                    excursion={activeExcursion}
+                    onClose={() => setActiveExcursion(null)}
                 />
             )}
         </div>

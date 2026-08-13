@@ -28,6 +28,7 @@ export interface SaveData {
     lastDailyChallengeDay: string;
     discoveredTerraIds: string[];
     collectedLoreIds: string[];
+    totalExcursions: number;
 }
 
 const DEFAULTS: SaveData = {
@@ -65,6 +66,7 @@ const DEFAULTS: SaveData = {
     lastDailyChallengeDay: '',
     discoveredTerraIds: [],
     collectedLoreIds: [],
+    totalExcursions: 0,
 };
 
 function parseItem(raw: unknown): Item | null {
@@ -162,6 +164,7 @@ function parse(raw: string | null): SaveData | null {
             collectedLoreIds: Array.isArray(p.collectedLoreIds)
                 ? (p.collectedLoreIds as unknown[]).filter(s => typeof s === 'string') as string[]
                 : [],
+            totalExcursions: Math.max(0, Number(p.totalExcursions) || 0),
         };
     } catch {
         return null;

@@ -6607,11 +6607,560 @@
       "timestamp": 1786625623512,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1786657661802",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "Some updates to make. First, lets put recent log into a tab of its own. Then let's use that space at the bottom for an Excursion. An Excursion, or whatever it's named, is basically a small adventure with about 5-10 levels. Think like a simplistic text based rpg. You press it and a window pops up with a location title and what your goal is. Make these goals achievable and relevant. Stuff like collect 3 samples from Terra's; Find The Apex, but don't feel the need to engage, this excursion is simply Intel (it unlocks a common log for The Apex if they flee, and a chance at the better ones if they choose to fight - no clues though); but have about 5 different excursions to start, we will update if they prove to be good. The gist is there's a small story you're going through. You can leave anytime, on most excursions, but the further you go, the harder it gets to succeed and the better reward you get.",
+      "timestamp": 1786657661802,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786657672168-arya3x4zc",
+      "role": "assistant",
+      "content": "Let me read the key files before building.",
+      "isShownToUser": true,
+      "timestamp": 1786657673077,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786657674379-k4bb4nc0z",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786657674379,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786657679161-7tw5qu5e4",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786657679161,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786657679322-ph1ccq38y",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786657679322,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786657684281-7erzn5nb4",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786657684281,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786657684866-7h8yf7qr9",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786657684866,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786657760872-x3h8etsri",
+      "role": "assistant",
+      "content": "Now let me read items.ts to know what item IDs I can use for excursion rewards.",
+      "isShownToUser": true,
+      "timestamp": 1786657760890,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786657763031-fku0ds1jq",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786657763031,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786657763228-qr9zwlxub",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786657763228,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786657828660-kq3srqefx",
+      "role": "assistant",
+      "content": "Let me quickly check loot.ts and read items.ts further for reward item IDs.",
+      "isShownToUser": true,
+      "timestamp": 1786657828781,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786657829154-k1ol99aov",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786657829154,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786657829564-juatntjkz",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786657829564,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786657873339-dovrx5o39",
+      "role": "assistant",
+      "content": "Let me check the rollRandomItem function signature quickly.",
+      "isShownToUser": true,
+      "timestamp": 1786657873346,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786657874594-69ur8ig20",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786657874594,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786657976834-uzzglvtol",
+      "role": "assistant",
+      "content": "Let me quickly check the snippet IDs in terras.ts.",
+      "isShownToUser": true,
+      "timestamp": 1786657976837,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786657977643-sjxx04271",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786657977643,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786658012713-a0w6vorjj",
+      "role": "assistant",
+      "content": "Let me check the weightClass function signature.",
+      "isShownToUser": true,
+      "timestamp": 1786658012742,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786658013268-013v6mn94",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786658013268,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786658036503-4l2m5wiap",
+      "role": "assistant",
+      "content": "Good. I have everything I need. Setting up tasks and building all components now.",
+      "isShownToUser": true,
+      "timestamp": 1786658036525,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786658037041-a3xxvh4op",
+      "role": "assistant",
+      "content": "Using tool: TaskCreate",
+      "isShownToUser": true,
+      "timestamp": 1786658037041,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "TaskCreate"
+      }
+    },
+    {
+      "id": "1786658041545-ei7x7s63t",
+      "role": "assistant",
+      "content": "Using tool: TaskCreate",
+      "isShownToUser": true,
+      "timestamp": 1786658041545,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "TaskCreate"
+      }
+    },
+    {
+      "id": "1786658044466-lsrsusnvh",
+      "role": "assistant",
+      "content": "Using tool: TaskUpdate",
+      "isShownToUser": true,
+      "timestamp": 1786658044466,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "TaskUpdate"
+      }
+    },
+    {
+      "id": "1786658044638-jcn5kwu49",
+      "role": "assistant",
+      "content": "Using tool: TaskUpdate",
+      "isShownToUser": true,
+      "timestamp": 1786658044638,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "TaskUpdate"
+      }
+    },
+    {
+      "id": "1786658044638-vsziqdv9d",
+      "role": "assistant",
+      "content": "Writing excursions.ts and updating save.ts in parallel now.",
+      "isShownToUser": true,
+      "timestamp": 1786658047592,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786658148155-y2bdo9h4r",
+      "role": "assistant",
+      "content": "Using tool: Write",
+      "isShownToUser": true,
+      "timestamp": 1786658148155,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Write"
+      }
+    },
+    {
+      "id": "1786658150706-v1ul3cgru",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786658150706,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786658150707-j7r1vduw4",
+      "role": "assistant",
+      "content": "Now update save.ts DEFAULTS and parse() for totalExcursions:",
+      "isShownToUser": true,
+      "timestamp": 1786658153679,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786658154572-dhnyyf28s",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786658154572,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786658159429-bqvyfqfrb",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786658159429,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786658159429-o0799z50x",
+      "role": "assistant",
+      "content": "Now write the ExcursionModal component:",
+      "isShownToUser": true,
+      "timestamp": 1786658163436,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786658224195-ik39b8ne3",
+      "role": "assistant",
+      "content": "Using tool: Write",
+      "isShownToUser": true,
+      "timestamp": 1786658224195,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Write"
+      }
+    },
+    {
+      "id": "1786658224195-s5crk2496",
+      "role": "assistant",
+      "content": "Now rewrite LootScreen with the SCAVENGE/LOG tabs and excursion section:",
+      "isShownToUser": true,
+      "timestamp": 1786658227512,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786658333091-0gonnltrh",
+      "role": "assistant",
+      "content": "Using tool: Write",
+      "isShownToUser": true,
+      "timestamp": 1786658333091,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Write"
+      }
+    },
+    {
+      "id": "1786658333092-0m2ch5f77",
+      "role": "assistant",
+      "content": "Now run the TypeScript compiler to catch any issues:",
+      "isShownToUser": true,
+      "timestamp": 1786658336907,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786658337518-pfo8360lv",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786658337518,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786658351021-40qfwaebt",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786658351021,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786658351021-9b3jiu6ce",
+      "role": "assistant",
+      "content": "Apostrophe in a single-quoted string. Let me fix all occurrences across the file:",
+      "isShownToUser": true,
+      "timestamp": 1786658354060,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786658355324-h3w2tuqkd",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786658355324,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786658360357-6fgthyni6",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786658360357,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786658369386-hagbzn72i",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786658369386,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786658373414-icrgfa244",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786658373414,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786658381391-z5vrnp5zl",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786658381391,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786658385631-kjzhsvzw5",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786658385631,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786658389290-yt1ndbo0h",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786658389290,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786658396349-9yqvtqcyz",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786658396349,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786658399566-qheyityex",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786658399566,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786658399566-lqz89ke1k",
+      "role": "assistant",
+      "content": "Clean. Now build:",
+      "isShownToUser": true,
+      "timestamp": 1786658405685,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786658406023-r1bijkudr",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786658406023,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786658406023-229kimwkl",
+      "role": "assistant",
+      "content": "Clean build. Marking tasks done.",
+      "isShownToUser": true,
+      "timestamp": 1786658418103,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786658418124-pwgtzmkz1",
+      "role": "assistant",
+      "content": "Using tool: TaskUpdate",
+      "isShownToUser": true,
+      "timestamp": 1786658418124,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "TaskUpdate"
+      }
+    },
+    {
+      "id": "1786658418146-fm9nt4m9f",
+      "role": "assistant",
+      "content": "Using tool: TaskUpdate",
+      "isShownToUser": true,
+      "timestamp": 1786658418146,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "TaskUpdate"
+      }
+    },
+    {
+      "id": "1786658418146-sjukhe10r",
+      "role": "assistant",
+      "content": "Both features are in and the build is clean. Here's what shipped:\n\n---\n\n**Ruins sub-tabs** — SCAVENGE and LOG tabs at the top of the Ruins screen. SCAVENGE shows locations and field operations (no more log cluttering the bottom). LOG tab shows the full event history with color-coded type tags ([COM], [AMB], [WIN], [LOS], [LOG], [---]).\n\n**Field Operations (Excursions)** — 5 multi-stage text adventures accessible from the SCAVENGE tab, below the locations:\n\n| Excursion | Location | Cost | Stages | Challenge |\n|-----------|----------|------|--------|-----------|\n| Something's Still Moving | Collapsed Overpass | 2 ⚡ | 4 | WC 35 fight |\n| Samples Required | Quarantine Sector 7 | 3 ⚡ | 5-6 | WC 55/75, branching |\n| Find the Apex | Sublevel Research Complex | 4 ⚡ | 5-6 | WC 100 optional fight |\n| The Ward | Mercy General | 3 ⚡ | 5 | WC 50 fight |\n| Signal Lost | Cross-sector | 3 ⚡ | 5 | 50/50 luck roll |\n\nEach excursion shows:\n- A scrollable story log that builds as you progress\n- Stage title, narrative, and option buttons with WC/energy/luck info\n- Accumulated rewards panel showing what you've earned so far\n- **CLAIM & LEAVE** button whenever you're allowed to exit — shows exactly what you'd take\n- Items go straight to your research queue, lore unlocks the Codex, scrip goes to wallet\n- Can leave mid-way on most stages; later stages lock you in for bigger rewards",
+      "isShownToUser": true,
+      "timestamp": 1786658431843,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1786579086441,
-  "updatedAt": 1786625623522,
-  "tokenUsage": 38399,
+  "updatedAt": 1786658431853,
+  "tokenUsage": 83565,
   "script": "ftue-remix",
-  "claudeSessionId": "f9699e9e-5247-4d58-a0f4-960d81b0f56f"
+  "claudeSessionId": "e89bc1e2-0aa4-4cb9-886d-0f05c2810efc"
 }
