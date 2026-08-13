@@ -56,6 +56,8 @@ export interface Build {
     backpack: (Item | null)[];
     weightClass: number;
     isNPC: boolean;
+    isPlayer?: boolean;
+    stealableItems: Item[];
 }
 
 export interface BattleResult {
@@ -63,8 +65,7 @@ export interface BattleResult {
     opponentName: string;
     exchanges: string[];
     currencyGained: number;
-    itemGained?: Item;
-    lostItem?: Item;
+    stolenItem?: Item;
     playerWeightClass: number;
     opponentWeightClass: number;
 }
@@ -91,7 +92,7 @@ export interface PassiveResults {
 export const BACKPACK_SLOTS = 8;
 export const MAX_ENERGY = 20;
 export const ENERGY_REGEN_MINUTES = 5;
-export const TRADER_REFRESH_MS = 5 * 60 * 1000;
+export const TRADER_REFRESH_MS = 2 * 60 * 1000;
 
 export const RARITY_COLORS: Record<Rarity, string> = {
     common: '#9ca3af',

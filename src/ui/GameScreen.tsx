@@ -45,14 +45,14 @@ export default function GameScreen() {
                             <div className="h-full rounded-full" style={{ width: `${energyPct}%`, background: energyColor }} />
                         </div>
                         <span className="text-[0.8rem] font-bold tabular-nums" style={{ color: energyColor }}>
-                            {energy}<span style={{ color: '#3a5a3c' }}>/{maxEnergy}</span>
+                            {energy}<span style={{ color: '#5a7e5c' }}>/{maxEnergy}</span>
                         </span>
-                        <span className="text-[0.75rem]" style={{ color: '#4a6a4c' }}>⚡</span>
+                        <span className="text-[0.75rem]" style={{ color: '#6a9e6c' }}>⚡</span>
                     </div>
                     {/* Scrip */}
                     <div className="flex items-center gap-1">
                         <span className="text-[0.9rem] font-bold tabular-nums" style={{ color: '#fb923c' }}>{currency}</span>
-                        <span className="text-[0.72rem]" style={{ color: '#5a4a30' }}>scrip</span>
+                        <span className="text-[0.75rem]" style={{ color: '#8a7a60' }}>scrip</span>
                     </div>
                     {/* WC */}
                     <div className="flex items-center gap-1">
@@ -93,7 +93,7 @@ export default function GameScreen() {
                 {TABS.map(tab => (
                     <button key={tab.id} type="button"
                         className="py-3 text-[0.72rem] font-bold tracking-widest transition-colors active:opacity-70"
-                        style={{ color: screen === tab.id ? '#7ccf5a' : '#4a6a4c', borderBottom: screen === tab.id ? '2px solid #7ccf5a' : '2px solid transparent' }}
+                        style={{ color: screen === tab.id ? '#7ccf5a' : '#6a9e6c', borderBottom: screen === tab.id ? '2px solid #7ccf5a' : '2px solid transparent' }}
                         onClick={() => handleTab(tab.id)}>
                         {tab.label}
                     </button>

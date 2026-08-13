@@ -1,6 +1,5 @@
 import type { Item, BattleResult, Build } from './types.ts';
 import { computeWeightClass } from './weightClass.ts';
-import { rollRandomItem } from './items.ts';
 
 function pick<T>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
@@ -35,14 +34,14 @@ const MID_LOST = [
 ];
 const FINAL_WON = [
     'Final exchange. Weight class rules.',
-    'They yield. You walk away with more than you started with.',
+    'They yield. You go through their gear.',
     'Decisive. Efficient.',
-    "Win logged. They'll carry it forward.",
+    'Win logged. You take something useful.',
 ];
 const FINAL_LOST = [
     'They outweigh you. Consistently.',
     'You withdraw. Still breathing. That is the goal.',
-    'Loss noted. Nothing permanent lost except time and currency.',
+    'Loss noted. You leave empty-handed.',
     'Weight class wins. It usually does.',
 ];
 
@@ -91,28 +90,12 @@ export function resolveBattle(playerBackpack: (Item | null)[], opponent: Build):
     // Final
     exchanges.push(won ? pick(FINAL_WON) : pick(FINAL_LOST));
 
-    // Rewards
-    const currencyGained = won ? Math.max(10, Math.floor(10 + opponentWC / 5)) : 5;
+    const currencyGained = won ? Math.max(10, Math.floor(10 + opponentWC / 5)) : 3;
 
-    let itemGained: Item | undefined;
-    if (won && Math.random() < 0.3) {
-        const tierWC = opponentWC;
-        const rarity = tierWC < 50 ? 'common'
-            : tierWC < 100 ? 'uncommon'
-            : tierWC < 200 ? 'rare'
-            : tierWC < 350 ? 'epic'
-            : 'legendary';
-        itemGained = rollRandomItem(rarity, rarity);
-    }
-
-    // On loss: small chance of losing an equipped item (safe house defense)
-    let lostItem: Item | undefined;
-    if (!won && playerEquipped.length > 0) {
-        // Higher player WC relative to opponent = lower gear-loss chance
-        const loseChance = Math.max(0.05, 0.20 - (playerWC / (opponentWC + 1)) * 0.08);
-        if (Math.random() < loseChance) {
-            lostItem = playerEquipped[Math.floor(Math.random() * playerEquipped.length)];
-        }
+    // On win: steal one item from opponent's at-risk items
+    let stolenItem: Item | undefined;
+    if (won && opponent.stealableItems.length > 0) {
+        stolenItem = opponent.stealableItems[Math.floor(Math.random() * opponent.stealableItems.length)];
     }
 
     return {
@@ -120,8 +103,7 @@ export function resolveBattle(playerBackpack: (Item | null)[], opponent: Build):
         opponentName: opponent.name,
         exchanges,
         currencyGained,
-        itemGained,
-        lostItem,
+        stolenItem,
         playerWeightClass: playerWC,
         opponentWeightClass: opponentWC,
     };

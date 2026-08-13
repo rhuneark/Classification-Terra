@@ -236,10 +236,24 @@ const SECONDARY_CONFIG: Record<LocationDanger, { chance: number; maxItems: numbe
     extreme: { chance: 0.52, maxItems: 3, maxRarity: 'epic' },
 };
 
+const RUINS_CONSUMABLE_CHANCE: Record<LocationDanger, number> = {
+    low: 0.07, medium: 0.11, high: 0.15, extreme: 0.20,
+};
+
 export function rollSecondaryItems(danger: LocationDanger, minRarity: string, luckBonus: boolean): Item[] {
     const cfg = SECONDARY_CONFIG[danger];
     const chance = luckBonus ? Math.min(cfg.chance * 1.4, 0.85) : cfg.chance;
     const results: Item[] = [];
+
+    // Small chance to find a consumable (mag glass or regen pot) alongside gear
+    const ruinsConsumables = CONSUMABLES.filter(c =>
+        c.id === 'magnifier-small' || c.id === 'regen-pot-small' ||
+        c.id === 'regen-pot-med' || c.id === 'magnifier-med'
+    );
+    if (Math.random() < RUINS_CONSUMABLE_CHANCE[danger] && ruinsConsumables.length > 0) {
+        results.push(ruinsConsumables[Math.floor(Math.random() * ruinsConsumables.length)]);
+    }
+
     for (let i = 0; i < cfg.maxItems; i++) {
         if (Math.random() < chance) {
             results.push(rollRandomItem(minRarity, cfg.maxRarity));
@@ -249,12 +263,20 @@ export function rollSecondaryItems(danger: LocationDanger, minRarity: string, lu
 }
 
 export function generateTraderInventory(): Item[] {
-    const rarities = ['common', 'uncommon', 'rare'];
-    const gear: Item[] = [];
-    for (let i = 0; i < 5; i++) {
-        const rarity = rarities[Math.floor(Math.random() * rarities.length)];
-        gear.push(rollRandomItem(rarity, rarity));
+    // 6 rotating flex items: 3-4 gear + 2-3 non-staple consumables
+    const flexConsumables = CONSUMABLES.filter(c =>
+        c.id !== 'magnifier-small' && c.id !== 'regen-pot-small'
+    );
+    const gearRarities = ['common', 'uncommon', 'uncommon', 'rare', 'rare'];
+    const gearCount = 3 + Math.floor(Math.random() * 2);
+    const items: Item[] = [];
+    for (let i = 0; i < gearCount; i++) {
+        const rarity = gearRarities[Math.floor(Math.random() * gearRarities.length)];
+        items.push(rollRandomItem(rarity, rarity));
     }
-    const shuffled = [...CONSUMABLES].sort(() => Math.random() - 0.5).slice(0, 3);
-    return [...shuffled, ...gear];
+    const shuffled = [...flexConsumables].sort(() => Math.random() - 0.5);
+    for (let i = 0; items.length < 6 && i < shuffled.length; i++) {
+        items.push(shuffled[i]);
+    }
+    return items.slice(0, 6);
 }
