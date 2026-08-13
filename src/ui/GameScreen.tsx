@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { store, useStore } from '../state/store.ts';
 import type { GameScreen as GameScreenType } from '../game/types.ts';
 import { computeWeightClass } from '../game/weightClass.ts';
 import { startAmbient, applyMuteState, playClick } from '../game/audio.ts';
+import { updateSave } from '../state/save.ts';
+import { MAX_ENERGY, ENERGY_REGEN_MINUTES } from '../game/types.ts';
 import LootScreen from './LootScreen.tsx';
 import BackpackScreen from './BackpackScreen.tsx';
 import CodexScreen from './CodexScreen.tsx';
@@ -33,6 +35,25 @@ export default function GameScreen() {
     useEffect(() => { startAmbient(); }, []);
     // Sync mute state to audio engine whenever it changes
     useEffect(() => { applyMuteState(muteSfx, muteMusic); }, [muteSfx, muteMusic]);
+
+    // Live energy regen ticker — checks every 10s, adds 1 energy per interval
+    const lastRegenRef = useRef(Date.now());
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const s = store.get();
+            if (s.energy >= MAX_ENERGY || s.paused) return;
+            const boosted = s.energyBoostUntil > Date.now();
+            const regenMs = boosted ? 60_000 : ENERGY_REGEN_MINUTES * 60_000;
+            const now = Date.now();
+            if (now - lastRegenRef.current >= regenMs) {
+                const newEnergy = Math.min(s.energy + 1, MAX_ENERGY);
+                lastRegenRef.current = now;
+                store.patch({ energy: newEnergy });
+                updateSave({ energy: newEnergy });
+            }
+        }, 10_000);
+        return () => clearInterval(interval);
+    }, []);
 
     const energyPct = maxEnergy > 0 ? (energy / maxEnergy) * 100 : 0;
     const energyColor = energy >= maxEnergy * 0.6 ? '#4ade80' : energy >= maxEnergy * 0.3 ? '#facc15' : '#f97316';
