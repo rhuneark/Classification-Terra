@@ -188,7 +188,7 @@ function ConsumablePanel({ item, onUse, onDiscard }: { item: Item; onUse: () => 
             {isMagnifier ? (
                 <div className="mt-2 flex gap-2">
                     <div className="flex-1 rounded py-1.5 px-2 text-[0.8rem]" style={{ background: '#0a1a2a', color: '#60a5fa', border: '1px solid #1a4a6a' }}>
-                        Tap USE GLASS on a Research Lab item below
+                        Tap USE GLASS on a Research Lab item
                     </div>
                     <button type="button" className="rounded px-3 py-1.5 text-[0.85rem] transition-transform active:scale-95"
                         style={{ background: '#1a2e1c', color: '#8aaa8c' }} onClick={onDiscard}>DISCARD</button>
