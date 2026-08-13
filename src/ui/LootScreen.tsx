@@ -148,6 +148,24 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
 
                     <div className="mt-2 text-[0.82rem] italic" style={{ color: '#6a8e6c' }}>{event.flavorText}</div>
 
+                    {/* Lore document co-drop */}
+                    {event.loreItem && (
+                        <div className="mt-2 rounded p-2.5" style={{ background: '#180b28', border: '1px solid #c084fc33' }}>
+                            <div className="text-[0.62rem] font-bold tracking-widest mb-1" style={{ color: '#c084fc' }}>
+                                FIELD DOCUMENT FOUND
+                            </div>
+                            <div className="text-[0.88rem] font-bold" style={{ color: '#c084fc' }}>
+                                {event.loreItem.name}
+                            </div>
+                            <div className="mt-0.5 text-[0.74rem]" style={{ color: '#8a7aac' }}>
+                                {event.loreItem.description}
+                            </div>
+                            <div className="mt-1 text-[0.65rem]" style={{ color: '#6a5a8c' }}>
+                                Unlocks a Codex entry. Saved to FIELD DOCUMENTS in your Loadout.
+                            </div>
+                        </div>
+                    )}
+
                     {/* Secondary items */}
                     {event.secondaryItems.length > 0 && (
                         <div className="mt-3 rounded p-2.5" style={{ background: '#0a1810', border: '1px solid #1a3e1c' }}>
