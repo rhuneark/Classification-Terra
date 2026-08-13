@@ -21,7 +21,7 @@ export const ALL_LOCATIONS: Location[] = [
         ambushChance: 0.28,
         minRarity: 'common',
         maxRarity: 'rare',
-        terraIds: ['lurker', 'hollow'],
+        terraIds: ['lurker', 'turned'],
     },
     {
         id: 'quarantine-sector-7',
@@ -32,7 +32,7 @@ export const ALL_LOCATIONS: Location[] = [
         ambushChance: 0.42,
         minRarity: 'uncommon',
         maxRarity: 'epic',
-        terraIds: ['shade', 'hollow', 'warped'],
+        terraIds: ['hollow', 'shade', 'warped', 'sow', 'feral'],
     },
     {
         id: 'sublevel-complex',
@@ -43,7 +43,7 @@ export const ALL_LOCATIONS: Location[] = [
         ambushChance: 0.58,
         minRarity: 'rare',
         maxRarity: 'unique',
-        terraIds: ['brute', 'warped'],
+        terraIds: ['brute', 'apex', 'warped', 'feral'],
     },
 ];
 

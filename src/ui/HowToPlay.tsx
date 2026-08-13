@@ -1,71 +1,107 @@
 interface Props { onClose: () => void; }
 
-export default function HowToPlay({ onClose }: Props) {
-    const sections: Array<{ title: string; body: string[] }> = [
-        {
-            title: 'THE LOOP',
-            body: [
-                'Scavenge ruins to find gear.',
-                'Found items go to your Research Lab. Wait for the timer.',
-                'Researched items move to your Safe House. Equip them.',
-                'Fight arena opponents to earn scrip. Repeat.',
-            ],
-        },
-        {
-            title: 'ENERGY',
-            body: [
-                'Max 20 energy. Each location costs 1-3.',
-                'Regens 1 per 5 minutes offline.',
-                'Buy Regen Pots at the Outpost. Energy Drink speeds regen for 30 min.',
-            ],
-        },
-        {
-            title: 'WEIGHT CLASS',
-            body: [
-                'Your WC = sum of all equipped item power.',
-                'COMBO: 3+ BIO items = +15% WC.',
-                'COMBO: 2+ HAZMAT items = +20 WC flat.',
-                'Higher WC = better arena odds.',
-            ],
-        },
-        {
-            title: 'RESEARCH',
-            body: [
-                'Every item you find needs time before it\'s ready.',
-                'Common: 1-3 min. Rare: 5-15 min. Legendary: 20-30 min.',
-                'Magnifying Glasses cut research time.',
-                'Consumables (pots, drinks) skip the queue.',
-            ],
-        },
-        {
-            title: 'ARENA',
-            body: [
-                'Pick an opponent. WC determines win odds.',
-                'Win: earn scrip. Sometimes get an item.',
-                'Lose: small consolation scrip. Risk losing gear.',
-                'Passive battles happen while you\'re offline.',
-            ],
-        },
-        {
-            title: 'THE PAPERCLIPS',
-            body: [
-                '10 exist. All one-of-a-kind.',
-                'Said to buy you anything left in the world.',
-                'Drop only from the most dangerous locations.',
-                'The rarest is 1 in 50,000. The most common: 1 in 10,000.',
-                'Nobody has found one yet.',
-            ],
-        },
-        {
-            title: 'RARITY',
-            body: [
-                'COMMON (grey) → UNCOMMON (green) → RARE (blue)',
-                'EPIC (purple) → LEGENDARY (orange) → ONE-OF-A-KIND (red)',
-                'Higher rarity = higher power = better odds in arena.',
-            ],
-        },
-    ];
+const sections: Array<{ title: string; body: string[] }> = [
+    {
+        title: 'THE LOOP',
+        body: [
+            'Enter a Ruin to scavenge. Each run costs 1-4 energy.',
+            'Items you find go to your Research Lab. Wait for them to finish.',
+            'Researched items move to your Safe House. Equip them to raise your Weight Class.',
+            'Passive battles earn scrip while you wait. Repeat.',
+        ],
+    },
+    {
+        title: 'ENERGY',
+        body: [
+            'You have 20 max. Ruins cost 1 (low danger) to 4 (extreme danger).',
+            'Regenerates 1 every 5 minutes while offline.',
+            'Regen Potions restore energy instantly. Buy them at the Outpost.',
+        ],
+    },
+    {
+        title: 'SCRIP',
+        body: [
+            'The world\'s currency. Earned from passive battles and selling items.',
+            'Spend it at the Outpost on consumables, gear, and tools.',
+            'Scrap any item from your backpack instantly for 1 scrip.',
+        ],
+    },
+    {
+        title: 'WEIGHT CLASS (WC)',
+        body: [
+            'Your WC = the sum of all equipped gear\'s power values.',
+            'COMBO: Equip 3+ BIO items for +15% WC.',
+            'COMBO: Equip 2+ HAZMAT items for +20 WC flat.',
+            'Higher WC means better passive battle results and more scrip earned.',
+        ],
+    },
+    {
+        title: 'RESEARCH LAB',
+        body: [
+            'Every item found in the ruins must be researched before you can equip it.',
+            'Common: 1-3 min.  Uncommon: 3-8 min.  Rare: 5-15 min.  Epic+: 20-30 min.',
+            'Magnifying Glasses cut research time in half.',
+            'Consumables (pots, drinks) skip the queue and go straight to your backpack.',
+            'Safe House holds 6 items. Research queue holds 6. Scrap extras to make room.',
+        ],
+    },
+    {
+        title: 'PASSIVE BATTLES',
+        body: [
+            'While offline, your loadout automatically fights opponents.',
+            'Win: earn scrip. Occasionally earn a bonus item.',
+            'Lose: earn a small consolation scrip. You never lose gear from passive battles.',
+            'Battle outcomes depend on WC. A stronger loadout wins more often.',
+        ],
+    },
+    {
+        title: 'THE RUINS',
+        body: [
+            'Four locations, four danger tiers: Low, Medium, High, and Extreme.',
+            'Higher danger = better gear, higher rarity, and higher ambush risk.',
+            'An ambush can cost you an inventory item or energy.',
+            'Daily Scavenge Challenge: complete the day\'s run for +25 scrip.',
+        ],
+    },
+    {
+        title: 'THE OUTPOST',
+        body: [
+            'Buy consumables and gear here using scrip.',
+            'Permanent stock: Magnifying Glasses (cut research time) and Regen Pots.',
+            'Six rotating slots refresh every 2 minutes with random gear and consumables.',
+            'Purchased rotating slots gray out until the next refresh.',
+        ],
+    },
+    {
+        title: 'THE CODEX',
+        body: [
+            'The Terras are 10 mutated creature variants found across the ruins.',
+            'Codex entries start blank. Unlock them by encountering Terras or finding their documents.',
+            'Lore documents drop as items in ruins and appear under FIELD DOCUMENTS in your Loadout.',
+            'Ambush encounters sometimes reveal Terra lore attached to the event.',
+            'Rarer Terras reveal lore less often. Extreme-tier lore only drops in extreme zones.',
+        ],
+    },
+    {
+        title: 'THE PAPERCLIPS',
+        body: [
+            '10 unique paperclips exist in the world. Each is one-of-a-kind.',
+            'They only drop in the most dangerous locations at extremely low odds.',
+            'The rarest is 1 in 50,000. The most common: 1 in 10,000.',
+            'The Explorer Board tracks who finds each one first. Nobody has found one yet.',
+        ],
+    },
+    {
+        title: 'RARITY',
+        body: [
+            'COMMON (grey) → UNCOMMON (green) → RARE (blue)',
+            'EPIC (purple) → LEGENDARY (orange) → ONE-OF-A-KIND (red)',
+            'Higher rarity = higher power. Legendary and above can have special bonuses.',
+        ],
+    },
+];
 
+export default function HowToPlay({ onClose }: Props) {
     return (
         <div className="absolute inset-0 flex flex-col" style={{ background: 'rgba(0,0,0,0.92)', zIndex: 80 }}>
             <div className="flex shrink-0 items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: '1px solid #1a3e1c' }}>
@@ -96,13 +132,6 @@ export default function HowToPlay({ onClose }: Props) {
                         </div>
                     </div>
                 ))}
-
-                <div className="rounded p-3 text-[0.85rem]" style={{ background: '#0e2010', border: '1px solid #1a3e1c' }}>
-                    <span style={{ color: '#7ccf5a' }}>TIP: </span>
-                    <span style={{ color: '#a0c0a4' }}>
-                        Instant scrap any item for 1 scrip. Useful when your Safe House is full and you need space.
-                    </span>
-                </div>
 
                 <div style={{ height: '16px' }} />
             </div>

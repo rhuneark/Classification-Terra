@@ -22,9 +22,14 @@ export default function WorldLoreModal({ onClose }: WorldLoreModalProps) {
                     </p>
 
                     <p>
-                        Mammals were affected first. Rodents, ungulates, felines, canids. The infection
-                        did not kill them. It changed them -- skeletal reformation, enhanced senses,
+                        Mammals were affected first -- rodents, ungulates, felines, canids. The infection
+                        did not kill them. It changed them: skeletal reformation, enhanced senses,
                         altered behavior. Some became faster. Some became smarter. All became more dangerous.
+                    </p>
+
+                    <p>
+                        What the final field reports described, before documentation stopped, was something
+                        no classification system had anticipated.
                     </p>
 
                     <p>
@@ -33,29 +38,8 @@ export default function WorldLoreModal({ onClose }: WorldLoreModalProps) {
                         It stuck. The alternative names were worse.
                     </p>
 
-                    <div className="rounded p-3" style={{ background: '#0a1810', border: '1px solid #1c3820' }}>
-                        <div className="text-[0.68rem] font-bold tracking-widest mb-2" style={{ color: '#4a7a4c' }}>
-                            KNOWN VARIANTS
-                        </div>
-                        <div className="space-y-1.5">
-                            {[
-                                ['The Crawler', 'Formerly rodent. Pack hunter. Fast.'],
-                                ['The Lurker', 'Formerly raccoon/opossum. Ambush predator.'],
-                                ['The Hollow', 'Formerly ungulate. Terminal stage. Still aggressive.'],
-                                ['The Shade', 'Formerly feline. Night hunter. Learns.'],
-                                ['The Brute', 'Formerly large canid or bear. No countermeasure.'],
-                                ['The Warped', 'Formerly coyote/fox. Uses tools. Plans.'],
-                            ].map(([name, desc]) => (
-                                <div key={name} className="flex gap-2">
-                                    <span className="shrink-0 text-[0.78rem] font-bold" style={{ color: '#7ccf5a' }}>{name}</span>
-                                    <span className="text-[0.78rem]" style={{ color: '#6a8e6c' }}>{desc}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
                     <p style={{ color: '#6a8e6c' }}>
-                        Most of what is known about the Terras comes from survivors, not researchers.
+                        The full scope of what the infection produced is not documented in any single source.
                         Find documents and survive encounters in the ruins to build your Field Codex.
                     </p>
                 </div>

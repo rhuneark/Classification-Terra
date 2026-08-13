@@ -1,7 +1,7 @@
 import type { Item, LootEvent, LogEntry, Location } from './types.ts';
 import { rollRandomItem, rollSecondaryItems } from './items.ts';
 import { AMBUSH_FLAVORS, ENERGY_AMBUSH_FLAVORS, LOOT_FLAVORS } from './locations.ts';
-import { pickAmbushSnippet, pickLoreItemForLocation } from './terras.ts';
+import { pickAmbushSnippet, pickLoreItemForLocation, getAmbushSnippetChance } from './terras.ts';
 
 function pick<T>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
@@ -50,7 +50,7 @@ export function rollLootEvent(
         : undefined;
 
     let terraSnippet: { id: string; text: string; format: 'journal' | 'research' | 'radio' | 'cryptic' } | undefined;
-    if (terra && Math.random() < 0.40) {
+    if (terra && Math.random() < getAmbushSnippetChance(terra)) {
         const snippet = pickAmbushSnippet(terra, collectedLoreIds);
         if (snippet) {
             terraSnippet = { id: snippet.id, text: snippet.text, format: snippet.format };

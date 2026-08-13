@@ -21,6 +21,18 @@ export interface TerraVariant {
     snippets: LoreSnippet[];
 }
 
+const AMBUSH_SNIPPET_CHANCE: Record<TerraVariant['threat'], number> = {
+    low: 0.38,
+    moderate: 0.25,
+    high: 0.12,
+    extreme: 0.03,
+};
+
+export function getAmbushSnippetChance(terraId: string): number {
+    const terra = getTerraById(terraId);
+    return terra ? AMBUSH_SNIPPET_CHANCE[terra.threat] : 0.38;
+}
+
 export const TERRA_VARIANTS: TerraVariant[] = [
     {
         id: 'crawler',
@@ -95,6 +107,44 @@ export const TERRA_VARIANTS: TerraVariant[] = [
                 terraId: 'lurker',
                 format: 'cryptic',
                 text: 'It already knows you\'re afraid.',
+            },
+        ],
+    },
+    {
+        id: 'turned',
+        name: 'The Turned',
+        formerlyKnownAs: 'Homo sapiens',
+        classification: 'Terrae homo-initiatus',
+        threat: 'moderate',
+        description: 'Early-stage infected humans. Still bipedal, still recognizably shaped. The infection preserves the form while emptying everything that made it familiar. Territorial, unpredictable, and deeply unsettling.',
+        signs: 'Nothing seems wrong. Until the speed is wrong. Or the angle. Or the face.',
+        snippets: [
+            {
+                id: 'turned-journal-01',
+                terraId: 'turned',
+                format: 'journal',
+                source: 'Handwritten note, taped to a fire exit',
+                text: 'She was standing at the end of the corridor, facing the wall. I called out. She turned around. Wrong speed. Wrong angle. I left. I\'m still thinking about her face.',
+            },
+            {
+                id: 'turned-research-01',
+                terraId: 'turned',
+                format: 'research',
+                source: 'Infection Report H-001, initial filing',
+                text: 'Terrae homo-initiatus. Early infection stage. Bipedal locomotion preserved. Territorial behavior mirrors pre-infection nesting instinct. No documented speech. Response to name: zero. Recommend extreme caution -- the infected retain enough motor function to be deceptive.',
+            },
+            {
+                id: 'turned-radio-01',
+                terraId: 'turned',
+                format: 'radio',
+                source: 'North checkpoint internal broadcast',
+                text: '[static] -- north checkpoint reports a turned blocking Corridor C -- staff are asked not to engage -- repeat, do not engage -- [pause] -- it was Marcus -- [static]',
+            },
+            {
+                id: 'turned-cryptic-01',
+                terraId: 'turned',
+                format: 'cryptic',
+                text: 'He still had his badge on.',
             },
         ],
     },
@@ -175,6 +225,120 @@ export const TERRA_VARIANTS: TerraVariant[] = [
         ],
     },
     {
+        id: 'warped',
+        name: 'The Warped',
+        formerlyKnownAs: 'Canis latrans / Vulpes vulpes',
+        classification: 'Terrae canis-aberrans',
+        threat: 'high',
+        description: 'Highest confirmed cognitive index among non-human terra variants. Social hierarchy intact and formalized. Infection appears to have amplified prefrontal function. Modifies environment to constrain prey movement.',
+        signs: 'Things get moved. Cans in rows. Corridors blocked from the other side.',
+        snippets: [
+            {
+                id: 'warped-journal-01',
+                terraId: 'warped',
+                format: 'journal',
+                source: 'Field journal: "I\'m calling them the warped"',
+                text: 'They\'ve started using tools. Not building -- using. Found a stack of supply cans blocking a corridor. Whether it was a trap or just exploratory behavior I can\'t say. But it wasn\'t random. Nothing they do is random. I\'ve noticed that.',
+            },
+            {
+                id: 'warped-research-01',
+                terraId: 'warped',
+                format: 'research',
+                source: 'Field Pathology Report W-031',
+                text: 'Terrae canis-aberrans. Highest confirmed cognitive index among non-human terra variants. Social hierarchy intact and apparently formalized, with consistent leadership behavior. Specimens observed modifying environment to constrain prey movement across multiple independent field observations. Infection appears to have amplified prefrontal cortex function. Extent unknown. Extreme caution advised.',
+            },
+            {
+                id: 'warped-radio-01',
+                terraId: 'warped',
+                format: 'radio',
+                source: 'Field Station 9 weekly log',
+                text: '[static] -- this is Field Station 9 -- a warped pack followed our team for approximately two kilometers -- they kept pace, never attacked -- we made camp -- they made camp -- we left in the morning -- they did not follow -- [static] -- we do not know why they stopped.',
+            },
+            {
+                id: 'warped-cryptic-01',
+                terraId: 'warped',
+                format: 'cryptic',
+                text: 'The pack leader looked at Martinez for eleven seconds without moving. Then it looked away. Martinez didn\'t come back.',
+            },
+        ],
+    },
+    {
+        id: 'sow',
+        name: 'The Sow',
+        formerlyKnownAs: 'Sus scrofa / Wild boar',
+        classification: 'Terrae sus-fortis',
+        threat: 'high',
+        description: 'Infection produced heavy keratinous plating across the shoulder and cranial surface of these formerly dense-bodied mammals. Silent until the moment of contact. A charge rarely gives time to react.',
+        signs: 'Structure damage at low heights. Doors forced off hinges. Walls dented inward, not outward.',
+        snippets: [
+            {
+                id: 'sow-journal-01',
+                terraId: 'sow',
+                format: 'journal',
+                source: 'Written on the back of a fuel receipt, sector 7 perimeter',
+                text: 'Ran into a Sow near the substation. Didn\'t hear it coming. Three hundred pounds of infected boar moving at thirty miles an hour doesn\'t make a lot of noise until it\'s already too late. I\'m fine. The wall is not.',
+            },
+            {
+                id: 'sow-research-01',
+                terraId: 'sow',
+                format: 'research',
+                source: 'Threat Assessment: Sow-Class, compiled from field reports',
+                text: 'Terrae sus-fortis. Infection produced heavy keratinous plating across shoulder and cranial surfaces. Forward charge velocity exceeds expectation for specimen mass. Recommend treating as armored threat. Ballistic penetration results: inconsistent. Maintain distance. Standard engagement doctrine does not apply.',
+            },
+            {
+                id: 'sow-radio-01',
+                terraId: 'sow',
+                format: 'radio',
+                source: 'Sector 7 logistics relay',
+                text: '[static] -- team reported a Sow in sector 7\'s warehouse district -- they called it in, then we lost contact -- [static] -- we found the team -- [static]',
+            },
+            {
+                id: 'sow-cryptic-01',
+                terraId: 'sow',
+                format: 'cryptic',
+                text: 'You won\'t hear it. You\'ll just see the wall buckle.',
+            },
+        ],
+    },
+    {
+        id: 'feral',
+        name: 'The Feral',
+        formerlyKnownAs: 'Homo sapiens',
+        classification: 'Terrae homo-ferox',
+        threat: 'high',
+        description: 'Mid-stage infected humans. Cognitive function absent. Motor efficiency dramatically elevated beyond baseline. The form is still human. The behavior is not.',
+        signs: 'Wrong posture. Bent. Too fast when they move. They don\'t move until they do.',
+        snippets: [
+            {
+                id: 'feral-journal-01',
+                terraId: 'feral',
+                format: 'journal',
+                source: 'Field observation log, eastern ward',
+                text: 'They\'re faster than they look. The posture throws you -- bent, wrong angles -- but once they move, that\'s it. Haines said they smell fear. I told him that wasn\'t a thing. Haines is gone now.',
+            },
+            {
+                id: 'feral-research-01',
+                terraId: 'feral',
+                format: 'research',
+                source: 'Pathology Report HF-002, mid-stage conversion',
+                text: 'Terrae homo-ferox. Mid-stage conversion. Cognitive function: absent. Motor efficiency dramatically elevated beyond baseline human. Subject covered 40 meters in 3.2 seconds on level ground. Threat profile: asymmetric. Do not confront without superior position and cover.',
+            },
+            {
+                id: 'feral-radio-01',
+                terraId: 'feral',
+                format: 'radio',
+                source: 'Eastern ward emergency channel',
+                text: '[static] -- feral count in the eastern ward is now eleven -- quarantine has failed -- anyone on the east side, please -- [static]',
+            },
+            {
+                id: 'feral-cryptic-01',
+                terraId: 'feral',
+                format: 'cryptic',
+                text: 'It used to be someone. Now it is just the running.',
+            },
+        ],
+    },
+    {
         id: 'brute',
         name: 'The Brute',
         formerlyKnownAs: 'Ursus americanus / Canis lupus',
@@ -213,40 +377,40 @@ export const TERRA_VARIANTS: TerraVariant[] = [
         ],
     },
     {
-        id: 'warped',
-        name: 'The Warped',
-        formerlyKnownAs: 'Canis latrans / Vulpes vulpes',
-        classification: 'Terrae canis-aberrans',
-        threat: 'high',
-        description: 'Highest confirmed cognitive index among terra variants. Social hierarchy intact and formalized. Infection appears to have amplified prefrontal function. Modifies environment to constrain prey movement.',
-        signs: 'Things get moved. Cans in rows. Corridors blocked from the other side.',
+        id: 'apex',
+        name: 'The Apex',
+        formerlyKnownAs: 'Homo sapiens',
+        classification: 'Terrae homo-regalis',
+        threat: 'extreme',
+        description: 'Final infection stage in human subjects. Infection fully integrated. Eerily still when observed. Other terra variants in proximity exhibit deferred behavior. Only one confirmed sighting. One survivor from that sighting.',
+        signs: 'Everything else in the room is watching something. Then you see what.',
         snippets: [
             {
-                id: 'warped-journal-01',
-                terraId: 'warped',
+                id: 'apex-journal-01',
+                terraId: 'apex',
                 format: 'journal',
-                source: 'Field journal: "I\'m calling them the warped"',
-                text: 'They\'ve started using tools. Not building -- using. Found a stack of supply cans blocking a corridor. Whether it was a trap or just exploratory behavior I can\'t say. But it wasn\'t random. Nothing they do is random. I\'ve noticed that.',
+                source: 'Lab floor incident note, unsigned',
+                text: 'We saw one. Just the once. It was standing in the center of the lab floor, surrounded by warped and brutes, and it wasn\'t doing anything. Then it looked at us. And everything else looked at us. We ran. I don\'t think that was the right choice but we ran.',
             },
             {
-                id: 'warped-research-01',
-                terraId: 'warped',
+                id: 'apex-research-01',
+                terraId: 'apex',
                 format: 'research',
-                source: 'Field Pathology Report W-031',
-                text: 'Terrae canis-aberrans. Highest confirmed cognitive index among terra variants. Social hierarchy intact and apparently formalized, with consistent leadership behavior. Specimens observed modifying environment to constrain prey movement across multiple independent field observations. Infection appears to have amplified prefrontal cortex function. Extent unknown. Extreme caution advised.',
+                source: 'Classified Study HR-001, single known copy',
+                text: 'Terrae homo-regalis. Final infection stage. Infection appears to achieve pheromone-based coordination with other terra variants. Brute and Warped specimens in proximity exhibit deferred behavior. May represent apex of terra taxonomy. We have one documented sighting. One survivor from that sighting.',
             },
             {
-                id: 'warped-radio-01',
-                terraId: 'warped',
+                id: 'apex-radio-01',
+                terraId: 'apex',
                 format: 'radio',
-                source: 'Field Station 9 weekly log',
-                text: '[static] -- this is Field Station 9 -- a warped pack followed our team for approximately two kilometers -- they kept pace, never attacked -- we made camp -- they made camp -- we left in the morning -- they did not follow -- [static] -- we do not know why they stopped.',
+                source: 'Sublevel security channel, final log entry',
+                text: '[static] -- sublevel has an apex confirmed -- repeat, sublevel has an apex -- all personnel are to -- [static] -- it\'s looking at the camera -- [static]',
             },
             {
-                id: 'warped-cryptic-01',
-                terraId: 'warped',
+                id: 'apex-cryptic-01',
+                terraId: 'apex',
                 format: 'cryptic',
-                text: 'The pack leader looked at Martinez for eleven seconds without moving. Then it looked away. Martinez didn\'t come back.',
+                text: 'Everything in that room was watching it. Then it moved, and everything moved with it.',
             },
         ],
     },
@@ -286,6 +450,7 @@ export const FORMAT_LABELS: Record<SnippetFormat, string> = {
 };
 
 export const LORE_ITEMS: Item[] = [
+    // Crawler (low)
     {
         id: 'lore-crawler-field-01',
         name: 'Crawler Field Notes',
@@ -308,6 +473,7 @@ export const LORE_ITEMS: Item[] = [
         loreTerraId: 'crawler',
         loreSnippetId: 'crawler-research-01',
     },
+    // Lurker (moderate)
     {
         id: 'lore-lurker-log-01',
         name: 'Ward Log: Floor 4',
@@ -330,6 +496,30 @@ export const LORE_ITEMS: Item[] = [
         loreTerraId: 'lurker',
         loreSnippetId: 'lurker-research-01',
     },
+    // Turned (moderate, formerly human)
+    {
+        id: 'lore-turned-checkpoint-01',
+        name: 'Ward Checkpoint Note',
+        description: 'Scrawled near a fire exit. The handwriting gets worse toward the end.',
+        rarity: 'common',
+        type: 'lore',
+        power: 0, damage: 0, defense: 0, special: [],
+        sellValue: 2,
+        loreTerraId: 'turned',
+        loreSnippetId: 'turned-journal-01',
+    },
+    {
+        id: 'lore-turned-report-01',
+        name: 'Infection Report H-001',
+        description: 'Early-stage documentation. Someone filed this officially. Once.',
+        rarity: 'uncommon',
+        type: 'lore',
+        power: 0, damage: 0, defense: 0, special: [],
+        sellValue: 4,
+        loreTerraId: 'turned',
+        loreSnippetId: 'turned-research-01',
+    },
+    // Hollow (high)
     {
         id: 'lore-hollow-notes-01',
         name: 'Sector 7 Field Notes',
@@ -341,6 +531,7 @@ export const LORE_ITEMS: Item[] = [
         loreTerraId: 'hollow',
         loreSnippetId: 'hollow-journal-01',
     },
+    // Shade (high)
     {
         id: 'lore-shade-watch-01',
         name: 'Night Watch Entry #14',
@@ -363,6 +554,76 @@ export const LORE_ITEMS: Item[] = [
         loreTerraId: 'shade',
         loreSnippetId: 'shade-research-01',
     },
+    // Warped (high)
+    {
+        id: 'lore-warped-journal-01',
+        name: 'Field Journal: "The Warped"',
+        description: 'A personal journal, 47 entries. You found it at entry 12.',
+        rarity: 'uncommon',
+        type: 'lore',
+        power: 0, damage: 0, defense: 0, special: [],
+        sellValue: 4,
+        loreTerraId: 'warped',
+        loreSnippetId: 'warped-journal-01',
+    },
+    {
+        id: 'lore-warped-station-01',
+        name: 'Station 9 Weekly Log',
+        description: 'Audio log transcript. Static fills the margins.',
+        rarity: 'rare',
+        type: 'lore',
+        power: 0, damage: 0, defense: 0, special: [],
+        sellValue: 6,
+        loreTerraId: 'warped',
+        loreSnippetId: 'warped-radio-01',
+    },
+    // Sow (high)
+    {
+        id: 'lore-sow-substation-01',
+        name: 'Substation Encounter Note',
+        description: 'Written very fast. On the back of a fuel receipt.',
+        rarity: 'uncommon',
+        type: 'lore',
+        power: 0, damage: 0, defense: 0, special: [],
+        sellValue: 4,
+        loreTerraId: 'sow',
+        loreSnippetId: 'sow-journal-01',
+    },
+    {
+        id: 'lore-sow-assessment-01',
+        name: 'Threat Assessment: Sow-Class',
+        description: 'Military-formatted report. Mostly ballistic testing data.',
+        rarity: 'rare',
+        type: 'lore',
+        power: 0, damage: 0, defense: 0, special: [],
+        sellValue: 6,
+        loreTerraId: 'sow',
+        loreSnippetId: 'sow-research-01',
+    },
+    // Feral (high, formerly human)
+    {
+        id: 'lore-feral-fieldnotes-01',
+        name: 'Eastern Ward Field Notes',
+        description: 'Observations from someone who watched from a distance. Wisely.',
+        rarity: 'uncommon',
+        type: 'lore',
+        power: 0, damage: 0, defense: 0, special: [],
+        sellValue: 4,
+        loreTerraId: 'feral',
+        loreSnippetId: 'feral-journal-01',
+    },
+    {
+        id: 'lore-feral-report-01',
+        name: 'Pathology Report HF-002',
+        description: 'Mid-stage conversion data. Some details are redacted in pen.',
+        rarity: 'rare',
+        type: 'lore',
+        power: 0, damage: 0, defense: 0, special: [],
+        sellValue: 6,
+        loreTerraId: 'feral',
+        loreSnippetId: 'feral-research-01',
+    },
+    // Brute (extreme)
     {
         id: 'lore-brute-cam-01',
         name: 'Trail Cam Note',
@@ -385,27 +646,28 @@ export const LORE_ITEMS: Item[] = [
         loreTerraId: 'brute',
         loreSnippetId: 'brute-research-01',
     },
+    // Apex (extreme, formerly human)
     {
-        id: 'lore-warped-journal-01',
-        name: 'Field Journal: "The Warped"',
-        description: 'A personal journal, 47 entries. You found it at entry 12.',
-        rarity: 'uncommon',
-        type: 'lore',
-        power: 0, damage: 0, defense: 0, special: [],
-        sellValue: 4,
-        loreTerraId: 'warped',
-        loreSnippetId: 'warped-journal-01',
-    },
-    {
-        id: 'lore-warped-station-01',
-        name: 'Station 9 Weekly Log',
-        description: 'Audio log transcript. Static fills the margins.',
+        id: 'lore-apex-incident-01',
+        name: 'Lab Floor Incident Note',
+        description: 'A memo about a sighting. Signed by someone who didn\'t file another one.',
         rarity: 'rare',
         type: 'lore',
         power: 0, damage: 0, defense: 0, special: [],
         sellValue: 6,
-        loreTerraId: 'warped',
-        loreSnippetId: 'warped-radio-01',
+        loreTerraId: 'apex',
+        loreSnippetId: 'apex-journal-01',
+    },
+    {
+        id: 'lore-apex-study-01',
+        name: 'Classified Study HR-001',
+        description: 'Single known copy. Wet. Most of the second page is gone.',
+        rarity: 'rare',
+        type: 'lore',
+        power: 0, damage: 0, defense: 0, special: [],
+        sellValue: 8,
+        loreTerraId: 'apex',
+        loreSnippetId: 'apex-research-01',
     },
 ];
 
