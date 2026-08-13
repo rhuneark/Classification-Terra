@@ -6,7 +6,12 @@ import type { LootEvent, Location } from '../game/types.ts';
 import { DANGER_COLORS, DANGER_LABELS, RARITY_COLORS, RARITY_LABELS, randomResearchDuration } from '../game/types.ts';
 import { updateSave, getSave, markUniqueFound, addEarnedScrip } from '../state/save.ts';
 import { PAPERCLIPS } from '../game/items.ts';
+import { getDailyChallengeLocation, getTodayStr } from '../game/dailyChallenge.ts';
+import { scheduleResearchNotif } from '../game/notifications.ts';
+import { playScavenge, playItemFound } from '../game/audio.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
+
+const _dailyChallenge = getDailyChallengeLocation();
 
 let _instanceCounter = Date.now();
 function newInstanceId() { return String(++_instanceCounter); }
@@ -26,20 +31,38 @@ function EnergyBar({ energy, max }: { energy: number; max: number }) {
     );
 }
 
-function LocationCard({ location, onTap }: { location: Location; onTap: () => void }) {
+function LocationCard({ location, onTap, isChallenge, challengeDone }: {
+    location: Location; onTap: () => void;
+    isChallenge: boolean; challengeDone: boolean;
+}) {
     const energy = useStore(s => s.energy);
     const canAfford = energy >= location.energyCost;
     return (
         <button
             type="button"
             className="w-full rounded p-4 text-left transition-transform active:scale-[0.98]"
-            style={{ background: '#0e2010', border: `1px solid ${canAfford ? '#243e26' : '#1a2010'}`, opacity: canAfford ? 1 : 0.5 }}
+            style={{
+                background: isChallenge && !challengeDone ? '#14200e' : '#0e2010',
+                border: `1px solid ${isChallenge && !challengeDone ? '#fb923c66' : canAfford ? '#243e26' : '#1a2010'}`,
+                opacity: canAfford ? 1 : 0.5,
+            }}
             onClick={onTap}
             disabled={!canAfford}
         >
             <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                    <div className="truncate text-[1rem] font-bold text-white">{location.name}</div>
+                    <div className="flex items-center gap-2">
+                        <div className="truncate text-[1rem] font-bold text-white">{location.name}</div>
+                        {isChallenge && !challengeDone && (
+                            <span className="shrink-0 rounded px-1.5 py-0.5 text-[0.6rem] font-bold tracking-wide"
+                                style={{ background: '#2a1400', color: '#fb923c', border: '1px solid #fb923c55' }}>
+                                DAILY +25
+                            </span>
+                        )}
+                        {isChallenge && challengeDone && (
+                            <span className="shrink-0 text-[0.6rem] font-bold" style={{ color: '#4a6a4c' }}>DONE TODAY</span>
+                        )}
+                    </div>
                     <div className="mt-0.5 text-[0.82rem] leading-snug" style={{ color: '#bcd4bd' }}>
                         {location.description}
                     </div>
@@ -210,15 +233,29 @@ export default function LootScreen() {
     const eventLog = useStore(s => s.eventLog);
     const activeLootEvent = useStore(s => s.activeLootEvent);
     const luckBonusActive = useStore(s => s.luckBonusActive);
+    const today = getTodayStr();
+    const challengeDone = getSave().lastDailyChallengeDay === today;
 
     function handleLocationTap(location: Location) {
         const s = store.get();
         if (s.energy < location.energyCost) return;
+        playScavenge();
         const event = rollLootEvent(location, s.inventory, s.energy, s.luckBonusActive);
         const newEnergy = s.energy - location.energyCost;
-        store.patch({ energy: newEnergy, activeLootEvent: event, luckBonusActive: false });
+
+        // Daily challenge bonus: one award per day
+        const today = getTodayStr();
         const save = getSave();
-        updateSave({ energy: newEnergy, totalScavenges: (save.totalScavenges ?? 0) + 1 });
+        let challengeBonus = 0;
+        if (location.id === _dailyChallenge.id && save.lastDailyChallengeDay !== today) {
+            challengeBonus = 25;
+            updateSave({ lastDailyChallengeDay: today });
+            RundotGameAPI.analytics.recordCustomEvent('daily_challenge_completed', { locationId: location.id }).catch(() => {});
+        }
+        const newCurrency = s.currency + challengeBonus;
+
+        store.patch({ energy: newEnergy, currency: newCurrency, activeLootEvent: event, luckBonusActive: false });
+        updateSave({ energy: newEnergy, currency: newCurrency, totalScavenges: (save.totalScavenges ?? 0) + 1 });
         RundotGameAPI.analytics.recordCustomEvent('loot_location_visited', { location: location.id, eventType: event.type }).catch(() => {});
     }
 
@@ -275,6 +312,8 @@ export default function LootScreen() {
         const newLog = [logEntry, ...s.eventLog].slice(0, 50);
         store.patch({ inventory: newInventory, researchQueue: finalQueue, eventLog: newLog, activeLootEvent: null });
         updateSave({ inventory: newInventory, researchQueue: finalQueue, eventLog: newLog });
+        playItemFound(item.rarity);
+        scheduleResearchNotif(finalQueue);
         RundotGameAPI.analytics.recordCustomEvent('loot_item_found', { itemId: item.id, rarity: item.rarity, isUnique: item.rarity === 'unique' }).catch(() => {});
     }
 
@@ -337,7 +376,13 @@ export default function LootScreen() {
 
             <div className="scroll-area flex-1 space-y-2 p-3 pb-2">
                 {ALL_LOCATIONS.map(loc => (
-                    <LocationCard key={loc.id} location={loc} onTap={() => handleLocationTap(loc)} />
+                    <LocationCard
+                        key={loc.id}
+                        location={loc}
+                        onTap={() => handleLocationTap(loc)}
+                        isChallenge={loc.id === _dailyChallenge.id}
+                        challengeDone={challengeDone}
+                    />
                 ))}
             </div>
 

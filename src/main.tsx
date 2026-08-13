@@ -10,6 +10,7 @@ import { NPC_OPPONENTS, getRandomNPCOpponent } from './game/opponents.ts';
 import { computeWeightClass } from './game/weightClass.ts';
 import type { PassiveResults } from './game/types.ts';
 import { MAX_ENERGY, ENERGY_REGEN_MINUTES } from './game/types.ts';
+import { scheduleResearchNotif, scheduleEnergyNotif } from './game/notifications.ts';
 import './styles/app.css';
 
 async function boot() {
@@ -62,7 +63,21 @@ async function boot() {
     });
     const newInventory = [...save.inventory, ...completedItems];
     const newEnergy = Math.min(save.energy + energyGained, MAX_ENERGY);
-    const newCurrency = save.currency + passiveCurrency;
+
+    // Daily login bonus
+    const todayStr = new Date().toISOString().slice(0, 10);
+    let loginBonus: { scrip: number; streak: number } | null = null;
+    let loginBonusScrip = 0;
+    if (save.lastLoginDay !== todayStr) {
+        const yesterday = new Date(now - 86_400_000).toISOString().slice(0, 10);
+        const streak = save.lastLoginDay === yesterday ? (save.loginStreak ?? 0) + 1 : 1;
+        const bonusScrip = Math.min(15 + (streak - 1) * 5, 60);
+        loginBonus = { scrip: bonusScrip, streak };
+        loginBonusScrip = bonusScrip;
+        updateSave({ lastLoginDay: todayStr, loginStreak: streak });
+    }
+
+    const newCurrency = save.currency + passiveCurrency + loginBonusScrip;
 
     let passiveResults: PassiveResults | null = null;
     if (minutesAway >= ENERGY_REGEN_MINUTES && save.lastOnline > 0) {
@@ -100,7 +115,12 @@ async function boot() {
         eventLog: save.eventLog,
         arenaOpponents: NPC_OPPONENTS,
         passiveResults,
+        loginBonus,
     });
+
+    // Schedule notifications for existing queued research and energy regen
+    scheduleResearchNotif(remainingQueue);
+    scheduleEnergyNotif(newEnergy);
 
     // 3. Mount React.
     createRoot(document.getElementById('root')!).render(
@@ -148,6 +168,8 @@ async function boot() {
                 foundUniqueIds: s.foundUniqueIds,
                 lastOnline: Date.now(),
             });
+            scheduleEnergyNotif(s.energy);
+            scheduleResearchNotif(s.researchQueue);
             RundotGameAPI.analytics.recordCustomEvent('game_sleep').catch(() => {});
         },
         onQuit: () => {

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { store, useStore } from '../state/store.ts';
 import type { GameScreen as GameScreenType } from '../game/types.ts';
 import { computeWeightClass } from '../game/weightClass.ts';
+import { startAmbient, applyMuteState, playClick } from '../game/audio.ts';
 import LootScreen from './LootScreen.tsx';
 import BackpackScreen from './BackpackScreen.tsx';
 import ArenaScreen from './ArenaScreen.tsx';
@@ -24,12 +25,20 @@ export default function GameScreen() {
     const currency = useStore(s => s.currency);
     const backpack = useStore(s => s.backpack);
     const wc = computeWeightClass(backpack);
+    const muteSfx = useStore(s => s.muteSfx);
+    const muteMusic = useStore(s => s.muteMusic);
     const [showMenu, setShowMenu] = useState(false);
+
+    // Start ambient on first mount (user already interacted to reach playing phase)
+    useEffect(() => { startAmbient(); }, []);
+    // Sync mute state to audio engine whenever it changes
+    useEffect(() => { applyMuteState(muteSfx, muteMusic); }, [muteSfx, muteMusic]);
 
     const energyPct = maxEnergy > 0 ? (energy / maxEnergy) * 100 : 0;
     const energyColor = energy >= maxEnergy * 0.6 ? '#4ade80' : energy >= maxEnergy * 0.3 ? '#facc15' : '#f97316';
 
     function handleTab(id: GameScreenType) {
+        playClick();
         store.patch({ screen: id, selectedInventoryItemId: null });
     }
 

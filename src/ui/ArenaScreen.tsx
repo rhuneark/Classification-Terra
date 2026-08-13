@@ -7,6 +7,8 @@ import { RARITY_COLORS, randomResearchDuration } from '../game/types.ts';
 import type { Build, Item } from '../game/types.ts';
 import { updateSave, getSave, addEarnedScrip } from '../state/save.ts';
 import { makeLogId } from '../game/loot.ts';
+import { scheduleResearchNotif } from '../game/notifications.ts';
+import { playBattleWin, playBattleLoss } from '../game/audio.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 function OpponentCard({ build, onBattle }: { build: Build; onBattle: () => void }) {
@@ -219,12 +221,15 @@ export default function ArenaScreen() {
         });
 
         if (result.won) {
+            playBattleWin();
+            scheduleResearchNotif(newQueue);
             RundotGameAPI.analytics.recordCustomEvent('arena_battle_won', {
                 opponentId: opponent.id,
                 currencyGained: result.currencyGained,
                 stolenItemId: result.stolenItem?.id,
             }).catch(() => {});
         } else {
+            playBattleLoss();
             RundotGameAPI.analytics.recordCustomEvent('arena_battle_lost', { opponentId: opponent.id }).catch(() => {});
         }
     }

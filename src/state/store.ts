@@ -43,6 +43,7 @@ export interface AppState {
     passiveResults: PassiveResults | null;
     luckBonusActive: boolean;
     selectedInventoryItemId: string | null;
+    loginBonus: { scrip: number; streak: number } | null;
 }
 
 const listeners = new Set<() => void>();
@@ -71,6 +72,7 @@ let state: AppState = {
     passiveResults: null,
     luckBonusActive: false,
     selectedInventoryItemId: null,
+    loginBonus: null,
 };
 
 export const store = {

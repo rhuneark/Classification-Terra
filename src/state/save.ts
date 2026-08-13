@@ -23,6 +23,9 @@ export interface SaveData {
     energyBoostUntil: number;
     muteMusic: boolean;
     muteSfx: boolean;
+    lastLoginDay: string;
+    loginStreak: number;
+    lastDailyChallengeDay: string;
 }
 
 const DEFAULTS: SaveData = {
@@ -55,6 +58,9 @@ const DEFAULTS: SaveData = {
     energyBoostUntil: 0,
     muteMusic: false,
     muteSfx: false,
+    lastLoginDay: '',
+    loginStreak: 0,
+    lastDailyChallengeDay: '',
 };
 
 function parseItem(raw: unknown): Item | null {
@@ -141,6 +147,9 @@ function parse(raw: string | null): SaveData | null {
             energyBoostUntil: Number(p.energyBoostUntil) || 0,
             muteMusic: Boolean(p.muteMusic),
             muteSfx: Boolean(p.muteSfx),
+            lastLoginDay: typeof p.lastLoginDay === 'string' ? p.lastLoginDay : '',
+            loginStreak: Math.max(0, Number(p.loginStreak) || 0),
+            lastDailyChallengeDay: typeof p.lastDailyChallengeDay === 'string' ? p.lastDailyChallengeDay : '',
         };
     } catch {
         return null;

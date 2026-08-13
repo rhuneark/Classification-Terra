@@ -5,6 +5,7 @@ import { RARITY_COLORS, RARITY_LABELS, TRADER_REFRESH_MS } from '../game/types.t
 import type { Item } from '../game/types.ts';
 import { makeLogId } from '../game/loot.ts';
 import { updateSave, getSave } from '../state/save.ts';
+import { playBuy } from '../game/audio.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 // Always-available staple items
@@ -159,6 +160,7 @@ export default function TraderScreen() {
         const price = item.buyValue ?? item.sellValue * 2;
         const s = store.get();
         if (s.currency < price) return;
+        playBuy();
         const newCurrency = s.currency - price;
         const newInventory = [...s.inventory, { ...item, buyValue: undefined }];
         const logEntry = { id: makeLogId(), type: 'trade' as const, message: `[OUTPOST] Bought: ${item.name} for ${price} scrip.`, rarity: item.rarity, timestamp: Date.now() };
@@ -172,6 +174,7 @@ export default function TraderScreen() {
         const price = item.buyValue ?? item.sellValue * 2;
         const s = store.get();
         if (s.currency < price) return;
+        playBuy();
         const newCurrency = s.currency - price;
         const newInventory = [...s.inventory, { ...item, buyValue: undefined }];
         const logEntry = { id: makeLogId(), type: 'trade' as const, message: `[OUTPOST] Bought: ${item.name} for ${price} scrip.`, rarity: item.rarity, timestamp: Date.now() };

@@ -2,6 +2,7 @@ import { useStore } from '../state/store.ts';
 import LoadingScreen from './LoadingScreen.tsx';
 import MainMenu from './MainMenu.tsx';
 import GameScreen from './GameScreen.tsx';
+import LoginBonusPopup from './LoginBonusPopup.tsx';
 
 export default function App() {
     const phase = useStore((s) => s.phase);
@@ -14,6 +15,7 @@ export default function App() {
                     <GameScreen />
                 </div>
             )}
+            {phase !== 'loading' && <LoginBonusPopup />}
         </div>
     );
 }
