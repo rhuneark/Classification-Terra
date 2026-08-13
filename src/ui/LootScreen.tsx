@@ -141,8 +141,8 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
 
                     {isLoreItem && (
                         <div className="mt-2 rounded p-2 text-[0.78rem]" style={{ background: '#180b28', border: '1px solid #c084fc33' }}>
-                            <span style={{ color: '#c084fc' }}>Unlocks a Codex entry.</span>
-                            <span style={{ color: '#8a7aac' }}> Read it in the CODEX tab.</span>
+                            <span style={{ color: '#c084fc' }}>Codex entry unlocked.</span>
+                            <span style={{ color: '#8a7aac' }}> Find it in the CODEX tab.</span>
                         </div>
                     )}
 
@@ -161,7 +161,7 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
                                 {event.loreItem.description}
                             </div>
                             <div className="mt-1 text-[0.65rem]" style={{ color: '#6a5a8c' }}>
-                                Unlocks a Codex entry. Saved to FIELD DOCUMENTS in your Loadout.
+                                Codex entry unlocked automatically.
                             </div>
                         </div>
                     )}
@@ -207,7 +207,7 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
                             <button type="button" className="flex-1 rounded py-3 text-[1rem] font-bold tracking-wide transition-transform active:scale-95"
                                 style={{ background: '#7ccf5a', color: '#070e08' }}
                                 onClick={onTake}>
-                                {isLoreItem ? 'COLLECT' : 'TAKE IT'}
+                                {isLoreItem ? 'GOT IT' : 'TAKE IT'}
                             </button>
                             {!isLoreItem && (
                                 <button type="button" className="rounded px-4 py-3 text-[0.82rem] transition-transform active:scale-95"
@@ -358,12 +358,12 @@ export default function LootScreen() {
             newQueue = [...s.researchQueue, ...secondaryQueueItems];
         }
 
-        // Lore items + consumables go to inventory directly; gear goes to research
+        // Consumables go to inventory; lore items unlock Codex only (no inventory); gear goes to research
         let newInventory = s.inventory;
         let finalQueue = newQueue;
-        if (item.type === 'consumable' || item.type === 'lore') {
+        if (item.type === 'consumable') {
             newInventory = [...s.inventory, item];
-        } else {
+        } else if (item.type !== 'lore') {
             finalQueue = [...newQueue, {
                 instanceId: newInstanceId(),
                 item,
@@ -372,8 +372,8 @@ export default function LootScreen() {
             }];
         }
 
-        // Also handle lore item drop alongside gear
-        let newInventoryWithLore = newInventory;
+        // Lore co-drop: unlock Codex entry only, no inventory item
+        const newInventoryWithLore = newInventory;
         if (event.loreItem && event.loreItem.loreTerraId && event.loreItem.loreSnippetId) {
             const li = event.loreItem;
             if (!newDiscoveredTerraIds.includes(li.loreTerraId!)) {
@@ -382,7 +382,6 @@ export default function LootScreen() {
             if (!newCollectedLoreIds.includes(li.loreSnippetId!)) {
                 newCollectedLoreIds = [...newCollectedLoreIds, li.loreSnippetId!];
             }
-            newInventoryWithLore = [...newInventory, li];
         }
 
         const logEntry = eventToLogEntry(event);
