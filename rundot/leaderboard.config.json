@@ -1,25 +1,23 @@
 {
-  "leaderboard": {
-    "requiresToken": false,
-    "scoreOrder": "lowest",
-    "periods": {
-      "alltime": { "displayName": "All Time", "type": "alltime" }
-    },
-    "modes": {
-      "paperclip-1":  { "displayName": "Paperclip #1 - First Finder" },
-      "paperclip-2":  { "displayName": "Paperclip #2 - First Finder" },
-      "paperclip-3":  { "displayName": "Paperclip #3 - First Finder" },
-      "paperclip-4":  { "displayName": "Paperclip #4 - First Finder" },
-      "paperclip-5":  { "displayName": "Paperclip #5 - First Finder" },
-      "paperclip-6":  { "displayName": "Paperclip #6 - First Finder" },
-      "paperclip-7":  { "displayName": "Paperclip #7 - First Finder" },
-      "paperclip-8":  { "displayName": "Paperclip #8 - First Finder" },
-      "paperclip-9":  { "displayName": "Paperclip #9 - First Finder" },
-      "paperclip-10": { "displayName": "Paperclip #10 - First Finder" }
-    },
-    "antiCheat": {
-      "enableRateLimit": true,
-      "minTimeBetweenSubmissionsSec": 1
-    }
+  "requiresToken": false,
+  "scoreOrder": "lowest",
+  "periods": {
+    "alltime": { "displayName": "All Time", "type": "alltime" }
+  },
+  "modes": {
+    "paperclip-1":  { "displayName": "Paperclip #1 - First Finder" },
+    "paperclip-2":  { "displayName": "Paperclip #2 - First Finder" },
+    "paperclip-3":  { "displayName": "Paperclip #3 - First Finder" },
+    "paperclip-4":  { "displayName": "Paperclip #4 - First Finder" },
+    "paperclip-5":  { "displayName": "Paperclip #5 - First Finder" },
+    "paperclip-6":  { "displayName": "Paperclip #6 - First Finder" },
+    "paperclip-7":  { "displayName": "Paperclip #7 - First Finder" },
+    "paperclip-8":  { "displayName": "Paperclip #8 - First Finder" },
+    "paperclip-9":  { "displayName": "Paperclip #9 - First Finder" },
+    "paperclip-10": { "displayName": "Paperclip #10 - First Finder" }
+  },
+  "antiCheat": {
+    "enableRateLimit": true,
+    "minTimeBetweenSubmissionsSec": 1
   }
 }
