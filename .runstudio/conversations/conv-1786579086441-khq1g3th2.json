@@ -5276,11 +5276,24 @@
       "timestamp": 1786600858278,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "1786600860283-xk9w1j37a",
+      "role": "system",
+      "content": "Compacting project...",
+      "isShownToUser": true,
+      "timestamp": 1786600860283,
+      "type": "compaction",
+      "metadata": {
+        "compaction": {
+          "trigger": "auto"
+        }
+      }
     }
   ],
   "createdAt": 1786579086441,
-  "updatedAt": 1786600858285,
-  "tokenUsage": 102436,
+  "updatedAt": 1786600905629,
+  "tokenUsage": 0,
   "script": "ftue-remix",
   "claudeSessionId": "adbac7aa-9dda-44d4-b9f9-50e1487c68e0"
 }
