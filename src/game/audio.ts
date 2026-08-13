@@ -175,7 +175,8 @@ export function playBuy(): void {
     osc(c, 800, 'sine', 0.07, t + 0.02, 3, 8, 55, _sfxBus!);
 }
 
-// ---------- Ambient music ----------
+// ---------- Ambient music: 8-bit chiptune ----------
+// Fallout-style: A minor, ~86 BPM, square wave melody + triangle bass
 
 export function startAmbient(): void {
     if (_ambientStarted) return;
@@ -183,52 +184,61 @@ export function startAmbient(): void {
     const c = ac(); if (!c) return;
     const bus = _musicBus!;
 
-    // Sub bass drone: 55 Hz A1, triangle wave
-    const d1 = c.createOscillator();
-    const g1 = c.createGain();
-    d1.type = 'triangle';
-    d1.frequency.value = 55;
-    g1.gain.value = 0.55;
-    d1.connect(g1); g1.connect(bus); d1.start();
+    const BPM = 86;
+    const B = 60 / BPM; // seconds per beat
 
-    // Perfect fifth: 82.5 Hz E2, sine
-    const d2 = c.createOscillator();
-    const g2 = c.createGain();
-    d2.type = 'sine';
-    d2.frequency.value = 82.5;
-    g2.gain.value = 0.28;
-    d2.connect(g2); g2.connect(bus); d2.start();
+    // [freq_hz, duration_beats] — freq 0 = rest
+    // A minor pentatonic: A3=220, C4=262, D4=294, E4=330, G4=392, A4=440
+    const MELODY: [number, number][] = [
+        // Phrase A (8 beats)
+        [330, 1], [294, 0.5], [262, 1.5], [220, 1], [247, 0.5], [262, 0.5], [0, 3],
+        // Phrase B (8 beats)
+        [330, 0.5], [392, 0.5], [330, 1], [294, 1], [262, 0.5], [247, 0.5], [220, 2], [0, 2],
+        // Phrase C (8 beats)
+        [196, 0.5], [220, 0.5], [262, 1], [294, 0.5], [330, 0.5], [294, 0.5], [262, 0.5], [220, 0.5], [196, 0.5], [0, 3],
+        // Phrase D — descending resolution (8 beats)
+        [220, 1], [247, 0.5], [220, 0.5], [196, 1], [175, 1], [220, 2], [0, 2],
+    ];
 
-    // Slow LFO (0.05 Hz) modulates d1 gain — subtle breathing effect
-    const lfo = c.createOscillator();
-    const lfoAmp = c.createGain();
-    lfo.type = 'sine';
-    lfo.frequency.value = 0.05;
-    lfoAmp.gain.value = 0.22;
-    lfo.connect(lfoAmp);
-    lfoAmp.connect(g1.gain);
-    lfo.start();
+    // Bass line: [freq_hz, duration_beats] — triangle, lower octave roots
+    const BASS: [number, number][] = [
+        [110, 2], [110, 2], [131, 2], [131, 2],   // phrase A: A2, C3
+        [110, 2], [110, 2], [98, 2], [110, 2],    // phrase B: A2, G2
+        [98, 2], [110, 2], [131, 2], [147, 2],    // phrase C: G2, A2, C3, D3
+        [110, 2], [98, 2], [110, 4],               // phrase D: A2, G2, A2
+    ];
 
-    // Filtered noise floor for texture (lowpass at 180 Hz)
-    const nbuf = c.createBuffer(1, c.sampleRate * 4, c.sampleRate);
-    const nd = nbuf.getChannelData(0);
-    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
-    const nsrc = c.createBufferSource();
-    nsrc.buffer = nbuf; nsrc.loop = true;
-    const nfilt = c.createBiquadFilter();
-    nfilt.type = 'lowpass'; nfilt.frequency.value = 180;
-    const ngain = c.createGain(); ngain.gain.value = 0.07;
-    nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(bus); nsrc.start();
+    const totalBeats = MELODY.reduce((s, [, d]) => s + d, 0);
+    const loopS = totalBeats * B;
 
-    // Occasional distant metallic pings
-    const pingFreqs = [1320, 1760, 2200, 2640];
-    function schedulePing() {
+    function scheduleLoop(startT: number) {
+        // Melody — square wave, staccato
+        let t = startT;
+        for (const [freq, dur] of MELODY) {
+            const durS = dur * B;
+            if (freq > 0) {
+                const atkMs = 4;
+                const relMs = 35;
+                const susMs = Math.max(10, durS * 1000 * 0.78 - atkMs - relMs);
+                osc(c, freq, 'square', 0.28, t, atkMs, susMs, relMs, bus);
+            }
+            t += durS;
+        }
+        // Bass — triangle wave, held longer
+        let bt = startT;
+        for (const [freq, dur] of BASS) {
+            const durS = dur * B;
+            if (freq > 0) {
+                osc(c, freq, 'triangle', 0.38, bt, 8, durS * 1000 * 0.88, 50, bus);
+            }
+            bt += durS;
+        }
+        // Schedule repeat
+        const delayMs = Math.max(50, (startT + loopS - c.currentTime - 0.12) * 1000);
         setTimeout(() => {
-            if (!_ambientStarted) return;
-            const f = pingFreqs[Math.floor(Math.random() * pingFreqs.length)];
-            osc(c, f, 'sine', 0.045, c.currentTime, 15, 30, 900, bus);
-            schedulePing();
-        }, 8000 + Math.random() * 10000);
+            if (_ambientStarted) scheduleLoop(startT + loopS);
+        }, delayMs);
     }
-    schedulePing();
+
+    scheduleLoop(c.currentTime + 0.1);
 }

@@ -5,7 +5,7 @@ import { computeWeightClass } from '../game/weightClass.ts';
 import { startAmbient, applyMuteState, playClick } from '../game/audio.ts';
 import LootScreen from './LootScreen.tsx';
 import BackpackScreen from './BackpackScreen.tsx';
-import ArenaScreen from './ArenaScreen.tsx';
+import CodexScreen from './CodexScreen.tsx';
 import TraderScreen from './TraderScreen.tsx';
 import PassiveResultsPopup from './PassiveResultsPopup.tsx';
 import MenuOverlay from './MenuOverlay.tsx';
@@ -13,7 +13,7 @@ import MenuOverlay from './MenuOverlay.tsx';
 const TABS: { id: GameScreenType; label: string }[] = [
     { id: 'loot', label: 'RUINS' },
     { id: 'backpack', label: 'LOADOUT' },
-    { id: 'arena', label: 'ARENA' },
+    { id: 'codex', label: 'CODEX' },
     { id: 'trader', label: 'OUTPOST' },
 ];
 
@@ -82,7 +82,7 @@ export default function GameScreen() {
             <div className="relative min-h-0 flex-1 overflow-hidden">
                 {screen === 'loot' && <LootScreen />}
                 {screen === 'backpack' && <BackpackScreen />}
-                {screen === 'arena' && <ArenaScreen />}
+                {screen === 'codex' && <CodexScreen />}
                 {screen === 'trader' && <TraderScreen />}
 
                 <PassiveResultsPopup />

@@ -1,9 +1,9 @@
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'unique';
-export type ItemType = 'weapon' | 'armor' | 'utility' | 'consumable';
+export type ItemType = 'weapon' | 'armor' | 'utility' | 'consumable' | 'lore';
 export type SpecialTag = 'bio' | 'hazmat' | 'bleed' | 'stun' | 'aoe' | 'nav' | 'cleanse' | 'growth';
 export type LocationDanger = 'low' | 'medium' | 'high' | 'extreme';
-export type LogType = 'loot' | 'ambush' | 'battle-win' | 'battle-loss' | 'trade' | 'info';
-export type GameScreen = 'loot' | 'backpack' | 'arena' | 'trader';
+export type LogType = 'loot' | 'ambush' | 'battle-win' | 'battle-loss' | 'trade' | 'info' | 'lore';
+export type GameScreen = 'loot' | 'backpack' | 'codex' | 'trader';
 
 export interface Item {
     id: string;
@@ -19,9 +19,11 @@ export interface Item {
     buyValue?: number;
     energyRestore?: number;
     luckBonus?: boolean;
-    researchBoostMs?: number;       // for magnifying glasses: ms to remove from research timer
-    energyBoostDuration?: number;   // ms of energy boost when consumed (energy drink)
-    uniqueDropRate?: number;        // probability per roll, unique items only
+    researchBoostMs?: number;
+    energyBoostDuration?: number;
+    uniqueDropRate?: number;
+    loreTerraId?: string;
+    loreSnippetId?: string;
 }
 
 export interface ResearchQueueItem {
@@ -40,6 +42,7 @@ export interface Location {
     ambushChance: number;
     minRarity: Rarity;
     maxRarity: Rarity;
+    terraIds: string[];
 }
 
 export interface LogEntry {
@@ -78,6 +81,11 @@ export interface LootEvent {
     secondaryItems: Item[];
     lostItem?: Item;
     energyLost?: number;
+    loreItem?: Item;
+    terraId?: string;
+    terraSnippetId?: string;
+    terraSnippetText?: string;
+    terraSnippetFormat?: 'journal' | 'research' | 'radio' | 'cryptic';
 }
 
 export interface PassiveResults {

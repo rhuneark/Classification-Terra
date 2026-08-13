@@ -6,7 +6,7 @@ import { store } from './state/store.ts';
 import { loadSave, updateSave, flushSave } from './state/save.ts';
 import { initSdk, registerLifecycles, sdkReady } from './sdk/runSdk.ts';
 import { warmAssets } from './assets/preload.ts';
-import { NPC_OPPONENTS, getRandomNPCOpponent } from './game/opponents.ts';
+import { getRandomNPCOpponent } from './game/opponents.ts';
 import { computeWeightClass } from './game/weightClass.ts';
 import type { PassiveResults } from './game/types.ts';
 import { MAX_ENERGY, ENERGY_REGEN_MINUTES } from './game/types.ts';
@@ -109,11 +109,12 @@ async function boot() {
         backpack: save.backpack,
         researchQueue: remainingQueue,
         foundUniqueIds: save.foundUniqueIds ?? [],
+        discoveredTerraIds: save.discoveredTerraIds ?? [],
+        collectedLoreIds: save.collectedLoreIds ?? [],
         muteMusic: save.muteMusic ?? false,
         muteSfx: save.muteSfx ?? false,
         energyBoostUntil: save.energyBoostUntil ?? 0,
         eventLog: save.eventLog,
-        arenaOpponents: NPC_OPPONENTS,
         passiveResults,
         loginBonus,
     });

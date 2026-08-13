@@ -2,10 +2,10 @@
 
 @theme {
     --color-primary: #7ccf5a;
-    --color-surface: #070e08;
-    --color-surface-2: #0e2010;
-    --color-border: #243e26;
-    --color-text-muted: #bcd4bd;
+    --color-surface: #0d1a10;
+    --color-surface-2: #162818;
+    --color-border: #2c4a2e;
+    --color-text-muted: #c4dcc5;
 }
 
 :root {
@@ -57,6 +57,30 @@ body {
 }
 @utility pb-safe-bottom {
     padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Vignette + scanline overlay — pointer-events: none so they don't block taps */
+#app-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 50% 45%, transparent 52%, rgba(0, 0, 0, 0.72) 100%);
+    z-index: 9999;
+}
+#app-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.035) 2px,
+        rgba(0, 0, 0, 0.035) 4px
+    );
+    z-index: 9998;
 }
 
 /* Scrollable areas inside the game frame */

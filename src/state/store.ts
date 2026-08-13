@@ -2,15 +2,12 @@ import { useSyncExternalStore } from 'react';
 import type {
     Item,
     LogEntry,
-    Build,
-    BattleResult,
     LootEvent,
     PassiveResults,
     GameScreen,
     ResearchQueueItem,
 } from '../game/types.ts';
 import { BACKPACK_SLOTS, MAX_ENERGY } from '../game/types.ts';
-import { NPC_OPPONENTS } from '../game/opponents.ts';
 
 export interface AppState {
     phase: 'loading' | 'menu' | 'playing';
@@ -28,14 +25,13 @@ export interface AppState {
     researchQueue: ResearchQueueItem[];
 
     foundUniqueIds: string[];
+    discoveredTerraIds: string[];
+    collectedLoreIds: string[];
     muteMusic: boolean;
     muteSfx: boolean;
 
     eventLog: LogEntry[];
     activeLootEvent: LootEvent | null;
-
-    arenaOpponents: Build[];
-    lastBattle: BattleResult | null;
 
     traderInventory: Item[];
     traderLastRefresh: number;
@@ -61,12 +57,12 @@ let state: AppState = {
     backpack: Array(BACKPACK_SLOTS).fill(null) as (Item | null)[],
     researchQueue: [],
     foundUniqueIds: [],
+    discoveredTerraIds: [],
+    collectedLoreIds: [],
     muteMusic: false,
     muteSfx: false,
     eventLog: [],
     activeLootEvent: null,
-    arenaOpponents: NPC_OPPONENTS,
-    lastBattle: null,
     traderInventory: [],
     traderLastRefresh: 0,
     passiveResults: null,

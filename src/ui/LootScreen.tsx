@@ -9,6 +9,7 @@ import { PAPERCLIPS } from '../game/items.ts';
 import { getDailyChallengeLocation, getTodayStr } from '../game/dailyChallenge.ts';
 import { scheduleResearchNotif } from '../game/notifications.ts';
 import { playScavenge, playItemFound } from '../game/audio.ts';
+import { FORMAT_LABELS } from '../game/terras.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 const _dailyChallenge = getDailyChallengeLocation();
@@ -21,11 +22,11 @@ function EnergyBar({ energy, max }: { energy: number; max: number }) {
     const barColor = energy >= max * 0.6 ? '#4ade80' : energy >= max * 0.3 ? '#facc15' : '#f97316';
     return (
         <div className="flex items-center gap-2">
-            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#142816', maxWidth: '80px' }}>
+            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#1c3820', maxWidth: '80px' }}>
                 <div className="h-full rounded-full transition-[width] duration-300" style={{ width: `${pct}%`, background: barColor }} />
             </div>
             <span className="text-[0.85rem] font-bold tabular-nums" style={{ color: barColor }}>
-                {energy}<span style={{ color: '#4a6a4c' }}>/{max}</span> ⚡
+                {energy}<span style={{ color: '#5a7e5c' }}>/{max}</span> ⚡
             </span>
         </div>
     );
@@ -42,8 +43,8 @@ function LocationCard({ location, onTap, isChallenge, challengeDone }: {
             type="button"
             className="w-full rounded p-4 text-left transition-transform active:scale-[0.98]"
             style={{
-                background: isChallenge && !challengeDone ? '#14200e' : '#0e2010',
-                border: `1px solid ${isChallenge && !challengeDone ? '#fb923c66' : canAfford ? '#243e26' : '#1a2010'}`,
+                background: isChallenge && !challengeDone ? '#1a2810' : '#112018',
+                border: `1px solid ${isChallenge && !challengeDone ? '#fb923c66' : canAfford ? '#2c4a2e' : '#1a2810'}`,
                 opacity: canAfford ? 1 : 0.5,
             }}
             onClick={onTap}
@@ -63,7 +64,7 @@ function LocationCard({ location, onTap, isChallenge, challengeDone }: {
                             <span className="shrink-0 text-[0.6rem] font-bold" style={{ color: '#4a6a4c' }}>DONE TODAY</span>
                         )}
                     </div>
-                    <div className="mt-0.5 text-[0.82rem] leading-snug" style={{ color: '#bcd4bd' }}>
+                    <div className="mt-0.5 text-[0.82rem] leading-snug" style={{ color: '#c4dcc5' }}>
                         {location.description}
                     </div>
                 </div>
@@ -98,28 +99,29 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
     if (event.type === 'loot' && event.foundItem) {
         const item = event.foundItem;
         const isUnique = item.rarity === 'unique';
+        const isLoreItem = item.type === 'lore';
 
         return (
-            <div className="absolute inset-0 flex items-center justify-center px-5" style={{ background: 'rgba(0,0,0,0.88)', zIndex: 40 }}>
-                <div className="w-full max-w-sm rounded p-5" style={{ background: '#0e2010', border: '1px solid #243e26', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="absolute inset-0 flex items-center justify-center px-5" style={{ background: 'rgba(0,0,0,0.90)', zIndex: 40 }}>
+                <div className="w-full max-w-sm rounded p-5" style={{ background: '#112018', border: '1px solid #2c4a2e', maxHeight: '90vh', overflowY: 'auto' }}>
                     <div className="text-[0.75rem] font-bold tracking-widest" style={{ color: '#4ade80' }}>
-                        ITEM FOUND — {event.locationName}
+                        {isLoreItem ? 'DOCUMENT FOUND' : 'ITEM FOUND'} — {event.locationName}
                     </div>
 
-                    <div className="mt-3 rounded p-3" style={{ background: '#070e08', border: `1px solid ${RARITY_COLORS[item.rarity]}44` }}>
-                        <div className="text-[1.15rem] font-bold" style={{ color: RARITY_COLORS[item.rarity] }}>
+                    <div className="mt-3 rounded p-3" style={{ background: '#0a1810', border: `1px solid ${RARITY_COLORS[item.rarity]}44` }}>
+                        <div className="text-[1.15rem] font-bold" style={{ color: isLoreItem ? '#c084fc' : RARITY_COLORS[item.rarity] }}>
                             {item.name}
                         </div>
-                        <div className="text-[0.7rem] font-bold tracking-wide" style={{ color: RARITY_COLORS[item.rarity] + 'aa' }}>
-                            {RARITY_LABELS[item.rarity]}
+                        <div className="text-[0.7rem] font-bold tracking-wide" style={{ color: isLoreItem ? '#c084fc88' : RARITY_COLORS[item.rarity] + 'aa' }}>
+                            {isLoreItem ? 'FIELD DOCUMENT' : RARITY_LABELS[item.rarity]}
                         </div>
-                        <div className="mt-1 text-[0.86rem] leading-snug" style={{ color: '#bcd4bd' }}>
+                        <div className="mt-1 text-[0.86rem] leading-snug" style={{ color: '#c4dcc5' }}>
                             {item.description}
                         </div>
-                        {item.power > 0 && (
+                        {!isLoreItem && item.power > 0 && (
                             <div className="mt-1.5 text-[0.85rem] font-bold text-white">PWR {item.power}</div>
                         )}
-                        {item.special.length > 0 && (
+                        {!isLoreItem && item.special.length > 0 && (
                             <div className="mt-0.5 flex flex-wrap gap-1">
                                 {item.special.map(s => (
                                     <span key={s} className="rounded px-1 text-[0.65rem]" style={{ background: '#1a3e1c', color: '#5ade70' }}>
@@ -137,11 +139,18 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
                         </div>
                     )}
 
+                    {isLoreItem && (
+                        <div className="mt-2 rounded p-2 text-[0.78rem]" style={{ background: '#180b28', border: '1px solid #c084fc33' }}>
+                            <span style={{ color: '#c084fc' }}>Unlocks a Codex entry.</span>
+                            <span style={{ color: '#8a7aac' }}> Read it in the CODEX tab.</span>
+                        </div>
+                    )}
+
                     <div className="mt-2 text-[0.82rem] italic" style={{ color: '#6a8e6c' }}>{event.flavorText}</div>
 
                     {/* Secondary items */}
                     {event.secondaryItems.length > 0 && (
-                        <div className="mt-3 rounded p-2.5" style={{ background: '#070e08', border: '1px solid #1a3e1c' }}>
+                        <div className="mt-3 rounded p-2.5" style={{ background: '#0a1810', border: '1px solid #1a3e1c' }}>
                             <div className="mb-1.5 text-[0.68rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>ALSO FOUND — QUEUED FOR RESEARCH</div>
                             {event.secondaryItems.map((si, i) => (
                                 <div key={i} className="flex items-center justify-between py-0.5">
@@ -180,13 +189,15 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
                             <button type="button" className="flex-1 rounded py-3 text-[1rem] font-bold tracking-wide transition-transform active:scale-95"
                                 style={{ background: '#7ccf5a', color: '#070e08' }}
                                 onClick={onTake}>
-                                TAKE IT
+                                {isLoreItem ? 'COLLECT' : 'TAKE IT'}
                             </button>
-                            <button type="button" className="rounded px-4 py-3 text-[0.82rem] transition-transform active:scale-95"
-                                style={{ background: '#1a2010', color: '#6a8e6c', border: '1px solid #1a3e1c' }}
-                                onClick={isUnique ? () => setConfirmScrap(true) : onScrap}>
-                                SCRAP +1
-                            </button>
+                            {!isLoreItem && (
+                                <button type="button" className="rounded px-4 py-3 text-[0.82rem] transition-transform active:scale-95"
+                                    style={{ background: '#1a2010', color: '#6a8e6c', border: '1px solid #1a3e1c' }}
+                                    onClick={isUnique ? () => setConfirmScrap(true) : onScrap}>
+                                    SCRAP +1
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
@@ -195,13 +206,15 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
     }
 
     // Ambush modal
+    const snippetFormatLabel = event.terraSnippetFormat ? FORMAT_LABELS[event.terraSnippetFormat] : null;
+
     return (
-        <div className="absolute inset-0 flex items-center justify-center px-5" style={{ background: 'rgba(0,0,0,0.88)', zIndex: 40 }}>
-            <div className="w-full max-w-sm rounded p-5" style={{ background: '#0e2010', border: '1px solid #243e26' }}>
+        <div className="absolute inset-0 flex items-center justify-center px-5" style={{ background: 'rgba(0,0,0,0.90)', zIndex: 40 }}>
+            <div className="w-full max-w-sm rounded p-5" style={{ background: '#1a0e0a', border: '1px solid #3a1e12' }}>
                 <div className="text-[0.75rem] font-bold tracking-widest" style={{ color: '#f97316' }}>
                     AMBUSH — {event.locationName}
                 </div>
-                <div className="mt-3 text-[0.92rem] leading-relaxed" style={{ color: '#bcd4bd' }}>
+                <div className="mt-3 text-[0.92rem] leading-relaxed" style={{ color: '#c4dcc5' }}>
                     {event.flavorText}
                 </div>
                 {event.lostItem && (
@@ -217,8 +230,26 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
                         <div className="mt-0.5 text-[1rem] font-bold text-white">{event.energyLost} ⚡ energy</div>
                     </div>
                 )}
+
+                {/* Terra lore snippet attached to this ambush */}
+                {event.terraSnippetText && (
+                    <div className="mt-3 rounded p-3" style={{ background: '#0a1010', border: '1px solid #2a4a3c' }}>
+                        {snippetFormatLabel && (
+                            <div className="text-[0.62rem] font-bold tracking-widest mb-1.5" style={{ color: '#4a8a6c' }}>
+                                FIELD INTELLIGENCE — {snippetFormatLabel}
+                            </div>
+                        )}
+                        <p className="text-[0.82rem] leading-relaxed italic" style={{ color: '#8aaa9c' }}>
+                            {event.terraSnippetText}
+                        </p>
+                        <div className="mt-1.5 text-[0.65rem]" style={{ color: '#3a6a4c' }}>
+                            Codex entry unlocked.
+                        </div>
+                    </div>
+                )}
+
                 <button type="button" className="mt-5 w-full rounded py-3 text-[1rem] font-bold tracking-wide transition-transform active:scale-95"
-                    style={{ background: '#1f3822', color: '#7ccf5a', border: '1px solid #2a5e2c' }}
+                    style={{ background: '#1f2e1a', color: '#7ccf5a', border: '1px solid #2a4e2c' }}
                     onClick={onDismiss}>
                     CONTINUE
                 </button>
@@ -240,16 +271,15 @@ export default function LootScreen() {
         const s = store.get();
         if (s.energy < location.energyCost) return;
         playScavenge();
-        const event = rollLootEvent(location, s.inventory, s.energy, s.luckBonusActive);
+        const event = rollLootEvent(location, s.inventory, s.energy, s.luckBonusActive, s.collectedLoreIds);
         const newEnergy = s.energy - location.energyCost;
 
-        // Daily challenge bonus: one award per day
-        const today = getTodayStr();
+        const todayStr = getTodayStr();
         const save = getSave();
         let challengeBonus = 0;
-        if (location.id === _dailyChallenge.id && save.lastDailyChallengeDay !== today) {
+        if (location.id === _dailyChallenge.id && save.lastDailyChallengeDay !== todayStr) {
             challengeBonus = 25;
-            updateSave({ lastDailyChallengeDay: today });
+            updateSave({ lastDailyChallengeDay: todayStr });
             RundotGameAPI.analytics.recordCustomEvent('daily_challenge_completed', { locationId: location.id }).catch(() => {});
         }
         const newCurrency = s.currency + challengeBonus;
@@ -265,11 +295,11 @@ export default function LootScreen() {
         if (!event || event.type !== 'loot' || !event.foundItem) return;
 
         const item = event.foundItem;
-        // Mark unique as found
+        const isLoreItem = item.type === 'lore';
+
         if (item.rarity === 'unique') {
             markUniqueFound(item.id);
             store.patch({ foundUniqueIds: [...s.foundUniqueIds.filter(id => id !== item.id), item.id] });
-            // Submit first-finder leaderboard entry (lowest score = earliest = world first)
             const pcIdx = PAPERCLIPS.findIndex(p => p.id === item.id);
             if (pcIdx !== -1) {
                 const pcNumber = 10 - pcIdx;
@@ -280,6 +310,22 @@ export default function LootScreen() {
                     metadata: { paperclipNumber: pcNumber },
                 }).catch(() => {});
             }
+        }
+
+        // Handle lore item: unlock terra entry + go to inventory
+        let newDiscoveredTerraIds = s.discoveredTerraIds;
+        let newCollectedLoreIds = s.collectedLoreIds;
+        if (isLoreItem && item.loreTerraId && item.loreSnippetId) {
+            if (!newDiscoveredTerraIds.includes(item.loreTerraId)) {
+                newDiscoveredTerraIds = [...newDiscoveredTerraIds, item.loreTerraId];
+            }
+            if (!newCollectedLoreIds.includes(item.loreSnippetId)) {
+                newCollectedLoreIds = [...newCollectedLoreIds, item.loreSnippetId];
+            }
+            RundotGameAPI.analytics.recordCustomEvent('lore_document_collected', {
+                terraId: item.loreTerraId,
+                snippetId: item.loreSnippetId,
+            }).catch(() => {});
         }
 
         // Queue secondary items
@@ -294,10 +340,10 @@ export default function LootScreen() {
             newQueue = [...s.researchQueue, ...secondaryQueueItems];
         }
 
-        // Consumables go directly to inventory, others to research queue
+        // Lore items + consumables go to inventory directly; gear goes to research
         let newInventory = s.inventory;
         let finalQueue = newQueue;
-        if (item.type === 'consumable') {
+        if (item.type === 'consumable' || item.type === 'lore') {
             newInventory = [...s.inventory, item];
         } else {
             finalQueue = [...newQueue, {
@@ -308,10 +354,36 @@ export default function LootScreen() {
             }];
         }
 
+        // Also handle lore item drop alongside gear
+        let newInventoryWithLore = newInventory;
+        if (event.loreItem && event.loreItem.loreTerraId && event.loreItem.loreSnippetId) {
+            const li = event.loreItem;
+            if (!newDiscoveredTerraIds.includes(li.loreTerraId!)) {
+                newDiscoveredTerraIds = [...newDiscoveredTerraIds, li.loreTerraId!];
+            }
+            if (!newCollectedLoreIds.includes(li.loreSnippetId!)) {
+                newCollectedLoreIds = [...newCollectedLoreIds, li.loreSnippetId!];
+            }
+            newInventoryWithLore = [...newInventory, li];
+        }
+
         const logEntry = eventToLogEntry(event);
         const newLog = [logEntry, ...s.eventLog].slice(0, 50);
-        store.patch({ inventory: newInventory, researchQueue: finalQueue, eventLog: newLog, activeLootEvent: null });
-        updateSave({ inventory: newInventory, researchQueue: finalQueue, eventLog: newLog });
+        store.patch({
+            inventory: newInventoryWithLore,
+            researchQueue: finalQueue,
+            eventLog: newLog,
+            activeLootEvent: null,
+            discoveredTerraIds: newDiscoveredTerraIds,
+            collectedLoreIds: newCollectedLoreIds,
+        });
+        updateSave({
+            inventory: newInventoryWithLore,
+            researchQueue: finalQueue,
+            eventLog: newLog,
+            discoveredTerraIds: newDiscoveredTerraIds,
+            collectedLoreIds: newCollectedLoreIds,
+        });
         playItemFound(item.rarity);
         scheduleResearchNotif(finalQueue);
         RundotGameAPI.analytics.recordCustomEvent('loot_item_found', { itemId: item.id, rarity: item.rarity, isUnique: item.rarity === 'unique' }).catch(() => {});
@@ -322,7 +394,6 @@ export default function LootScreen() {
         const event = s.activeLootEvent;
         if (!event || event.type !== 'loot' || !event.foundItem) return;
 
-        // Queue secondary items still
         let newQueue = s.researchQueue;
         if (event.secondaryItems.length > 0) {
             const secondaryQueueItems = event.secondaryItems.map(si => ({
@@ -353,19 +424,44 @@ export default function LootScreen() {
         let newEnergy = s.energy;
         if (event.lostItem) newInventory = s.inventory.filter(i => i !== event.lostItem);
         if (event.energyLost) newEnergy = Math.max(0, s.energy - event.energyLost);
-        store.patch({ inventory: newInventory, energy: newEnergy, eventLog: newLog, activeLootEvent: null });
+
+        // Register terra encounter from ambush snippet
+        let newDiscoveredTerraIds = s.discoveredTerraIds;
+        let newCollectedLoreIds = s.collectedLoreIds;
+        if (event.terraId && !newDiscoveredTerraIds.includes(event.terraId)) {
+            newDiscoveredTerraIds = [...newDiscoveredTerraIds, event.terraId];
+        }
+        if (event.terraSnippetId && !newCollectedLoreIds.includes(event.terraSnippetId)) {
+            newCollectedLoreIds = [...newCollectedLoreIds, event.terraSnippetId];
+        }
+
+        store.patch({
+            inventory: newInventory,
+            energy: newEnergy,
+            eventLog: newLog,
+            activeLootEvent: null,
+            discoveredTerraIds: newDiscoveredTerraIds,
+            collectedLoreIds: newCollectedLoreIds,
+        });
         const save = getSave();
-        updateSave({ inventory: newInventory, energy: newEnergy, eventLog: newLog, totalAmbushes: (save.totalAmbushes ?? 0) + 1 });
+        updateSave({
+            inventory: newInventory,
+            energy: newEnergy,
+            eventLog: newLog,
+            totalAmbushes: (save.totalAmbushes ?? 0) + 1,
+            discoveredTerraIds: newDiscoveredTerraIds,
+            collectedLoreIds: newCollectedLoreIds,
+        });
         RundotGameAPI.analytics.recordCustomEvent('loot_ambush_triggered', { locationName: event.locationName }).catch(() => {});
     }
 
     const recentLog = eventLog.slice(0, 8);
 
     return (
-        <div className="relative flex h-full flex-col" style={{ background: '#070e08' }}>
-            <div className="shrink-0 px-4 pt-3 pb-2" style={{ borderBottom: '1px solid #142816' }}>
+        <div className="relative flex h-full flex-col" style={{ background: '#0d1a10' }}>
+            <div className="shrink-0 px-4 pt-3 pb-2" style={{ borderBottom: '1px solid #1c3820' }}>
                 <div className="flex items-center justify-between">
-                    <div className="text-[1rem] font-bold tracking-widest text-primary">RUINS</div>
+                    <div className="text-[1rem] font-bold tracking-widests text-primary">RUINS</div>
                     <EnergyBar energy={energy} max={maxEnergy} />
                 </div>
                 <p className="mt-0.5 text-[0.72rem]" style={{ color: '#6a8e6c' }}>
@@ -387,7 +483,7 @@ export default function LootScreen() {
             </div>
 
             {recentLog.length > 0 && (
-                <div className="shrink-0 px-3 pt-2 pb-1" style={{ borderTop: '1px solid #142816' }}>
+                <div className="shrink-0 px-3 pt-2 pb-1" style={{ borderTop: '1px solid #1c3820' }}>
                     <div className="mb-1 text-[0.68rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>RECENT LOG</div>
                     {recentLog.map(entry => (
                         <div key={entry.id} className="py-0.5 text-[0.78rem] leading-snug" style={{ color: '#8aaa8c' }}>
@@ -396,6 +492,7 @@ export default function LootScreen() {
                             ) : entry.type === 'ambush' ? <span style={{ color: '#f97316' }}>[AMB] </span>
                             : entry.type === 'battle-win' ? <span style={{ color: '#4ade80' }}>[WIN] </span>
                             : entry.type === 'battle-loss' ? <span style={{ color: '#f43f5e' }}>[LOSS] </span>
+                            : entry.type === 'lore' ? <span style={{ color: '#c084fc' }}>[LOG] </span>
                             : null}
                             {entry.message.length > 80 ? entry.message.slice(0, 80) + '…' : entry.message}
                         </div>

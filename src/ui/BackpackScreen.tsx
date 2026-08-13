@@ -166,7 +166,7 @@ function ItemCard({ item, onClick, selected, compact = false }: { item: Item; on
                     </div>
                 </div>
                 <div className="shrink-0 text-right">
-                    <div className="text-[1rem] font-bold text-white">{item.type === 'consumable' ? '—' : item.power}</div>
+                    <div className="text-[1rem] font-bold text-white">{(item.type === 'consumable' || item.type === 'lore') ? '—' : item.power}</div>
                     <div className="text-[0.65rem]" style={{ color: '#4a6a4c' }}>PWR</div>
                 </div>
             </div>
@@ -202,10 +202,15 @@ export default function BackpackScreen() {
     const wc = computeWeightClass(backpack);
     const combos = getActiveComboLabels(backpack);
     const equippedCount = backpack.filter(Boolean).length;
-    const regularInventory = inventory.filter(i => i.type !== 'consumable');
+    const regularInventory = inventory.filter(i => i.type !== 'consumable' && i.type !== 'lore');
     const consumables = inventory.filter(i => i.type === 'consumable');
+    const loreItems = inventory.filter(i => i.type === 'lore');
 
     function handleInventoryTap(item: Item) {
+        if (item.type === 'lore') {
+            store.patch({ selectedInventoryItemId: selectedId === item.id ? null : item.id });
+            return;
+        }
         if (item.type === 'consumable') {
             store.patch({ selectedInventoryItemId: selectedId === item.id ? null : item.id });
             return;
@@ -332,6 +337,58 @@ export default function BackpackScreen() {
                         </p>
                     )}
                 </div>
+
+                {loreItems.length > 0 && (
+                    <div>
+                        <div className="mb-1.5 text-[0.68rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>
+                            FIELD DOCUMENTS ({loreItems.length})
+                        </div>
+                        <div className="space-y-1.5">
+                            {loreItems.map(item => {
+                                const isSelected = selectedId === item.id;
+                                return (
+                                    <div key={item.id + item.name}>
+                                        <button
+                                            type="button"
+                                            className="w-full rounded text-left transition-transform active:scale-[0.98]"
+                                            style={{ background: isSelected ? '#180b28' : '#0e1820', border: `1px solid ${isSelected ? '#c084fc88' : '#2a1e42'}`, padding: '10px 12px' }}
+                                            onClick={() => handleInventoryTap(item)}
+                                        >
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="truncate text-[0.95rem] font-bold" style={{ color: '#c084fc' }}>{item.name}</div>
+                                                    <div className="mt-0.5 text-[0.8rem] leading-snug" style={{ color: '#9a8abc' }}>{item.description}</div>
+                                                </div>
+                                                <div className="shrink-0 text-[0.62rem] font-bold tracking-wide" style={{ color: '#6a5a8a' }}>
+                                                    DOCUMENT
+                                                </div>
+                                            </div>
+                                        </button>
+                                        {isSelected && (
+                                            <div className="mt-1 flex gap-2 px-1">
+                                                <div className="flex-1 rounded px-2 py-1 text-[0.75rem]" style={{ background: '#0e1020', color: '#8a7aac', border: '1px solid #2a1e42' }}>
+                                                    Read in the CODEX tab.
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="rounded px-3 py-1 text-[0.75rem] transition-transform active:scale-95"
+                                                    style={{ background: '#1a0e1c', color: '#7a6a9a', border: '1px solid #2a1e3c' }}
+                                                    onClick={() => {
+                                                        const newInventory = store.get().inventory.filter(i => i !== item);
+                                                        store.patch({ inventory: newInventory, selectedInventoryItemId: null });
+                                                        updateSave({ inventory: newInventory });
+                                                    }}
+                                                >
+                                                    DISCARD
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
             </div>
 
             {showStats && <StatsCard onClose={() => setShowStats(false)} />}
