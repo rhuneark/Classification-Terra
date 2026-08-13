@@ -1,111 +1,260 @@
-import type { Item, Rarity } from './types.ts';
+import type { Item, Rarity, LocationDanger } from './types.ts';
 
+// ── helpers ────────────────────────────────────────────────────────────────
+type IT = Item['type'];
+type ST = Item['special'];
+function itm(id:string,name:string,desc:string,rarity:Rarity,type:IT,power:number,damage:number,defense:number,special:ST,sellValue:number,extra?:Partial<Item>):Item{
+    return{id,name,description:desc,rarity,type,power,damage,defense,special,sellValue,...extra};
+}
+
+// ── COMMON ─────────────────────────────────────────────────────────────────
+const COMMON: Item[] = [
+    itm('bent-fork','Bent Fork',"Three out of four tines. Somehow worse than useless.",'common','weapon',5,3,0,[],2),
+    itm('rusty-penknife','Rusty Penknife',"Doesn't fold all the way. Blade opens fine, though.",'common','weapon',8,6,0,[],3),
+    itm('sharpened-stick','Sharpened Stick',"You took your time with this one. It shows.",'common','weapon',6,4,0,[],2),
+    itm('broken-bottle','Broken Bottle',"The contents are gone. At least it's sharp now.",'common','weapon',7,5,0,[],2),
+    itm('cracked-brick','Cracked Brick',"Heavy end goes toward enemy. You figured this out yourself.",'common','weapon',9,7,0,[],3),
+    itm('rusty-nail-punch','Nail Puncher',"Two nails through a block of wood. Artisanal.",'common','weapon',10,8,0,[],4),
+    itm('metal-shard','Torn Metal Shard',"Sharp enough. Handle situation carefully.",'common','weapon',6,4,0,[],2),
+    itm('chair-leg','Repurposed Chair Leg',"Still has the bolt hole. Character.",'common','weapon',8,6,0,[],3),
+    itm('rope-flail','Knotted Rope Flail',"Effective in theory. Effective in practice once you practiced.",'common','weapon',7,5,0,[],3),
+    itm('slingshot','Improvised Slingshot',"Reliable up to 12 feet. Beyond that, good luck.",'common','weapon',5,4,0,[],2),
+    itm('half-scissors','Half a Scissors',"The other half is out there. Try not to think about it.",'common','weapon',6,5,0,[],2),
+    itm('duct-taped-club','Duct-Taped Club',"The tape is structural.",'common','weapon',12,9,0,[],4),
+    itm('torn-hazmat-glove','Torn Hazmat Glove (L)',"Left hand only. Right hand remains unprotected and aware of this.",'common','armor',4,0,3,[],2),
+    itm('cracked-face-shield','Cracked Face Shield',"The crack is on your side. You'll adjust.",'common','armor',5,0,4,[],2),
+    itm('damp-bandana','Damp Bandana',"Filters nothing. Absorbs everything.",'common','armor',3,0,2,[],1),
+    itm('waterlogged-boot','Waterlogged Boot (one)',"Keeps the right foot dry. Left foot philosophical.",'common','armor',3,0,2,[],1),
+    itm('cardboard-chest','Cardboard Chest Piece',"Rated for light rain. That's it.",'common','armor',5,0,4,[],2),
+    itm('newspaper-padding','Wrapped Newspaper Padding',"Informative AND protective. Neither very well.",'common','armor',4,0,3,[],1),
+    itm('cracked-hard-hat','Hard Hat (cracked)',"The crack is cosmetic. You've decided this.",'common','armor',6,0,5,[],3),
+    itm('one-knee-pad','Knee Pad (one)',"The right knee is the important one.",'common','armor',3,0,2,[],1),
+    itm('torn-raincoat','Torn Raincoat',"Stays on. That's the one thing it does.",'common','armor',5,0,4,[],2),
+    itm('plastic-shoulder','Plastic Shoulder Guard',"Repurposed from sporting goods. Still has the logo.",'common','armor',5,0,4,[],2),
+    itm('leather-vest','Leather Vest',"Cracked in the back. Holds form up front.",'common','armor',8,0,6,[],3),
+    itm('antibiotic-strip','Expired Antibiotic Strip',"Three years past. You've had worse odds.",'common','utility',2,0,2,[],1),
+    itm('tin-can','Crumpled Tin Can',"Good for throwing. Better for denting skulls.",'common','utility',3,0,0,[],1),
+    itm('shoelace','Scavenged Shoelace',"Holds things together. Metaphorically too.",'common','utility',1,0,1,[],1),
+    itm('broken-compass','Pocket Compass (broken)',"North is somewhere to your left. Probably.",'common','utility',2,0,1,[],1),
+    itm('spent-lighter','Spent Lighter',"Sparks occasionally. Keeps people guessing.",'common','utility',2,0,1,[],1),
+    itm('water-manual','Water-Damaged Manual',"Most of it survived. The important parts, unclear.",'common','utility',3,0,2,[],1),
+    itm('flat-battery','Flat Phone Battery',"Useless as power source. Excellent as shim.",'common','utility',1,0,1,[],1),
+    itm('corroded-keys','Corroded Keys (no lock)',"You keep them. You don't know why.",'common','utility',2,0,1,[],1),
+];
+
+// ── UNCOMMON ──────────────────────────────────────────────────────────────
+const UNCOMMON: Item[] = [
+    itm('spore-canister','Fungal Spore Canister',"Don't inhale. Actually, do. It affects your opponents more.",'uncommon','weapon',20,15,0,['bio','aoe'],8),
+    itm('crowbar','Salvaged Crowbar',"Multi-use. Last use was combat. First use was also combat.",'uncommon','weapon',22,18,0,[],9),
+    itm('glass-shiv','Glass Shiv',"Wrapped handle. Exposed blade. Functional.",'uncommon','weapon',18,15,0,[],7),
+    itm('steel-pipe','Steel Pipe (reinforced)',"Heavier than it looks. Looks heavy.",'uncommon','weapon',26,20,0,[],10),
+    itm('nail-bat','Nail Bat',"Forty-two nails. Counted.",'uncommon','weapon',28,22,0,[],11),
+    itm('hunting-knife','Hunting Knife (field-sharpened)',"Found it. Sharpened it. Use it.",'uncommon','weapon',23,19,0,[],9),
+    itm('chain-whip','Chain Whip (improvised)',"Reach advantage. Coordination required.",'uncommon','weapon',21,16,0,[],8),
+    itm('sharpened-rebar','Sharpened Rebar',"Industrial-grade blunt. Field-modified sharp.",'uncommon','weapon',19,15,0,[],8),
+    itm('impact-wrench','Impact Wrench (battery dead)',"Still swings like it's working.",'uncommon','weapon',24,19,0,[],9),
+    itm('taser','Jury-Rigged Taser',"Voltage uncertain. Results consistent.",'uncommon','weapon',22,17,0,['stun'],10),
+    itm('bone-baton','Bone Baton',"Femur. Human. Nobody asks.",'uncommon','weapon',20,15,0,[],8),
+    itm('lead-sap','Weighted Sap (lead)',"Small. Dense. Persuasive.",'uncommon','weapon',19,15,0,[],8),
+    itm('patched-vest','Patched Leather Vest',"Six patches. Two load-bearing.",'uncommon','armor',17,0,13,['bio'],7),
+    itm('work-gloves','Work Gloves (pair)',"Finally. Both hands covered.",'uncommon','armor',16,0,12,[],6),
+    itm('hazmat-boots','Hazmat Boots (too big)',"Extra socks handle the fit. Contamination handled by boots.",'uncommon','armor',19,0,14,['hazmat'],8),
+    itm('filtered-resp','Filtered Respirator (partial)',"One filter remaining. Make it count.",'uncommon','armor',18,0,13,['hazmat'],8),
+    itm('industrial-poncho','Rain Poncho (industrial)',"Industrial-grade. Weighs more than it should.",'uncommon','armor',17,0,12,[],7),
+    itm('tactical-boots','Tactical Boots (size 11)',"Not your size. Your size anyway.",'uncommon','armor',19,0,15,[],8),
+    itm('welding-mask','Welding Mask (scratched lens)',"Visibility 60%. Protection 100%. Tradeoff.",'uncommon','armor',21,0,16,['hazmat'],9),
+    itm('chain-mail-frag','Chain Mail Fragment',"Pre-collapse. Somebody was prepared.",'uncommon','armor',24,0,18,[],10),
+    itm('trauma-plate','Trauma Plate (single)',"One plate. Put it where it counts.",'uncommon','armor',20,0,15,[],8),
+    itm('military-cap','Military Cap',"Rank insignia removed. Better that way.",'uncommon','armor',15,0,11,[],6),
+    itm('antiseptic-spray','Antiseptic Spray (half)',"50% capacity. Better than 0%.",'uncommon','utility',12,0,8,[],5),
+    itm('quarantine-badge','Quarantine Badge (expired)',"They stopped checking expiry dates. Useful again.",'uncommon','utility',10,0,7,[],5),
+    itm('rope-5m','Scavenged Rope (5m)',"Load-rated to 200lbs. You weigh 170. Fine.",'uncommon','utility',11,0,7,[],5),
+    itm('motion-detect','Motion Detector (damaged)',"Triggers on motion. Also on stillness. Occasionally neither.",'uncommon','utility',14,0,8,[],6),
+    itm('lockpick-set','Lockpick Set (incomplete)',"Eight picks, missing the tension wrench. Improvise.",'uncommon','utility',13,0,7,[],6),
+    itm('field-binos','Field Binoculars (foggy lens)',"Doubles your effective scouting range. Halves your clarity.",'uncommon','utility',14,0,9,['nav'],6),
+    itm('signal-flare','Signal Flare (one)',"Single use. Make it matter.",'uncommon','utility',12,0,8,[],5),
+    itm('purif-tabs','Water Purification Tablets',"One pack. Eight tabs. Sixteen days clean.",'uncommon','utility',11,0,7,[],5),
+];
+
+// ── RARE ──────────────────────────────────────────────────────────────────
+const RARE: Item[] = [
+    itm('mycelium-blade','Mycelium Blade',"The edge isn't metal. It's growth.",'rare','weapon',38,28,0,['bio','bleed'],16),
+    itm('spore-grenade','Spore Cloud Grenade',"Disperses over a 10m radius. Aerosolized regret.",'rare','weapon',42,30,0,['bio','aoe'],18),
+    itm('scalpel-set','Scalpel Set (intact)',"Medical-grade. Repurposed.",'rare','weapon',35,27,0,[],15),
+    itm('military-knife','Military Knife (classified issue)',"Issued once. Never returned.",'rare','weapon',38,29,0,[],16),
+    itm('field-machete','Field Machete (survival grade)',"Rated for jungle. Adequate for this.",'rare','weapon',45,34,0,[],19),
+    itm('shotgun-jammed','Combat Shotgun (jammed, 2 shells)',"Two rounds. Unjam it and you have two rounds.",'rare','weapon',37,28,0,[],16),
+    itm('dart-set','Fungal Toxin Dart Set',"Twelve darts. Paralytic fungal extract. Track your dosage.",'rare','weapon',41,30,0,['bio','bleed'],18),
+    itm('explosive-compound','Explosive Compound (unstable)',"Unstable. You've been careful so far.",'rare','weapon',40,30,0,['aoe'],17),
+    itm('emp-device','EMP Pulse Device (single use)',"One use. Makes everything in range briefly not work. Including you.",'rare','weapon',36,26,0,['stun'],15),
+    itm('nail-driver','Pneumatic Nail Driver',"Still pressurized. 8000 PSI of argument.",'rare','weapon',39,29,0,[],16),
+    itm('cdc-jacket','CDC Field Jacket',"PROPERTY OF CDC. They're not coming for it.",'rare','armor',39,0,28,['hazmat','bio'],17),
+    itm('contam-suit-part','Contamination Suit (partial)',"Partial. Better than theoretical.",'rare','armor',43,0,32,['hazmat'],18),
+    itm('lab-face-shield','Lab-Grade Face Shield',"Impact and splash rated. Actually lab-grade.",'rare','armor',36,0,26,[],15),
+    itm('ballistic-vest','Ballistic Vest (worn)',"Light trauma protection. No rifle rounds.",'rare','armor',39,0,29,[],16),
+    itm('military-helmet','Military Helmet (gen 2)',"Gen 2. Gen 3 exists. Gen 3 is gone.",'rare','armor',36,0,27,[],15),
+    itm('nbc-partial','NBC Suit (partial, sealed)',"Nuclear/bio/chem. Two of three functions intact.",'rare','armor',43,0,32,['hazmat'],18),
+    itm('knee-plates','Impact-Resistant Kneepads',"Both knees. Both covered. Thank you.",'rare','armor',33,0,24,[],14),
+    itm('ceramic-plate','Ceramic Body Armor Plate',"Single plate. Position it wisely.",'rare','armor',37,0,27,[],16),
+    itm('specimen-jar','Infected Specimen Jar',"The seal holds. Mostly.",'rare','utility',26,0,16,['bio'],11),
+    itm('outbreak-map','Outbreak Map (general)',"Coverage: regional. Accuracy: approximate.",'rare','utility',24,0,14,['nav'],10),
+    itm('medical-toolkit','Medical Toolkit (incomplete)',"Missing the sutures and the optimism. Has everything else.",'rare','utility',28,0,18,[],12),
+    itm('geiger-counter','Field Geiger Counter',"Clicks occasionally. You've accepted this.",'rare','utility',22,0,14,[],10),
+    itm('encrypted-radio','Encrypted Radio',"Encrypted. Also broken. Nobody can hear you either way.",'rare','utility',26,0,16,[],11),
+    itm('portable-lab','Portable Lab Kit',"Fits in a case. Results in 20 minutes. Doesn't lie.",'rare','utility',30,0,18,['bio'],12),
+];
+
+// ── EPIC ──────────────────────────────────────────────────────────────────
+const EPIC: Item[] = [
+    itm('bone-saw','Pneumatic Bone Saw',"Charged. The teeth are recent.",'epic','weapon',68,50,0,[],28),
+    itm('qe-baton','Quarantine Enforcer Baton',"Property of the enforcement division. The division is gone.",'epic','weapon',72,53,0,['stun'],30),
+    itm('plasma-cutter','Plasma Cutter (salvaged)',"Industrial torch. 4500 degrees. Combat-applicable.",'epic','weapon',67,49,0,[],28),
+    itm('chem-sprayer','Chemical Sprayer (military)',"Delivery system for three different bad days.",'epic','weapon',62,46,0,['bio','aoe','hazmat'],26),
+    itm('concussion-grenade','Concussion Grenade (live)',"Live. Meaning active. Meaning be careful.",'epic','weapon',58,43,0,['aoe','stun'],25),
+    itm('classified-sidearm','Classified Sidearm (no ammo)',"Black project. No serial. No ammo. Still terrifying somehow.",'epic','weapon',65,48,0,[],27),
+    itm('bioagent-canister','Experimental Bioagent Canister',"Classified contents. Immediate effect.",'epic','weapon',70,52,0,['bio','aoe'],29),
+    itm('spike-driver','Industrial Spike Driver',"Railway equipment. One spike, one strike.",'epic','weapon',64,47,0,[],27),
+    itm('full-hazmat','Full Hazmat Suit (minor breach)',"The breach is on the left shoulder. Your call.",'epic','armor',82,0,58,['hazmat','bio'],34),
+    itm('mycelium-shell','Mycelium Armor Shell',"It grew around you. You let it.",'epic','armor',88,0,62,['bio','growth'],36),
+    itm('exo-frame','Experimental Exo-Frame (damaged)',"Military prototype. Servo on left arm sticks occasionally.",'epic','armor',75,0,54,[],32),
+    itm('nbc-complete','NBC Suit (complete, aging seals)',"Complete. Seals at 72%. Adjust expectations.",'epic','armor',71,0,52,['hazmat'],30),
+    itm('tactical-shield','Tactical Shield (cracked)',"Crack is horizontal. Ballistics still deflect.",'epic','armor',64,0,48,[],27),
+    itm('adaptive-camo','Adaptive Camouflage Vest',"Thermal disruptive patterning. Nobody sees you until they do.",'epic','armor',70,0,50,[],29),
+    itm('rad-suit-partial','Radiation Shielding Suit (70%)',"Provides 70% coverage. That 30% gap is on you.",'epic','armor',68,0,49,['hazmat'],29),
+    itm('sector7-map','Outbreak Map (Sector 7)',"Sector 7 was the epicenter. This map predates the cover-up.",'epic','utility',48,0,30,['nav','bio'],20),
+    itm('symbiont-brace','Fungal Symbiont Brace',"It's alive. It's yours now. Mutually.",'epic','utility',52,0,34,['bio','growth'],22),
+    itm('field-med-kit','Enhanced Field Medical Kit',"Field trauma, surgical repair, blood-typing. One bag.",'epic','utility',46,0,28,[],19),
+    itm('tactical-drone','Tactical Drone (damaged)',"One working rotor. Still gathers intel. Loudly.",'epic','utility',50,0,30,['nav'],21),
+    itm('classified-file','Classified Intelligence File',"Redacted heavily. What isn't redacted is worse.",'epic','utility',44,0,28,[],19),
+    itm('neural-fragment','Neural Interface Fragment',"Pre-collapse tech. Interfaces with something. Unclear what.",'epic','utility',48,0,30,[],20),
+];
+
+// ── LEGENDARY ─────────────────────────────────────────────────────────────
+const LEGENDARY: Item[] = [
+    itm('outbreak-zero','Outbreak Zero Sample',"The original. Sealed. Don't break it. Don't break it.",'legendary','weapon',128,92,0,['bio','aoe'],52),
+    itm('surgical-laser','Surgical Laser (portable)',"Calibrated for soft tissue. Effective on other tissue.",'legendary','weapon',135,98,0,[],55),
+    itm('project-eden','Project EDEN Payload',"Classified. You have it. They want it back.",'legendary','weapon',142,103,0,['bio','aoe'],58),
+    itm('bioweapon-array','Bioengineered Toxin Array',"Six delivery vectors. Each specific to a different vulnerability.",'legendary','weapon',138,100,0,['bio','aoe','bleed'],56),
+    itm('tier6-asset','Classified Tier-6 Asset',"The label says Tier-6. You don't want to know Tier-7.",'legendary','weapon',130,95,0,[],53),
+    itm('decon-cannon','Decontamination Cannon',"Industrial purge system. Handheld. Technically.",'legendary','weapon',152,110,0,['hazmat','aoe','cleanse'],62),
+    itm('director-nbc','Director Chen\'s NBC Suit',"Custom-fitted. Her name is on the collar. She left without it.",'legendary','armor',148,0,105,['hazmat','bio'],60),
+    itm('power-armor-frame','Last Surviving Power Armor (frame)',"Exoskeleton. Needs power. Has presence anyway.",'legendary','armor',155,0,110,[],63),
+    itm('containment-shell','Adaptive Containment Shell',"Self-seals breaches. Adapts to hazard signatures. Unnerving.",'legendary','armor',145,0,102,['hazmat','bio','cleanse'],59),
+    itm('cure7-vial','Last Vial of Cure-7',"Final one. The researcher wrote 'Don't use this' on it. You disagree.",'legendary','utility',115,0,72,['bio','cleanse'],47),
+    itm('director-badge','Director Chen\'s Access Badge',"Opens every door she ever entered. She entered most of them.",'legendary','utility',118,0,75,['nav'],48),
+    itm('eden-keycard','Project EDEN Keycard',"Black card. No markings. Tier-above-classified.",'legendary','utility',112,0,70,[],46),
+    itm('last-broadcast','Last Known Broadcast (recorded)',"Seven minutes of audio. You've listened to it twelve times.",'legendary','utility',110,0,68,[],45),
+    itm('sporemother-crown','Sporemother\'s Crown',"Grown, not forged. It knows when it's worn.",'legendary','utility',145,0,98,['bio','growth'],59),
+    itm('safe-haven-key','Last Safe Haven Key',"The door it opens is on a map you don't have. Keep the key anyway.",'legendary','utility',140,0,95,['nav'],57),
+];
+
+// ── UNIQUE: THE 10 PAPERCLIPS ──────────────────────────────────────────────
+export const PAPERCLIPS: Item[] = [
+    itm('paperclip-10','Half of a Paperclip',"Half a paperclip. Still more valuable than everything else you own.",'unique','utility',150,0,100,[],1,{uniqueDropRate:1/10_000}),
+    itm('paperclip-9','Broken Paperclip',"Bent at 90 degrees, then broken. Still said to move mountains. Small ones.",'unique','utility',155,0,103,[],1,{uniqueDropRate:1/13_000}),
+    itm('paperclip-8','Rust-Covered Paperclip',"The rust is cosmetic. The value is not.",'unique','utility',158,0,105,[],1,{uniqueDropRate:1/16_000}),
+    itm('paperclip-7','Chewed Paperclip',"Something large chewed this. It is still worth more than your safe house.",'unique','utility',162,0,107,[],1,{uniqueDropRate:1/20_000}),
+    itm('paperclip-6','Bent Paperclip',"Bent but intact. People have traded buildings for less.",'unique','utility',168,0,110,[],1,{uniqueDropRate:1/24_000}),
+    itm('paperclip-5','Unfolded Paperclip',"Completely unfolded. A single wire. A single wire worth everything.",'unique','utility',175,0,115,[],1,{uniqueDropRate:1/30_000}),
+    itm('paperclip-4','Twisted Wire Paperclip',"Twisted in on itself twice. Nobody knows why. Nobody questions it.",'unique','utility',182,0,120,[],1,{uniqueDropRate:1/36_000}),
+    itm('paperclip-3','Antique Paperclip',"Pre-collapse manufacture. The metallurgy is different. Better.",'unique','utility',190,0,126,[],1,{uniqueDropRate:1/42_000}),
+    itm('paperclip-2','Engraved Paperclip',"Microscopic engraving. Three words. You'll need a magnifier to read them.",'unique','utility',198,0,132,[],1,{uniqueDropRate:1/47_000}),
+    itm('paperclip-1','Perfectly Preserved Paperclip',"No rust. No bends. Perfect. Said to buy you anything left in the world.",'unique','utility',210,0,140,[],1,{uniqueDropRate:1/50_000}),
+];
+
+// ── ALL ITEMS ──────────────────────────────────────────────────────────────
 export const ALL_ITEMS: Item[] = [
-    // COMMON
-    { id: 'rusty-penknife', name: 'Rusty Penknife', description: 'Technically a weapon.', rarity: 'common', type: 'weapon', power: 10, damage: 5, defense: 0, special: [], sellValue: 5 },
-    { id: 'torn-hazmat-glove', name: 'Torn Hazmat Glove (L)', description: 'Protects one hand.', rarity: 'common', type: 'armor', power: 8, damage: 0, defense: 3, special: [], sellValue: 4 },
-    { id: 'cracked-face-shield', name: 'Cracked Face Shield', description: 'Reduces vision. Also reduces infection.', rarity: 'common', type: 'armor', power: 10, damage: 0, defense: 4, special: [], sellValue: 5 },
-    { id: 'duct-taped-club', name: 'Duct-Taped Club', description: 'Structural integrity: ongoing concern.', rarity: 'common', type: 'weapon', power: 12, damage: 8, defense: 0, special: [], sellValue: 6 },
-    { id: 'damp-bandana', name: 'Damp Bandana', description: 'Filters some things.', rarity: 'common', type: 'armor', power: 6, damage: 0, defense: 2, special: [], sellValue: 3 },
-    { id: 'bent-fork', name: 'Bent Fork', description: 'Versatile.', rarity: 'common', type: 'weapon', power: 5, damage: 3, defense: 0, special: [], sellValue: 2 },
-    { id: 'waterlogged-boot', name: 'Waterlogged Boot (one)', description: 'Half a pair.', rarity: 'common', type: 'armor', power: 7, damage: 0, defense: 3, special: [], sellValue: 3 },
-    { id: 'expired-antibiotic', name: 'Expired Antibiotic Strip', description: 'Still functions as a placebo.', rarity: 'common', type: 'utility', power: 8, damage: 0, defense: 0, special: [], sellValue: 4 },
-    { id: 'crumpled-tin-can', name: 'Crumpled Tin Can', description: 'Former contents: peaches.', rarity: 'common', type: 'utility', power: 5, damage: 0, defense: 0, special: [], sellValue: 2 },
-    { id: 'scavenged-shoelace', name: 'Scavenged Shoelace', description: 'Fourteen uses. Twelve verified.', rarity: 'common', type: 'utility', power: 6, damage: 0, defense: 0, special: [], sellValue: 3 },
-
-    // UNCOMMON
-    { id: 'spore-canister', name: 'Fungal Spore Canister', description: 'Concentrated local atmosphere.', rarity: 'uncommon', type: 'weapon', power: 22, damage: 15, defense: 0, special: ['bio'], sellValue: 15 },
-    { id: 'leather-vest', name: 'Patched Leather Vest', description: 'The patches have patches.', rarity: 'uncommon', type: 'armor', power: 20, damage: 0, defense: 10, special: [], sellValue: 12 },
-    { id: 'antiseptic-spray', name: 'Antiseptic Spray (half)', description: 'Effective against 2 of the 47 known strains.', rarity: 'uncommon', type: 'utility', power: 18, damage: 0, defense: 0, special: ['cleanse'], sellValue: 10 },
-    { id: 'crowbar', name: 'Salvaged Crowbar', description: 'Opens things. Sometimes people.', rarity: 'uncommon', type: 'weapon', power: 25, damage: 18, defense: 0, special: [], sellValue: 15 },
-    { id: 'work-gloves', name: 'Work Gloves (pair)', description: 'A complete set. Rare.', rarity: 'uncommon', type: 'armor', power: 20, damage: 0, defense: 8, special: [], sellValue: 12 },
-    { id: 'quarantine-badge', name: 'Quarantine Badge (expired)', description: 'The expiry date is a suggestion.', rarity: 'uncommon', type: 'utility', power: 16, damage: 0, defense: 0, special: [], sellValue: 8 },
-    { id: 'hazmat-boots', name: 'Hazmat Boots (too big)', description: 'Secure. Also slow.', rarity: 'uncommon', type: 'armor', power: 18, damage: 0, defense: 9, special: [], sellValue: 10 },
-    { id: 'glass-shiv', name: 'Improvised Shiv (glass)', description: 'Effective once.', rarity: 'uncommon', type: 'weapon', power: 24, damage: 20, defense: 0, special: [], sellValue: 14 },
-    { id: 'filtered-respirator', name: 'Filtered Respirator (partial)', description: 'Covers the important parts.', rarity: 'uncommon', type: 'armor', power: 26, damage: 0, defense: 12, special: ['hazmat'], sellValue: 16 },
-    { id: 'scavenged-rope', name: 'Scavenged Rope (5m)', description: 'Useful. Extremely.', rarity: 'uncommon', type: 'utility', power: 22, damage: 0, defense: 0, special: [], sellValue: 13 },
-
-    // RARE
-    { id: 'mycelium-blade', name: 'Mycelium Blade', description: 'Grown, not forged. Still sharp.', rarity: 'rare', type: 'weapon', power: 42, damage: 30, defense: 0, special: ['bio'], sellValue: 30 },
-    { id: 'cdc-jacket', name: 'CDC Field Jacket', description: 'Issued to personnel who did not return it.', rarity: 'rare', type: 'armor', power: 40, damage: 0, defense: 20, special: ['hazmat'], sellValue: 28 },
-    { id: 'spore-grenade', name: 'Spore Cloud Grenade', description: 'Single use. Radius: larger than expected.', rarity: 'rare', type: 'weapon', power: 38, damage: 25, defense: 0, special: ['bio', 'aoe'], sellValue: 25 },
-    { id: 'contam-suit', name: 'Contamination Suit (partial)', description: 'Covers the important 70%.', rarity: 'rare', type: 'armor', power: 44, damage: 0, defense: 22, special: ['hazmat'], sellValue: 30 },
-    { id: 'specimen-jar', name: 'Infected Specimen Jar', description: 'Something inside remains active.', rarity: 'rare', type: 'utility', power: 35, damage: 0, defense: 0, special: ['bio'], sellValue: 22 },
-    { id: 'scalpel-set', name: 'Scalpel Set (intact)', description: 'Surgical precision. Unconventional application.', rarity: 'rare', type: 'weapon', power: 36, damage: 28, defense: 0, special: ['bleed'], sellValue: 24 },
-    { id: 'lab-face-shield', name: 'Lab-Grade Face Shield', description: 'Rated for chemical splash. Repurposed.', rarity: 'rare', type: 'armor', power: 34, damage: 0, defense: 18, special: [], sellValue: 22 },
-
-    // EPIC
-    { id: 'bone-saw', name: 'Pneumatic Bone Saw', description: 'Medical-grade, in the loosest sense.', rarity: 'epic', type: 'weapon', power: 70, damage: 50, defense: 0, special: ['bleed'], sellValue: 55 },
-    { id: 'full-hazmat', name: 'Full Hazmat Suit (minor breach)', description: 'The breach is in the back.', rarity: 'epic', type: 'armor', power: 75, damage: 0, defense: 40, special: ['hazmat'], sellValue: 60 },
-    { id: 'outbreak-map', name: 'Outbreak Map (sector 7)', description: 'Routes passable as of last Tuesday.', rarity: 'epic', type: 'utility', power: 65, damage: 0, defense: 0, special: ['nav'], sellValue: 50 },
-    { id: 'fungal-brace', name: 'Fungal Symbiont Brace', description: "It's grown into the frame. That's fine.", rarity: 'epic', type: 'utility', power: 68, damage: 0, defense: 0, special: ['bio', 'growth'], sellValue: 52 },
-    { id: 'enforcer-baton', name: "Quarantine Enforcer's Baton", description: 'Used in official capacity. Once.', rarity: 'epic', type: 'weapon', power: 72, damage: 55, defense: 0, special: ['stun'], sellValue: 58 },
-    { id: 'mycelium-shell', name: 'Mycelium Armor Shell', description: 'Grown from the same cultures as the Blade.', rarity: 'epic', type: 'armor', power: 78, damage: 0, defense: 45, special: ['bio'], sellValue: 62 },
-
-    // LEGENDARY
-    { id: 'the-paperclip', name: 'The Paperclip', description: "You've had it three years. It's gotten you this far.", rarity: 'legendary', type: 'utility', power: 100, damage: 0, defense: 0, special: [], sellValue: 5 },
-    { id: 'cure-7', name: 'Last Vial of Cure-7', description: 'Label says CURE-7. Note taped to it says DO NOT.', rarity: 'legendary', type: 'utility', power: 120, damage: 0, defense: 0, special: ['bio', 'cleanse'], sellValue: 90 },
-    { id: 'chen-badge', name: "Director Chen's Access Badge", description: 'Opens everything, including things that should stay closed.', rarity: 'legendary', type: 'utility', power: 110, damage: 0, defense: 0, special: ['nav'], sellValue: 85 },
-    { id: 'outbreak-zero', name: 'Outbreak Zero Sample', description: 'Labeled EXTREMELY HAZARDOUS. Labeled correctly.', rarity: 'legendary', type: 'weapon', power: 130, damage: 90, defense: 0, special: ['bio', 'aoe'], sellValue: 100 },
-
-    // UNIQUE / ONE-OF-A-KIND
-    { id: 'sporemothers-crown', name: "Sporemother's Crown", description: 'Grows when worn. You are not thinking about that.', rarity: 'unique', type: 'utility', power: 150, damage: 0, defense: 0, special: ['bio', 'growth'], sellValue: 200 },
-    { id: 'decon-cannon', name: 'Decontamination Cannon', description: 'Decontaminates everything in range. Including you.', rarity: 'unique', type: 'weapon', power: 155, damage: 100, defense: 0, special: ['aoe', 'hazmat'], sellValue: 250 },
-    { id: 'safe-haven-key', name: 'Last Safe Haven Key', description: 'Opens something. The door may not exist anymore.', rarity: 'unique', type: 'utility', power: 145, damage: 0, defense: 0, special: ['nav'], sellValue: 200 },
+    ...COMMON,
+    ...UNCOMMON,
+    ...RARE,
+    ...EPIC,
+    ...LEGENDARY,
+    ...PAPERCLIPS,
 ];
 
+// ── CONSUMABLES ───────────────────────────────────────────────────────────
 export const CONSUMABLES: Item[] = [
-    { id: 'recovery-juice', name: 'Recovery Juice (half bottle)', description: 'Restores energy. Contents: indeterminate.', rarity: 'common', type: 'consumable', power: 0, damage: 0, defense: 0, special: [], sellValue: 5, buyValue: 15, energyRestore: 3 },
-    { id: 'scout-map', name: "Scout's Map (partial)", description: 'Better odds on the next run. Verified by someone who survived it.', rarity: 'uncommon', type: 'consumable', power: 0, damage: 0, defense: 0, special: [], sellValue: 10, buyValue: 30, luckBonus: true },
+    itm('recovery-juice','Recovery Juice',"Tastes wrong. Works right.",'common','consumable',0,0,0,[],5,{buyValue:8,energyRestore:2}),
+    itm('regen-pot-small','Regen Pot (small)',"Labeled SMALL but nobody agrees on the scale.",'common','consumable',0,0,0,[],6,{buyValue:10,energyRestore:3}),
+    itm('regen-pot-med','Regen Pot (medium)',"Half a liter of something that works.",'uncommon','consumable',0,0,0,[],10,{buyValue:18,energyRestore:6}),
+    itm('regen-pot-large','Regen Pot (large)',"You'll feel it tomorrow. Tomorrow is fine.",'rare','consumable',0,0,0,[],18,{buyValue:32,energyRestore:11}),
+    itm('energy-drink','Energy Drink',"Regen rate: 1 per minute for 30 minutes. Side effects unlisted.",'uncommon','consumable',0,0,0,[],12,{buyValue:22,energyBoostDuration:30*60_000}),
+    itm('scout-map','Scout\'s Map',"Someone\'s notes. Next run: lower ambush chance.",'uncommon','consumable',0,0,0,[],10,{buyValue:30,luckBonus:true}),
+    itm('magnifier-small','Magnifying Glass (5-min)',"Speeds up research by 5 minutes.",'common','consumable',0,0,0,[],8,{buyValue:15,researchBoostMs:5*60_000}),
+    itm('magnifier-med','Magnifying Glass (15-min)',"Speeds up research by 15 minutes.",'uncommon','consumable',0,0,0,[],15,{buyValue:28,researchBoostMs:15*60_000}),
+    itm('magnifier-large','Magnifying Glass (30-min)',"Completes any research instantly.",'rare','consumable',0,0,0,[],25,{buyValue:50,researchBoostMs:999*60_000}),
 ];
 
+// ── LOOKUP & ROLLING ─────────────────────────────────────────────────────
 export function getItemById(id: string): Item | undefined {
     return ALL_ITEMS.find(i => i.id === id) ?? CONSUMABLES.find(i => i.id === id);
 }
 
-const RARITY_ORDER: Rarity[] = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'unique'];
-
-function rarityIndex(r: Rarity): number {
-    return RARITY_ORDER.indexOf(r);
-}
-
-const RARITY_WEIGHTS: Record<Rarity, number> = {
-    common: 50,
-    uncommon: 28,
-    rare: 14,
-    epic: 5,
-    legendary: 2,
-    unique: 1,
+const RARITY_ORDER: Record<string, number> = {
+    common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, unique: 5,
+};
+const RARITY_WEIGHTS: Record<string, number> = {
+    common: 5000, uncommon: 2500, rare: 1000, epic: 300, legendary: 100,
 };
 
-export function rollRandomItem(minRarity: Rarity, maxRarity: Rarity): Item {
-    const minIdx = rarityIndex(minRarity);
-    const maxIdx = rarityIndex(maxRarity);
-    const pool = ALL_ITEMS.filter(i => {
-        const idx = rarityIndex(i.rarity);
-        return idx >= minIdx && idx <= maxIdx;
+export function rollRandomItem(minRarity: string, maxRarity: string): Item {
+    const minIdx = RARITY_ORDER[minRarity] ?? 0;
+    const maxIdx = RARITY_ORDER[maxRarity] ?? 5;
+
+    // Check for unique paperclip drops (only when location allows unique)
+    if (maxIdx >= 5) {
+        for (const pc of PAPERCLIPS) {
+            if (pc.uniqueDropRate && Math.random() < pc.uniqueDropRate) {
+                return pc;
+            }
+        }
+    }
+
+    // Normal non-unique roll
+    const pool = ALL_ITEMS.filter(item => {
+        if (item.rarity === 'unique') return false;
+        const idx = RARITY_ORDER[item.rarity] ?? 0;
+        return idx >= minIdx && idx <= Math.min(maxIdx, 4);
     });
+
     if (pool.length === 0) return ALL_ITEMS[0];
 
-    // Weight by rarity — higher tiers are rarer
-    const weights = pool.map(i => RARITY_WEIGHTS[i.rarity]);
-    const totalWeight = weights.reduce((s, w) => s + w, 0);
+    const totalWeight = pool.reduce((sum, item) => sum + (RARITY_WEIGHTS[item.rarity] ?? 1), 0);
     let roll = Math.random() * totalWeight;
-    for (let i = 0; i < pool.length; i++) {
-        roll -= weights[i];
-        if (roll <= 0) return pool[i];
+    for (const item of pool) {
+        roll -= RARITY_WEIGHTS[item.rarity] ?? 1;
+        if (roll <= 0) return item;
     }
     return pool[pool.length - 1];
 }
 
-export function generateTraderInventory(): Item[] {
-    const result: Item[] = [...CONSUMABLES.map(c => ({ ...c }))];
-    const pool = ALL_ITEMS.filter(i =>
-        ['common', 'uncommon', 'rare'].includes(i.rarity) && i.type !== 'consumable'
-    );
-    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 4);
-    for (const item of shuffled) {
-        result.push({ ...item, buyValue: item.sellValue * 2 });
+// Secondary (bonus) loot — never unique, capped one tier below location max
+const SECONDARY_CONFIG: Record<LocationDanger, { chance: number; maxItems: number; maxRarity: string }> = {
+    low:     { chance: 0.22, maxItems: 1, maxRarity: 'common' },
+    medium:  { chance: 0.32, maxItems: 2, maxRarity: 'uncommon' },
+    high:    { chance: 0.42, maxItems: 2, maxRarity: 'rare' },
+    extreme: { chance: 0.52, maxItems: 3, maxRarity: 'epic' },
+};
+
+export function rollSecondaryItems(danger: LocationDanger, minRarity: string, luckBonus: boolean): Item[] {
+    const cfg = SECONDARY_CONFIG[danger];
+    const chance = luckBonus ? Math.min(cfg.chance * 1.4, 0.85) : cfg.chance;
+    const results: Item[] = [];
+    for (let i = 0; i < cfg.maxItems; i++) {
+        if (Math.random() < chance) {
+            results.push(rollRandomItem(minRarity, cfg.maxRarity));
+        }
     }
-    return result;
+    return results;
+}
+
+export function generateTraderInventory(): Item[] {
+    const rarities = ['common', 'uncommon', 'rare'];
+    const gear: Item[] = [];
+    for (let i = 0; i < 5; i++) {
+        const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+        gear.push(rollRandomItem(rarity, rarity));
+    }
+    const shuffled = [...CONSUMABLES].sort(() => Math.random() - 0.5).slice(0, 3);
+    return [...shuffled, ...gear];
 }

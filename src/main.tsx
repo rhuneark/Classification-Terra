@@ -19,10 +19,23 @@ async function boot() {
     // 2. Load save and calculate time-away effects.
     const save = await loadSave();
     const now = Date.now();
-    const minutesAway = save.lastOnline > 0 ? Math.floor((now - save.lastOnline) / 60000) : 0;
-    const energyGained = Math.min(Math.floor(minutesAway / ENERGY_REGEN_MINUTES), MAX_ENERGY - save.energy);
-    const passiveBattleCount = Math.min(Math.floor(minutesAway / 120), 5);
+    const msAway = save.lastOnline > 0 ? now - save.lastOnline : 0;
+    const minutesAway = Math.floor(msAway / 60_000);
 
+    // Energy regen: boost active if energyBoostUntil > lastOnline
+    const boostEnd = save.energyBoostUntil ?? 0;
+    let energyGained = 0;
+    if (minutesAway > 0) {
+        const boostMs = Math.max(0, boostEnd - (save.lastOnline || now));
+        const boostMinutes = Math.min(Math.floor(boostMs / 60_000), minutesAway);
+        const normalMinutes = minutesAway - boostMinutes;
+        // boost: 1 energy per minute, normal: 1 per ENERGY_REGEN_MINUTES
+        const boostedEnergy = boostMinutes;
+        const normalEnergy = Math.floor(normalMinutes / ENERGY_REGEN_MINUTES);
+        energyGained = Math.min(boostedEnergy + normalEnergy, MAX_ENERGY - save.energy);
+    }
+
+    const passiveBattleCount = Math.min(Math.floor(minutesAway / 120), 5);
     let passiveWins = 0;
     let passiveCurrency = 0;
     if (passiveBattleCount > 0) {
@@ -37,6 +50,17 @@ async function boot() {
         }
     }
 
+    // Process research queue: move completed items to inventory
+    const queueNow = now;
+    const completedItems: typeof save.inventory = [];
+    const remainingQueue = (save.researchQueue ?? []).filter(qi => {
+        if (queueNow >= qi.startedAt + qi.durationMs) {
+            completedItems.push(qi.item);
+            return false;
+        }
+        return true;
+    });
+    const newInventory = [...save.inventory, ...completedItems];
     const newEnergy = Math.min(save.energy + energyGained, MAX_ENERGY);
     const newCurrency = save.currency + passiveCurrency;
 
@@ -52,10 +76,11 @@ async function boot() {
         };
     }
 
-    // Apply passive gains to save
     updateSave({
         energy: newEnergy,
         currency: newCurrency,
+        inventory: newInventory,
+        researchQueue: remainingQueue,
         totalBattles: save.totalBattles + passiveBattleCount,
         wins: save.wins + passiveWins,
         lastOnline: now,
@@ -65,8 +90,13 @@ async function boot() {
         energy: newEnergy,
         maxEnergy: MAX_ENERGY,
         currency: newCurrency,
-        inventory: save.inventory,
+        inventory: newInventory,
         backpack: save.backpack,
+        researchQueue: remainingQueue,
+        foundUniqueIds: save.foundUniqueIds ?? [],
+        muteMusic: save.muteMusic ?? false,
+        muteSfx: save.muteSfx ?? false,
+        energyBoostUntil: save.energyBoostUntil ?? 0,
         eventLog: save.eventLog,
         arenaOpponents: NPC_OPPONENTS,
         passiveResults,
@@ -112,7 +142,10 @@ async function boot() {
                 currency: s.currency,
                 inventory: s.inventory,
                 backpack: s.backpack,
+                researchQueue: s.researchQueue,
                 eventLog: s.eventLog,
+                energyBoostUntil: s.energyBoostUntil,
+                foundUniqueIds: s.foundUniqueIds,
                 lastOnline: Date.now(),
             });
             RundotGameAPI.analytics.recordCustomEvent('game_sleep').catch(() => {});

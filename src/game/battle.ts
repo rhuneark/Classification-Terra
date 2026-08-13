@@ -105,12 +105,23 @@ export function resolveBattle(playerBackpack: (Item | null)[], opponent: Build):
         itemGained = rollRandomItem(rarity, rarity);
     }
 
+    // On loss: small chance of losing an equipped item (safe house defense)
+    let lostItem: Item | undefined;
+    if (!won && playerEquipped.length > 0) {
+        // Higher player WC relative to opponent = lower gear-loss chance
+        const loseChance = Math.max(0.05, 0.20 - (playerWC / (opponentWC + 1)) * 0.08);
+        if (Math.random() < loseChance) {
+            lostItem = playerEquipped[Math.floor(Math.random() * playerEquipped.length)];
+        }
+    }
+
     return {
         won,
         opponentName: opponent.name,
         exchanges,
         currencyGained,
         itemGained,
+        lostItem,
         playerWeightClass: playerWC,
         opponentWeightClass: opponentWC,
     };

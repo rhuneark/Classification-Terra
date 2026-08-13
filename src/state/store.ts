@@ -7,6 +7,7 @@ import type {
     LootEvent,
     PassiveResults,
     GameScreen,
+    ResearchQueueItem,
 } from '../game/types.ts';
 import { BACKPACK_SLOTS, MAX_ENERGY } from '../game/types.ts';
 import { NPC_OPPONENTS } from '../game/opponents.ts';
@@ -20,9 +21,15 @@ export interface AppState {
     energy: number;
     maxEnergy: number;
     currency: number;
+    energyBoostUntil: number;
 
     inventory: Item[];
     backpack: (Item | null)[];
+    researchQueue: ResearchQueueItem[];
+
+    foundUniqueIds: string[];
+    muteMusic: boolean;
+    muteSfx: boolean;
 
     eventLog: LogEntry[];
     activeLootEvent: LootEvent | null;
@@ -48,8 +55,13 @@ let state: AppState = {
     energy: MAX_ENERGY,
     maxEnergy: MAX_ENERGY,
     currency: 0,
+    energyBoostUntil: 0,
     inventory: [],
     backpack: Array(BACKPACK_SLOTS).fill(null) as (Item | null)[],
+    researchQueue: [],
+    foundUniqueIds: [],
+    muteMusic: false,
+    muteSfx: false,
     eventLog: [],
     activeLootEvent: null,
     arenaOpponents: NPC_OPPONENTS,

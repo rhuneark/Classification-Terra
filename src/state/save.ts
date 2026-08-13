@@ -1,20 +1,28 @@
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { sdkReady } from '../sdk/runSdk.ts';
-import type { Item, LogEntry, Rarity, ItemType, SpecialTag, LogType } from '../game/types.ts';
+import type { Item, LogEntry, ResearchQueueItem, Rarity, ItemType, SpecialTag, LogType } from '../game/types.ts';
 import { BACKPACK_SLOTS, MAX_ENERGY } from '../game/types.ts';
 import { getItemById } from '../game/items.ts';
 
-const SAVE_KEY = 'spore-run:save:v1';
+const SAVE_KEY = 'spore-run:save:v2';
 
 export interface SaveData {
     currency: number;
     energy: number;
     inventory: Item[];
     backpack: (Item | null)[];
+    researchQueue: ResearchQueueItem[];
     eventLog: LogEntry[];
     lastOnline: number;
     totalBattles: number;
     wins: number;
+    foundUniqueIds: string[];
+    totalScrip: number;
+    totalScavenges: number;
+    totalAmbushes: number;
+    energyBoostUntil: number;
+    muteMusic: boolean;
+    muteSfx: boolean;
 }
 
 const DEFAULTS: SaveData = {
@@ -23,13 +31,14 @@ const DEFAULTS: SaveData = {
     inventory: [
         getItemById('damp-bandana')!,
         getItemById('cracked-face-shield')!,
-        getItemById('expired-antibiotic')!,
-    ],
+        getItemById('antibiotic-strip')!,
+    ].filter(Boolean),
     backpack: [
         getItemById('duct-taped-club')!,
         getItemById('leather-vest')!,
         null, null, null, null, null, null,
     ],
+    researchQueue: [],
     eventLog: [{
         id: 'start-1',
         type: 'info',
@@ -39,6 +48,13 @@ const DEFAULTS: SaveData = {
     lastOnline: 0,
     totalBattles: 0,
     wins: 0,
+    foundUniqueIds: [],
+    totalScrip: 0,
+    totalScavenges: 0,
+    totalAmbushes: 0,
+    energyBoostUntil: 0,
+    muteMusic: false,
+    muteSfx: false,
 };
 
 function parseItem(raw: unknown): Item | null {
@@ -58,7 +74,10 @@ function parseItem(raw: unknown): Item | null {
         sellValue: Math.max(0, Number(r.sellValue) || 0),
         buyValue: r.buyValue != null ? Math.max(0, Number(r.buyValue)) : undefined,
         energyRestore: r.energyRestore != null ? Number(r.energyRestore) : undefined,
-        luckBonus: Boolean(r.luckBonus),
+        luckBonus: r.luckBonus ? true : undefined,
+        researchBoostMs: r.researchBoostMs != null ? Number(r.researchBoostMs) : undefined,
+        energyBoostDuration: r.energyBoostDuration != null ? Number(r.energyBoostDuration) : undefined,
+        uniqueDropRate: r.uniqueDropRate != null ? Number(r.uniqueDropRate) : undefined,
     };
 }
 
@@ -72,6 +91,19 @@ function parseLogEntry(raw: unknown): LogEntry | null {
         message: r.message,
         rarity: r.rarity as Rarity | undefined,
         timestamp: Number(r.timestamp) || 0,
+    };
+}
+
+function parseResearchItem(raw: unknown): ResearchQueueItem | null {
+    if (!raw || typeof raw !== 'object') return null;
+    const r = raw as Record<string, unknown>;
+    const item = parseItem(r.item);
+    if (!item) return null;
+    return {
+        instanceId: String(r.instanceId ?? String(Math.random())),
+        item,
+        startedAt: Number(r.startedAt) || Date.now(),
+        durationMs: Math.max(60_000, Number(r.durationMs) || 60_000),
     };
 }
 
@@ -91,12 +123,24 @@ function parse(raw: string | null): SaveData | null {
                 ? p.inventory.map(parseItem).filter(Boolean) as Item[]
                 : [],
             backpack,
+            researchQueue: Array.isArray(p.researchQueue)
+                ? p.researchQueue.map(parseResearchItem).filter(Boolean) as ResearchQueueItem[]
+                : [],
             eventLog: Array.isArray(p.eventLog)
                 ? (p.eventLog as unknown[]).slice(0, 50).map(parseLogEntry).filter(Boolean) as LogEntry[]
                 : [],
             lastOnline: Number(p.lastOnline) || 0,
             totalBattles: Math.max(0, Number(p.totalBattles) || 0),
             wins: Math.max(0, Number(p.wins) || 0),
+            foundUniqueIds: Array.isArray(p.foundUniqueIds)
+                ? (p.foundUniqueIds as unknown[]).filter(s => typeof s === 'string') as string[]
+                : [],
+            totalScrip: Math.max(0, Number(p.totalScrip) || 0),
+            totalScavenges: Math.max(0, Number(p.totalScavenges) || 0),
+            totalAmbushes: Math.max(0, Number(p.totalAmbushes) || 0),
+            energyBoostUntil: Number(p.energyBoostUntil) || 0,
+            muteMusic: Boolean(p.muteMusic),
+            muteSfx: Boolean(p.muteSfx),
         };
     } catch {
         return null;
@@ -136,4 +180,15 @@ export function flushSave(): void {
             RundotGameAPI.appStorage.setItem(SAVE_KEY, raw).catch(() => {});
         } catch { /* non-fatal */ }
     }
+}
+
+export function markUniqueFound(itemId: string): void {
+    if (!data.foundUniqueIds.includes(itemId)) {
+        data.foundUniqueIds = [...data.foundUniqueIds, itemId];
+        flushSave();
+    }
+}
+
+export function addEarnedScrip(amount: number): void {
+    data.totalScrip = (data.totalScrip ?? 0) + amount;
 }

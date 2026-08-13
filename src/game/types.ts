@@ -19,6 +19,16 @@ export interface Item {
     buyValue?: number;
     energyRestore?: number;
     luckBonus?: boolean;
+    researchBoostMs?: number;       // for magnifying glasses: ms to remove from research timer
+    energyBoostDuration?: number;   // ms of energy boost when consumed (energy drink)
+    uniqueDropRate?: number;        // probability per roll, unique items only
+}
+
+export interface ResearchQueueItem {
+    instanceId: string;
+    item: Item;
+    startedAt: number;
+    durationMs: number;
 }
 
 export interface Location {
@@ -54,6 +64,7 @@ export interface BattleResult {
     exchanges: string[];
     currencyGained: number;
     itemGained?: Item;
+    lostItem?: Item;
     playerWeightClass: number;
     opponentWeightClass: number;
 }
@@ -63,6 +74,7 @@ export interface LootEvent {
     locationName: string;
     flavorText: string;
     foundItem?: Item;
+    secondaryItems: Item[];
     lostItem?: Item;
     energyLost?: number;
 }
@@ -79,6 +91,7 @@ export interface PassiveResults {
 export const BACKPACK_SLOTS = 8;
 export const MAX_ENERGY = 20;
 export const ENERGY_REGEN_MINUTES = 5;
+export const TRADER_REFRESH_MS = 5 * 60 * 1000;
 
 export const RARITY_COLORS: Record<Rarity, string> = {
     common: '#9ca3af',
@@ -99,15 +112,24 @@ export const RARITY_LABELS: Record<Rarity, string> = {
 };
 
 export const DANGER_LABELS: Record<LocationDanger, string> = {
-    low: 'LOW',
-    medium: 'MEDIUM',
-    high: 'HIGH',
-    extreme: 'EXTREME',
+    low: 'LOW', medium: 'MEDIUM', high: 'HIGH', extreme: 'EXTREME',
 };
 
 export const DANGER_COLORS: Record<LocationDanger, string> = {
-    low: '#4ade80',
-    medium: '#facc15',
-    high: '#f97316',
-    extreme: '#f43f5e',
+    low: '#4ade80', medium: '#facc15', high: '#f97316', extreme: '#f43f5e',
 };
+
+// Research time ranges [min, max] in ms per rarity
+export const RESEARCH_DURATION_MS: Record<Rarity, [number, number]> = {
+    common:    [60_000,    180_000],
+    uncommon:  [120_000,   480_000],
+    rare:      [300_000,   900_000],
+    epic:      [600_000,  1_500_000],
+    legendary: [1_200_000, 1_800_000],
+    unique:    [1_500_000, 1_800_000],
+};
+
+export function randomResearchDuration(rarity: Rarity): number {
+    const [min, max] = RESEARCH_DURATION_MS[rarity];
+    return Math.floor(min + Math.random() * (max - min));
+}
