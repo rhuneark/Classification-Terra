@@ -1,42 +1,66 @@
-/**
- * Tiny external store bridging game code (Pixi ticker, SDK callbacks, plain
- * modules) and React — no state-library dependency. Game code calls
- * store.patch(); React components subscribe with useStore(selector).
- *
- * Keep this store for UI-FACING state only (phase, HUD numbers, popups).
- * Per-frame simulation state stays inside the Pixi scene — patching the
- * store every frame re-renders React every frame.
- */
 import { useSyncExternalStore } from 'react';
+import type {
+    Item,
+    LogEntry,
+    Build,
+    BattleResult,
+    LootEvent,
+    PassiveResults,
+    GameScreen,
+} from '../game/types.ts';
+import { BACKPACK_SLOTS } from '../game/types.ts';
+import { NPC_OPPONENTS } from '../game/opponents.ts';
 
-/** The UI-facing app state. ADAPT: extend alongside the initial state below. */
 export interface AppState {
-    /** 'loading' → 'menu' → 'playing' (ADAPT: add your own screens/phases) */
     phase: 'loading' | 'menu' | 'playing';
-    /** 0..1 progress of the critical-asset warm during 'loading' */
+    screen: GameScreen;
     loadProgress: number;
-    /** Set by the host's onPause/onResume lifecycle hooks */
     paused: boolean;
-    /** ADAPT: demo HUD value — replace with your game's UI-facing state */
-    score: number;
-    /** ADAPT: demo persisted value — loaded from the save at boot (main.tsx step 2) */
-    best: number;
+
+    energy: number;
+    maxEnergy: number;
+    currency: number;
+
+    inventory: Item[];
+    backpack: (Item | null)[];
+
+    eventLog: LogEntry[];
+    activeLootEvent: LootEvent | null;
+
+    arenaOpponents: Build[];
+    lastBattle: BattleResult | null;
+
+    traderInventory: Item[];
+
+    passiveResults: PassiveResults | null;
+    luckBonusActive: boolean;
+    selectedInventoryItemId: string | null;
 }
 
 const listeners = new Set<() => void>();
 
 let state: AppState = {
     phase: 'loading',
+    screen: 'loot',
     loadProgress: 0,
     paused: false,
-    score: 0,
-    best: 0,
+    energy: 10,
+    maxEnergy: 10,
+    currency: 0,
+    inventory: [],
+    backpack: Array(BACKPACK_SLOTS).fill(null) as (Item | null)[],
+    eventLog: [],
+    activeLootEvent: null,
+    arenaOpponents: NPC_OPPONENTS,
+    lastBattle: null,
+    traderInventory: [],
+    passiveResults: null,
+    luckBonusActive: false,
+    selectedInventoryItemId: null,
 };
 
 export const store = {
-    /** Read the current state (from game code; in React use useStore). */
     get: (): AppState => state,
-    /** Shallow-merge a partial update and notify React subscribers. */
     patch(partial: Partial<AppState>): void {
         state = { ...state, ...partial };
         for (const l of listeners) l();
@@ -47,11 +71,6 @@ export const store = {
     },
 };
 
-/**
- * React hook. IMPORTANT: the selector must return a primitive or a stable
- * reference (e.g. s => s.phase). Returning a fresh object/array each call
- * makes React re-render forever.
- */
 export function useStore<T = AppState>(
     selector: (s: AppState) => T = (s) => s as unknown as T
 ): T {

@@ -3,70 +3,126 @@ import { createRoot } from 'react-dom/client';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import App from './ui/App.tsx';
 import { store } from './state/store.ts';
-import { loadSave, flushSave } from './state/save.ts';
+import { loadSave, updateSave, flushSave } from './state/save.ts';
 import { initSdk, registerLifecycles, sdkReady } from './sdk/runSdk.ts';
 import { warmAssets } from './assets/preload.ts';
+import { NPC_OPPONENTS, getRandomNPCOpponent } from './game/opponents.ts';
+import { computeWeightClass } from './game/weightClass.ts';
+import type { PassiveResults } from './game/types.ts';
 import './styles/app.css';
 
-/**
- * Boot sequence. The ORDER here matters — it's the pattern production RUN
- * games use. Keep the numbered steps in this order; add your own work at the
- * marked points.
- */
 async function boot() {
-    // 1. SDK first. Nothing may call RundotGameAPI before this resolves.
-    //    Resolves even if init fails (local dev outside the RUN host).
+    // 1. SDK first.
     await initSdk();
 
-    // 2. Load persisted progress before first render, so the first screen
-    //    reflects real progress instead of popping it in after a beat.
-    //    ADAPT: patch your own SaveData fields here; if the game is
-    //    localized, restore the language here too — before any UI renders.
+    // 2. Load save and calculate time-away effects.
     const save = await loadSave();
-    store.patch({ best: save.best });
+    const now = Date.now();
+    const minutesAway = save.lastOnline > 0 ? Math.floor((now - save.lastOnline) / 60000) : 0;
+    const energyGained = Math.min(Math.floor(minutesAway / 30), 10 - save.energy);
+    const passiveBattleCount = Math.min(Math.floor(minutesAway / 120), 5);
 
-    // 3. Mount React. `phase` starts at 'loading', so this paints the
-    //    loading screen (progress bar at 0%).
+    let passiveWins = 0;
+    let passiveCurrency = 0;
+    if (passiveBattleCount > 0) {
+        const playerWC = computeWeightClass(save.backpack);
+        for (let i = 0; i < passiveBattleCount; i++) {
+            const opp = getRandomNPCOpponent();
+            const winProb = (playerWC + 1) / (playerWC + opp.weightClass + 2);
+            if (Math.random() < winProb) {
+                passiveWins++;
+                passiveCurrency += Math.max(5, Math.floor(5 + opp.weightClass / 8));
+            }
+        }
+    }
+
+    const newEnergy = Math.min(save.energy + energyGained, 10);
+    const newCurrency = save.currency + passiveCurrency;
+
+    let passiveResults: PassiveResults | null = null;
+    if (minutesAway >= 30 && save.lastOnline > 0) {
+        passiveResults = {
+            battlesCount: passiveBattleCount,
+            wins: passiveWins,
+            losses: passiveBattleCount - passiveWins,
+            currencyGained: passiveCurrency,
+            energyGained,
+            hoursAway: Math.floor(minutesAway / 60),
+        };
+    }
+
+    // Apply passive gains to save
+    updateSave({
+        energy: newEnergy,
+        currency: newCurrency,
+        totalBattles: save.totalBattles + passiveBattleCount,
+        wins: save.wins + passiveWins,
+        lastOnline: now,
+    });
+
+    store.patch({
+        energy: newEnergy,
+        maxEnergy: 10,
+        currency: newCurrency,
+        inventory: save.inventory,
+        backpack: save.backpack,
+        eventLog: save.eventLog,
+        arenaOpponents: NPC_OPPONENTS,
+        passiveResults,
+    });
+
+    // 3. Mount React.
     createRoot(document.getElementById('root')!).render(
         <React.StrictMode>
             <App />
         </React.StrictMode>
     );
 
-    // 4. Lift the boot cover once the loading screen has actually painted
-    //    (double-rAF = after the next rendered frame). Asset warming continues
-    //    behind it — the player watches the progress bar, not a black screen.
+    // 4. Lift boot cover.
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             const cover = document.getElementById('boot-cover');
             if (!cover) return;
             cover.classList.add('hidden');
-            setTimeout(() => cover.remove(), 400); // matches the CSS transition
+            setTimeout(() => cover.remove(), 400);
         });
     });
 
-    // 5. Warm all critical assets (see src/assets/manifest.ts). Deferred
-    //    assets keep loading in the background after this resolves.
+    // 5. Warm assets.
     await warmAssets((p) => store.patch({ loadProgress: p }));
 
-    // 6. Loading done — hand over to the menu.
+    // 6. Loading done.
     store.patch({ phase: 'menu' });
 
-    // 7. Host lifecycle hooks. Register AFTER boot so handlers never race
-    //    half-initialized state.
-    //    Rules: persist on onSleep, never rely on onQuit firing, and never
-    //    fire fresh SDK RPCs (e.g. scheduling notifications) from
-    //    onSleep/onQuit — a hard close kills the runtime before they land.
+    // 7. Lifecycle hooks.
     registerLifecycles({
-        onPause: () => store.patch({ paused: true }),
-        onResume: () => store.patch({ paused: false }),
-        onSleep: () => flushSave(),
-        onQuit: () => flushSave(), // treat onSleep as the reliable one
+        onPause: () => {
+            store.patch({ paused: true });
+            RundotGameAPI.analytics.recordCustomEvent('game_paused').catch(() => {});
+        },
+        onResume: () => {
+            store.patch({ paused: false });
+            RundotGameAPI.analytics.recordCustomEvent('game_resumed').catch(() => {});
+        },
+        onSleep: () => {
+            const s = store.get();
+            updateSave({
+                energy: s.energy,
+                currency: s.currency,
+                inventory: s.inventory,
+                backpack: s.backpack,
+                eventLog: s.eventLog,
+                lastOnline: Date.now(),
+            });
+            RundotGameAPI.analytics.recordCustomEvent('game_sleep').catch(() => {});
+        },
+        onQuit: () => {
+            flushSave();
+            RundotGameAPI.analytics.recordCustomEvent('game_quit').catch(() => {});
+        },
     });
 
-    // 8. Post-boot, fire-and-forget work goes here — analytics boot event,
-    //    server time refresh, notification re-arming, subscription status
-    //    refresh. None of it should block or throw into this function.
+    // 8. Boot analytics.
     if (sdkReady()) {
         try {
             RundotGameAPI.analytics.recordCustomEvent('game_loaded').catch(() => {});
