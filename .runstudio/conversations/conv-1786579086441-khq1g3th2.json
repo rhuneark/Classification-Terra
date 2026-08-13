@@ -3550,11 +3550,24 @@
       "timestamp": 1786593303913,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "1786593305975-wi9b949x9",
+      "role": "system",
+      "content": "Compacting project...",
+      "isShownToUser": true,
+      "timestamp": 1786593305975,
+      "type": "compaction",
+      "metadata": {
+        "compaction": {
+          "trigger": "auto"
+        }
+      }
     }
   ],
   "createdAt": 1786579086441,
-  "updatedAt": 1786593303921,
-  "tokenUsage": 110846,
+  "updatedAt": 1786593350587,
+  "tokenUsage": 0,
   "script": "ftue-remix",
   "claudeSessionId": "adbac7aa-9dda-44d4-b9f9-50e1487c68e0"
 }
