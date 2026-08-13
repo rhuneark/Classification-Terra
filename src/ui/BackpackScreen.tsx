@@ -98,10 +98,10 @@ function ResearchQueueSection() {
                             </div>
                             {hasMagnifier && !done && (
                                 <button type="button"
-                                    className="mt-1.5 rounded px-2 py-0.5 text-[0.7rem] transition-transform active:scale-95"
-                                    style={{ background: '#1a2e1c', color: '#5aaa5c', border: '1px solid #2a4e2c' }}
+                                    className="mt-2 w-full rounded px-3 py-1.5 text-[0.82rem] font-bold tracking-wide transition-transform active:scale-95"
+                                    style={{ background: '#0a1a2a', color: '#60c5ff', border: '2px solid #3a8acc', boxShadow: '0 0 8px #3a8acc55' }}
                                     onClick={() => applyMagnifier(qi)}>
-                                    USE GLASS ({magnifiers[0].name.replace('Magnifying Glass ', '')})
+                                    USE GLASS — {magnifiers[0].name.replace('Magnifying Glass ', '')} (-{fmt(magnifiers[0].researchBoostMs ?? 0)})
                                 </button>
                             )}
                         </div>
@@ -175,6 +175,7 @@ function ItemCard({ item, onClick, selected, compact = false }: { item: Item; on
 }
 
 function ConsumablePanel({ item, onUse, onDiscard }: { item: Item; onUse: () => void; onDiscard: () => void }) {
+    const isMagnifier = !!item.researchBoostMs;
     return (
         <div className="rounded p-3" style={{ background: '#0e2010', border: '1px solid #243e26' }}>
             <div className="text-[0.9rem] font-bold text-white">{item.name}</div>
@@ -183,12 +184,22 @@ function ConsumablePanel({ item, onUse, onDiscard }: { item: Item; onUse: () => 
             {item.luckBonus && <div className="mt-1 text-[0.8rem]" style={{ color: '#fb923c' }}>Next run: reduced ambush chance</div>}
             {item.researchBoostMs && <div className="mt-1 text-[0.8rem]" style={{ color: '#60a5fa' }}>Speeds up research by {fmt(item.researchBoostMs)}</div>}
             {item.energyBoostDuration && <div className="mt-1 text-[0.8rem]" style={{ color: '#4ade80' }}>Energy regen: 1/min for {fmt(item.energyBoostDuration)}</div>}
-            <div className="mt-2 flex gap-2">
-                <button type="button" className="flex-1 rounded py-1.5 text-[0.88rem] font-bold tracking-wide transition-transform active:scale-95"
-                    style={{ background: '#7ccf5a', color: '#070e08' }} onClick={onUse}>USE</button>
-                <button type="button" className="rounded px-3 py-1.5 text-[0.85rem] transition-transform active:scale-95"
-                    style={{ background: '#1a2e1c', color: '#8aaa8c' }} onClick={onDiscard}>DISCARD</button>
-            </div>
+            {isMagnifier ? (
+                <div className="mt-2 flex gap-2">
+                    <div className="flex-1 rounded py-1.5 px-2 text-[0.8rem]" style={{ background: '#0a1a2a', color: '#60a5fa', border: '1px solid #1a4a6a' }}>
+                        Tap USE GLASS on a Research Lab item below
+                    </div>
+                    <button type="button" className="rounded px-3 py-1.5 text-[0.85rem] transition-transform active:scale-95"
+                        style={{ background: '#1a2e1c', color: '#8aaa8c' }} onClick={onDiscard}>DISCARD</button>
+                </div>
+            ) : (
+                <div className="mt-2 flex gap-2">
+                    <button type="button" className="flex-1 rounded py-1.5 text-[0.88rem] font-bold tracking-wide transition-transform active:scale-95"
+                        style={{ background: '#7ccf5a', color: '#070e08' }} onClick={onUse}>USE</button>
+                    <button type="button" className="rounded px-3 py-1.5 text-[0.85rem] transition-transform active:scale-95"
+                        style={{ background: '#1a2e1c', color: '#8aaa8c' }} onClick={onDiscard}>DISCARD</button>
+                </div>
+            )}
         </div>
     );
 }
