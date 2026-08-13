@@ -3,6 +3,16 @@
   "relativePathToDistFolder": "dist",
   "usesPreloader": false,
   "orientation": "both",
-  "keywords": null,
+  "keywords": [
+    "survival",
+    "scavenger",
+    "post-apocalyptic",
+    "bestiary",
+    "lore",
+    "codex",
+    "dark",
+    "loot",
+    "exploration"
+  ],
   "kitId": "cant-stop-now-bare-bones"
 }
