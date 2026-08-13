@@ -3,7 +3,24 @@ export type ItemType = 'weapon' | 'armor' | 'utility' | 'consumable' | 'lore';
 export type SpecialTag = 'bio' | 'hazmat' | 'bleed' | 'stun' | 'aoe' | 'nav' | 'cleanse' | 'growth';
 export type LocationDanger = 'low' | 'medium' | 'high' | 'extreme';
 export type LogType = 'loot' | 'ambush' | 'battle-win' | 'battle-loss' | 'trade' | 'info' | 'lore';
-export type GameScreen = 'loot' | 'backpack' | 'codex' | 'trader';
+export type GameScreen = 'loot' | 'backpack' | 'codex' | 'trader' | 'log';
+
+export interface ExcursionLoreUnlock {
+    terraId: string;
+    snippetId: string;
+}
+
+export interface ExcursionRun {
+    excursionId: string;
+    currentStageIndex: number;
+    status: 'active' | 'ended';
+    loreUnlocks: ExcursionLoreUnlock[];
+    totalScrip: number;
+    pendingItemRarity?: string;
+    pendingEnergyCost: number;
+    log: string[];
+    endedText?: string;
+}
 
 export interface Item {
     id: string;

@@ -1,371 +1,292 @@
-import { useState, useRef, useEffect } from 'react';
 import { store, useStore } from '../state/store.ts';
-import { getSave, updateSave, addEarnedScrip } from '../state/save.ts';
-import type { Item, Rarity } from '../game/types.ts';
-import { RARITY_COLORS, randomResearchDuration } from '../game/types.ts';
-import type { ExcursionDef, ExcursionOption, ExcursionOptionOutcome } from '../game/excursions.ts';
-import { rollExcursionItem } from '../game/excursions.ts';
+import {
+    getExcursionById,
+    resolveOption,
+    rollExcursionRewardItem,
+    DIFFICULTY_COLORS,
+    DIFFICULTY_LABELS,
+} from '../game/excursions.ts';
+import type { ExcursionOption } from '../game/excursions.ts';
 import { computeWeightClass } from '../game/weightClass.ts';
+import { updateSave, addEarnedScrip, getSave } from '../state/save.ts';
+import { randomResearchDuration } from '../game/types.ts';
+import { playBattleWin, playBattleLoss, playClick } from '../game/audio.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
-let _iid = Date.now() + 9000;
-function newId() { return String(++_iid); }
+let _instanceCounter = Date.now();
+function newId() { return String(++_instanceCounter); }
 
-interface LogEntry { text: string; type: 'narrative' | 'result' | 'reward' | 'stage' }
-
-interface ExcursionRun {
-    accScrip: number;
-    accItems: Item[];
-    accSnippetIds: string[];
-    accTerraIds: string[];
-    storyLog: LogEntry[];
-}
-
-interface Props {
-    excursion: ExcursionDef;
-    onClose: (run: ExcursionRun) => void;
-}
-
-
-export default function ExcursionModal({ excursion, onClose }: Props) {
+export default function ExcursionModal() {
+    const activeExcursion = useStore(s => s.activeExcursion);
     const backpack = useStore(s => s.backpack);
     const energy = useStore(s => s.energy);
+
+    if (!activeExcursion) return null;
+
+    const def = getExcursionById(activeExcursion.excursionId);
+    if (!def) return null;
+
     const playerWC = computeWeightClass(backpack);
+    const isEnded = activeExcursion.status === 'ended';
+    const currentStage = isEnded ? null : def.stages[activeExcursion.currentStageIndex];
 
-    const [stageIndex, setStageIndex] = useState(0);
-    const [run, setRun] = useState<ExcursionRun>({
-        accScrip: 0, accItems: [], accSnippetIds: [], accTerraIds: [], storyLog: [],
-    });
-    const [phase, setPhase] = useState<'stage' | 'result'>('stage');
-    const [resultText, setResultText] = useState('');
-    const [resultSuccess, setResultSuccess] = useState(true);
-    const [pendingNext, setPendingNext] = useState<number | null>(null);
-    const [pendingEnds, setPendingEnds] = useState(false);
-    const logRef = useRef<HTMLDivElement>(null);
-
-    const totalStages = excursion.stages.length;
-    const stage = excursion.stages[stageIndex] ?? excursion.stages[totalStages - 1];
-
-    // Scroll log to bottom whenever storyLog updates
-    useEffect(() => {
-        if (logRef.current) {
-            logRef.current.scrollTop = logRef.current.scrollHeight;
-        }
-    }, [run.storyLog.length, phase]);
-
-    function applyOutcome(outcome: ExcursionOptionOutcome, _success: boolean): ExcursionRun {
-        const newRun = { ...run, storyLog: [...run.storyLog] };
-        if (outcome.scrip) {
-            newRun.accScrip += outcome.scrip;
-            newRun.storyLog.push({ text: `+${outcome.scrip} scrip`, type: 'reward' });
-        }
-        if (outcome.itemRarity) {
-            const item = rollExcursionItem(outcome.itemRarity as Rarity);
-            newRun.accItems = [...newRun.accItems, item];
-            newRun.storyLog.push({ text: `Item secured: `, type: 'reward', ...{ item } } as LogEntry & { item: Item });
-            // We store the item object reference inline so we can render it
-            newRun.storyLog[newRun.storyLog.length - 1] = { text: `${item.name}`, type: 'reward' };
-            // Keep item reference for rendering — attach as extra field:
-            (newRun.storyLog[newRun.storyLog.length - 1] as LogEntry & { itemRarity: Rarity; itemName: string }).itemRarity = item.rarity;
-            (newRun.storyLog[newRun.storyLog.length - 1] as LogEntry & { itemRarity: Rarity; itemName: string }).itemName = item.name;
-        }
-        if (outcome.terraId && !newRun.accTerraIds.includes(outcome.terraId)) {
-            newRun.accTerraIds = [...newRun.accTerraIds, outcome.terraId];
-        }
-        if (outcome.snippetId && !newRun.accSnippetIds.includes(outcome.snippetId)) {
-            newRun.accSnippetIds = [...newRun.accSnippetIds, outcome.snippetId];
-            newRun.storyLog.push({ text: 'Codex entry unlocked', type: 'reward' });
-        }
-        if (outcome.energyCost && outcome.energyCost > 0) {
-            const s = store.get();
-            const newEnergy = Math.max(0, s.energy - outcome.energyCost);
-            store.patch({ energy: newEnergy });
-            updateSave({ energy: newEnergy });
-            newRun.storyLog.push({ text: `-${outcome.energyCost} energy`, type: 'reward' });
-        }
-        return newRun;
-    }
+    // Check if we ran out of stages without explicitly ending
+    const ranOutOfStages = !isEnded && !currentStage;
+    const showResult = isEnded || ranOutOfStages;
 
     function handleOption(option: ExcursionOption) {
-        // Deduct upfront energy cost
-        if (option.energyCost && option.energyCost > 0) {
-            const s = store.get();
-            const newEnergy = Math.max(0, s.energy - option.energyCost);
+        if (!activeExcursion) return;
+        playClick();
+        const energyToDeduct = option.energyCost ?? 0;
+        if (energyToDeduct > 0) {
+            const newEnergy = Math.max(0, energy - energyToDeduct);
             store.patch({ energy: newEnergy });
             updateSave({ energy: newEnergy });
         }
-
-        let success = true;
-        let outcome: ExcursionOptionOutcome;
-
-        if (option.type === 'fight') {
-            success = playerWC >= (option.wcRequired ?? 0);
-        } else if (option.type === 'luck') {
-            success = Math.random() < (option.luckChance ?? 0.5);
-        }
-
-        outcome = success ? option.success : (option.failure ?? option.success);
-
-        const newRun = applyOutcome(outcome, success);
-        newRun.storyLog.push({ text: outcome.text, type: 'result' });
-        setRun(newRun);
-        setResultText(outcome.text);
-        setResultSuccess(success);
-        setPendingNext(outcome.nextStage ?? stageIndex + 1);
-        setPendingEnds(!!outcome.ends);
-        setPhase('result');
-
+        const newRun = resolveOption(activeExcursion, option, playerWC);
+        store.patch({ activeExcursion: newRun });
         RundotGameAPI.analytics.recordCustomEvent('excursion_option_chosen', {
-            excursionId: excursion.id,
-            stageIndex,
+            excursionId: def?.id,
+            stageIndex: activeExcursion.currentStageIndex,
             optionLabel: option.label,
-            success,
         }).catch(() => {});
     }
 
-    function handleAdvance() {
-        if (pendingEnds) {
-            finishExcursion(run);
-            return;
-        }
-        const next = pendingNext ?? stageIndex + 1;
-        if (next >= totalStages) {
-            finishExcursion(run);
-            return;
-        }
-        const nextStage = excursion.stages[next];
-        run.storyLog.push({ text: `— ${nextStage.title} —`, type: 'stage' });
-        setStageIndex(next);
-        setPhase('stage');
+    function handleAbort() {
+        if (!activeExcursion) return;
+        playClick();
+        store.patch({
+            activeExcursion: { ...activeExcursion, status: 'ended', endedText: 'Aborted mission. Got out without incident.' },
+        });
     }
 
-    function handleClaimAndLeave() {
-        finishExcursion(run);
-    }
-
-    function finishExcursion(finalRun: ExcursionRun) {
+    function handleClaim() {
+        if (!activeExcursion) return;
         const s = store.get();
-        // Distribute scrip
-        const newCurrency = s.currency + finalRun.accScrip;
-        addEarnedScrip(finalRun.accScrip);
+        const save = getSave();
 
-        // Distribute items → research queue
-        let newQueue = [...s.researchQueue];
-        for (const item of finalRun.accItems) {
-            newQueue.push({
+        let newCurrency = s.currency + activeExcursion.totalScrip;
+        let newResearchQueue = s.researchQueue;
+        let newDiscoveredTerraIds = s.discoveredTerraIds;
+        let newCollectedLoreIds = s.collectedLoreIds;
+        let newEnergy = s.energy - activeExcursion.pendingEnergyCost;
+        if (newEnergy < 0) newEnergy = 0;
+
+        // Apply lore unlocks
+        for (const lu of activeExcursion.loreUnlocks) {
+            if (!newDiscoveredTerraIds.includes(lu.terraId)) {
+                newDiscoveredTerraIds = [...newDiscoveredTerraIds, lu.terraId];
+            }
+            if (!newCollectedLoreIds.includes(lu.snippetId)) {
+                newCollectedLoreIds = [...newCollectedLoreIds, lu.snippetId];
+            }
+        }
+
+        // Roll reward item
+        if (activeExcursion.pendingItemRarity) {
+            const item = rollExcursionRewardItem(activeExcursion.pendingItemRarity as Parameters<typeof rollExcursionRewardItem>[0]);
+            newResearchQueue = [...newResearchQueue, {
                 instanceId: newId(),
                 item,
                 startedAt: Date.now(),
                 durationMs: randomResearchDuration(item.rarity),
-            });
+            }];
         }
 
-        // Lore + terra
-        let newDiscovered = [...s.discoveredTerraIds];
-        let newCollected = [...s.collectedLoreIds];
-        for (const id of finalRun.accTerraIds) {
-            if (!newDiscovered.includes(id)) newDiscovered.push(id);
-        }
-        for (const id of finalRun.accSnippetIds) {
-            if (!newCollected.includes(id)) newCollected.push(id);
-        }
-
+        addEarnedScrip(activeExcursion.totalScrip);
         store.patch({
             currency: newCurrency,
-            researchQueue: newQueue,
-            discoveredTerraIds: newDiscovered,
-            collectedLoreIds: newCollected,
+            energy: newEnergy,
+            researchQueue: newResearchQueue,
+            discoveredTerraIds: newDiscoveredTerraIds,
+            collectedLoreIds: newCollectedLoreIds,
+            activeExcursion: null,
         });
-        const save = getSave();
         updateSave({
             currency: newCurrency,
-            researchQueue: newQueue,
-            discoveredTerraIds: newDiscovered,
-            collectedLoreIds: newCollected,
-            totalExcursions: (save.totalExcursions ?? 0) + 1,
+            energy: newEnergy,
+            researchQueue: newResearchQueue,
+            discoveredTerraIds: newDiscoveredTerraIds,
+            collectedLoreIds: newCollectedLoreIds,
+            totalScavenges: (save.totalScavenges ?? 0),
         });
 
-        RundotGameAPI.analytics.recordCustomEvent('excursion_completed', {
-            excursionId: excursion.id,
-            stagesReached: stageIndex,
-            scrip: finalRun.accScrip,
-            items: finalRun.accItems.length,
-        }).catch(() => {});
+        if (activeExcursion.totalScrip > 0) playBattleWin();
+        else playBattleLoss();
 
-        onClose(finalRun);
+        RundotGameAPI.analytics.recordCustomEvent('excursion_completed', {
+            excursionId: def?.id,
+            scrip: activeExcursion.totalScrip,
+            stagesCompleted: activeExcursion.currentStageIndex,
+        }).catch(() => {});
     }
 
-    const progressPct = Math.round(((stageIndex + 1) / totalStages) * 100);
+    const diffColor = DIFFICULTY_COLORS[def.difficulty];
+    const stageCount = def.stages.length;
+    const stageNum = Math.min(activeExcursion.currentStageIndex + 1, stageCount);
+    const progressPct = (stageNum / stageCount) * 100;
 
     return (
-        <div className="absolute inset-0 flex flex-col" style={{ background: 'rgba(0,0,0,0.97)', zIndex: 50 }}>
+        <div className="absolute inset-0 flex flex-col" style={{ background: 'rgba(0,0,0,0.95)', zIndex: 50 }}>
             {/* Header */}
-            <div className="shrink-0 px-4 pt-4 pb-2" style={{ borderBottom: '1px solid #1c3820' }}>
+            <div className="shrink-0 px-4 pt-4 pb-3" style={{ borderBottom: '1px solid #1c3820', background: '#091410' }}>
                 <div className="flex items-start justify-between gap-2">
-                    <div>
-                        <div className="text-[0.65rem] font-bold tracking-widest" style={{ color: '#4a8a6c' }}>
-                            FIELD OPERATION — {excursion.location.toUpperCase()}
+                    <div className="min-w-0">
+                        <div className="text-[0.68rem] font-bold tracking-widest" style={{ color: diffColor }}>
+                            EXCURSION — {DIFFICULTY_LABELS[def.difficulty]}
                         </div>
-                        <div className="text-[1.05rem] font-bold text-white">{excursion.name}</div>
+                        <div className="text-[1.05rem] font-bold text-white leading-tight">{def.name}</div>
+                        <div className="text-[0.72rem]" style={{ color: '#6a8e6c' }}>{def.subtitle}</div>
                     </div>
-                    <div className="text-right shrink-0">
-                        <div className="text-[0.7rem]" style={{ color: '#6a8e6c' }}>
-                            STAGE {stageIndex + 1}/{totalStages}
-                        </div>
-                        <div className="mt-0.5 h-1.5 w-16 rounded-full overflow-hidden" style={{ background: '#1c3820' }}>
-                            <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${progressPct}%`, background: '#4ade80' }} />
-                        </div>
+                    <div className="shrink-0 text-right">
+                        <div className="text-[0.65rem]" style={{ color: '#4a6a4c' }}>STAGE</div>
+                        <div className="text-[1.1rem] font-bold tabular-nums" style={{ color: '#bcd4bd' }}>{stageNum}/{stageCount}</div>
                     </div>
+                </div>
+                {/* Progress bar */}
+                <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: '#1c3820' }}>
+                    <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${progressPct}%`, background: diffColor }} />
                 </div>
             </div>
 
-            {/* Story log */}
-            <div ref={logRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2" style={{ minHeight: 0 }}>
-                {run.storyLog.map((entry, i) => {
-                    if (entry.type === 'stage') {
-                        return (
-                            <div key={i} className="text-center text-[0.65rem] font-bold tracking-widest py-1" style={{ color: '#3a5a3c', borderTop: '1px solid #1c3820', borderBottom: '1px solid #1c3820', marginTop: '4px' }}>
-                                {entry.text}
+            {/* Content */}
+            <div className="scroll-area flex-1 px-4 py-4 space-y-4">
+                {!showResult && currentStage && (
+                    <>
+                        {/* Stage title + narrative */}
+                        <div>
+                            <div className="text-[0.72rem] font-bold tracking-widest mb-1" style={{ color: '#4a8a6c' }}>
+                                {currentStage.title.toUpperCase()}
                             </div>
-                        );
-                    }
-                    if (entry.type === 'reward') {
-                        const e = entry as LogEntry & { itemRarity?: Rarity; itemName?: string };
-                        return (
-                            <div key={i} className="text-[0.78rem] font-bold pl-2" style={{ color: e.itemRarity ? RARITY_COLORS[e.itemRarity] : '#4ade80', borderLeft: '2px solid currentColor' }}>
-                                {e.itemName ? `Secured: ${e.itemName}` : entry.text}
-                            </div>
-                        );
-                    }
-                    if (entry.type === 'result') {
-                        return (
-                            <div key={i} className="text-[0.85rem] leading-snug italic" style={{ color: '#c4dcc5' }}>
-                                {entry.text}
-                            </div>
-                        );
-                    }
-                    return (
-                        <div key={i} className="text-[0.78rem]" style={{ color: '#6a8e6c' }}>
-                            {entry.text}
+                            <p className="text-[0.92rem] leading-relaxed italic" style={{ color: '#bcd4bd' }}>
+                                {currentStage.narrative}
+                            </p>
                         </div>
-                    );
-                })}
-            </div>
 
-            {/* Accumulated rewards summary */}
-            {(run.accScrip > 0 || run.accItems.length > 0) && (
-                <div className="shrink-0 mx-4 mb-2 rounded p-2.5" style={{ background: '#0a1810', border: '1px solid #1c3820' }}>
-                    <div className="text-[0.62rem] font-bold tracking-widest mb-1" style={{ color: '#3a6a4c' }}>
-                        ACCUMULATED REWARDS
-                    </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-0.5">
-                        {run.accScrip > 0 && (
-                            <span className="text-[0.78rem] font-bold" style={{ color: '#8a7a60' }}>{run.accScrip} scrip</span>
+                        {/* Last outcome text (if we just came from a previous stage) */}
+                        {activeExcursion.log.length > 0 && (
+                            <div className="rounded px-3 py-2" style={{ background: '#0a1a10', border: '1px solid #1a3e1c' }}>
+                                <p className="text-[0.8rem]" style={{ color: '#8aaa8c' }}>
+                                    {activeExcursion.log[activeExcursion.log.length - 1]}
+                                </p>
+                            </div>
                         )}
-                        {run.accItems.map((item, i) => (
-                            <span key={i} className="text-[0.78rem] font-bold" style={{ color: RARITY_COLORS[item.rarity] }}>
-                                {item.name}
-                            </span>
-                        ))}
-                        {run.accSnippetIds.length > 0 && (
-                            <span className="text-[0.78rem]" style={{ color: '#7a5aac' }}>{run.accSnippetIds.length} codex {run.accSnippetIds.length === 1 ? 'entry' : 'entries'}</span>
-                        )}
-                    </div>
-                </div>
-            )}
 
-            {/* Stage display or result */}
-            <div className="shrink-0 px-4 pb-4">
-                {phase === 'stage' && (
-                    <div>
-                        <div className="mb-1.5 text-[0.72rem] font-bold tracking-widest" style={{ color: '#5a8a6c' }}>
-                            {stage.title.toUpperCase()}
-                        </div>
-                        <div className="mb-3 text-[0.88rem] leading-relaxed" style={{ color: '#c4dcc5' }}>
-                            {stage.narrative}
-                        </div>
+                        {/* Choices */}
                         <div className="space-y-2">
-                            {stage.options.map((opt, i) => {
-                                const isFight = opt.type === 'fight';
-                                const isLuck = opt.type === 'luck';
-                                const canFight = !isFight || playerWC >= (opt.wcRequired ?? 0);
-                                const hasEnoughEnergy = !opt.energyCost || energy >= opt.energyCost;
-                                const disabled = !hasEnoughEnergy;
+                            {currentStage.options.map((option, i) => {
+                                const isFight = option.type === 'fight';
+                                const canFight = !isFight || playerWC >= (option.wcRequired ?? 0);
+                                const energyCost = option.energyCost ?? 0;
+                                const canAffordEnergy = energy >= energyCost;
+                                const disabled = !canAffordEnergy;
                                 return (
-                                    <button key={i}
-                                        type="button"
-                                        className="w-full rounded py-2.5 px-3 text-left text-[0.88rem] transition-transform active:scale-[0.98]"
+                                    <button key={i} type="button"
+                                        className="w-full rounded p-3 text-left transition-transform active:scale-[0.98]"
                                         style={{
-                                            background: canFight ? '#112018' : '#180810',
-                                            border: `1px solid ${canFight ? '#2c4a2e' : '#4a1500'}`,
-                                            color: disabled ? '#4a3a3c' : canFight ? '#c4dcc5' : '#f97316',
+                                            background: disabled ? '#0a1010' : '#112018',
+                                            border: `1px solid ${isFight && !canFight ? '#4a2a00' : '#2c4a2e'}`,
                                             opacity: disabled ? 0.5 : 1,
                                         }}
-                                        onClick={() => !disabled && handleOption(opt)}
+                                        onClick={() => handleOption(option)}
                                         disabled={disabled}
                                     >
-                                        <div className="flex items-center justify-between gap-2">
-                                            <span>{opt.label}</span>
-                                            <div className="flex items-center gap-1.5 shrink-0">
-                                                {opt.energyCost && (
-                                                    <span className="text-[0.65rem]" style={{ color: '#f97316' }}>{opt.energyCost} ⚡</span>
-                                                )}
-                                                {isFight && !canFight && (
-                                                    <span className="text-[0.65rem]" style={{ color: '#f97316' }}>WC {opt.wcRequired}+ needed</span>
-                                                )}
-                                                {isFight && canFight && (
-                                                    <span className="text-[0.65rem]" style={{ color: '#4ade80' }}>WC {playerWC} vs {opt.wcRequired}</span>
-                                                )}
-                                                {isLuck && (
-                                                    <span className="text-[0.65rem]" style={{ color: '#facc15' }}>50/50</span>
-                                                )}
-                                            </div>
+                                        <div className="text-[0.92rem] font-bold text-white">{option.label}</div>
+                                        <div className="mt-0.5 flex flex-wrap gap-2">
+                                            {isFight && (
+                                                <span className="text-[0.68rem] font-bold" style={{ color: canFight ? '#facc15' : '#a04010' }}>
+                                                    WC {option.wcRequired}+ {canFight ? '✓' : '✗'}
+                                                </span>
+                                            )}
+                                            {option.type === 'luck' && (
+                                                <span className="text-[0.68rem]" style={{ color: '#60a5fa' }}>
+                                                    {Math.round((option.luckChance ?? 0.5) * 100)}% success
+                                                </span>
+                                            )}
+                                            {energyCost > 0 && (
+                                                <span className="text-[0.68rem]" style={{ color: canAffordEnergy ? '#f97316' : '#a04010' }}>
+                                                    -{energyCost} ⚡
+                                                </span>
+                                            )}
                                         </div>
                                     </button>
                                 );
                             })}
                         </div>
-                        {stage.canLeave && (
-                            <button type="button"
-                                className="mt-2 w-full rounded py-2 text-[0.8rem] transition-transform active:scale-[0.98]"
-                                style={{ background: 'transparent', border: '1px solid #1c3820', color: '#4a6a4c' }}
-                                onClick={handleClaimAndLeave}
-                            >
-                                {run.accScrip > 0 || run.accItems.length > 0
-                                    ? `CLAIM & LEAVE (+${run.accScrip} scrip${run.accItems.length > 0 ? `, ${run.accItems.length} item${run.accItems.length > 1 ? 's' : ''}` : ''})`
-                                    : 'LEAVE EMPTY-HANDED'}
-                            </button>
-                        )}
-                    </div>
+                    </>
                 )}
 
-                {phase === 'result' && (
-                    <div>
-                        <div className="mb-3 rounded p-3" style={{ background: resultSuccess ? '#0a1c0a' : '#1a0a0a', border: `1px solid ${resultSuccess ? '#2a5e2c' : '#4a1500'}` }}>
-                            <div className="text-[0.68rem] font-bold tracking-widest mb-1" style={{ color: resultSuccess ? '#4ade80' : '#f97316' }}>
-                                {resultSuccess ? 'OUTCOME' : 'SETBACK'}
+                {showResult && (
+                    <>
+                        <div className="rounded p-4" style={{ background: '#0a1a10', border: '1px solid #2c4a2e' }}>
+                            <div className="text-[0.68rem] font-bold tracking-widest mb-2" style={{ color: activeExcursion.totalScrip > def.baseReward ? '#4ade80' : '#4a6a4c' }}>
+                                {activeExcursion.totalScrip > 0 ? 'MISSION COMPLETE' : 'MISSION ENDED'}
                             </div>
-                            <p className="text-[0.88rem] leading-snug" style={{ color: '#c4dcc5' }}>{resultText}</p>
+                            <p className="text-[0.9rem] leading-relaxed italic" style={{ color: '#bcd4bd' }}>
+                                {activeExcursion.endedText ?? activeExcursion.log[activeExcursion.log.length - 1] ?? 'Excursion concluded.'}
+                            </p>
                         </div>
-                        {pendingEnds ? (
-                            <button type="button"
-                                className="w-full rounded py-3 text-[1rem] font-bold tracking-wide transition-transform active:scale-95"
-                                style={{ background: '#7ccf5a', color: '#070e08' }}
-                                onClick={handleAdvance}
-                            >
-                                EXTRACT
-                            </button>
-                        ) : (
-                            <button type="button"
-                                className="w-full rounded py-3 text-[0.95rem] font-bold tracking-wide transition-transform active:scale-95"
-                                style={{ background: '#112018', color: '#7ccf5a', border: '1px solid #2a5e2c' }}
-                                onClick={handleAdvance}
-                            >
-                                CONTINUE →
-                            </button>
+
+                        {/* Rewards */}
+                        <div className="rounded p-3 space-y-2" style={{ background: '#112018', border: '1px solid #1a3e1c' }}>
+                            <div className="text-[0.68rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>OUTCOME</div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-[0.85rem]" style={{ color: '#8aaa8c' }}>Scrip recovered</span>
+                                <span className="text-[0.95rem] font-bold" style={{ color: activeExcursion.totalScrip > 0 ? '#fb923c' : '#4a4a4a' }}>
+                                    {activeExcursion.totalScrip > 0 ? `+${activeExcursion.totalScrip}` : '0'}
+                                </span>
+                            </div>
+                            {activeExcursion.pendingItemRarity && (
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[0.85rem]" style={{ color: '#8aaa8c' }}>Item recovered</span>
+                                    <span className="text-[0.82rem] font-bold" style={{ color: '#60a5fa' }}>→ RESEARCH QUEUE</span>
+                                </div>
+                            )}
+                            {activeExcursion.loreUnlocks.length > 0 && (
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[0.85rem]" style={{ color: '#8aaa8c' }}>Codex entries</span>
+                                    <span className="text-[0.82rem] font-bold" style={{ color: '#c084fc' }}>+{activeExcursion.loreUnlocks.length} UNLOCKED</span>
+                                </div>
+                            )}
+                            {activeExcursion.pendingEnergyCost > 0 && (
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[0.85rem]" style={{ color: '#8aaa8c' }}>Energy lost</span>
+                                    <span className="text-[0.82rem] font-bold" style={{ color: '#f97316' }}>-{activeExcursion.pendingEnergyCost} ⚡</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {activeExcursion.log.length > 1 && (
+                            <div className="space-y-1">
+                                <div className="text-[0.65rem] font-bold tracking-widest" style={{ color: '#3a5a3c' }}>FIELD LOG</div>
+                                {activeExcursion.log.map((line, i) => (
+                                    <p key={i} className="text-[0.76rem] leading-snug" style={{ color: '#6a8e6c' }}>
+                                        {line}
+                                    </p>
+                                ))}
+                            </div>
                         )}
-                    </div>
+                    </>
                 )}
+            </div>
+
+            {/* Footer */}
+            <div className="shrink-0 px-4 pb-4 pt-3" style={{ borderTop: '1px solid #1c3820' }}>
+                {showResult ? (
+                    <button type="button"
+                        className="w-full rounded py-3.5 text-[1rem] font-bold tracking-wide transition-transform active:scale-95"
+                        style={{ background: '#7ccf5a', color: '#070e08' }}
+                        onClick={handleClaim}>
+                        {activeExcursion.totalScrip > 0 ? `CLAIM +${activeExcursion.totalScrip} SCRIP` : 'CONTINUE'}
+                    </button>
+                ) : currentStage?.canLeave ? (
+                    <button type="button"
+                        className="w-full rounded py-2.5 text-[0.85rem] font-bold tracking-wide transition-transform active:scale-95"
+                        style={{ background: 'transparent', color: '#4a6a4c', border: '1px solid #243e26' }}
+                        onClick={handleAbort}>
+                        ABORT MISSION
+                    </button>
+                ) : null}
             </div>
         </div>
     );

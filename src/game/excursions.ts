@@ -1,9 +1,10 @@
-import type { Item, Rarity } from './types.ts';
+import type { Item, Rarity, ExcursionRun, ExcursionLoreUnlock } from './types.ts';
 import { rollRandomItem } from './items.ts';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export type ExcursionOptionType = 'continue' | 'fight' | 'luck';
+export type ExcursionDifficulty = 'easy' | 'medium' | 'hard' | 'extreme';
 
 export interface ExcursionOptionOutcome {
     text: string;
@@ -36,9 +37,12 @@ export interface ExcursionStage {
 export interface ExcursionDef {
     id: string;
     name: string;
+    subtitle: string;
     location: string;
     description: string;
+    difficulty: ExcursionDifficulty;
     energyCost: number;
+    baseReward: number;
     stages: ExcursionStage[];
 }
 
@@ -56,9 +60,12 @@ export const ALL_EXCURSIONS: ExcursionDef[] = [
     {
         id: 'exc-overpass',
         name: "Something's Still Moving",
+        subtitle: 'Overpass salvage run',
         location: 'Collapsed Overpass',
         description: 'A sound in the bridge wreckage. Could be the structure settling. Could be something that found the structure first.',
+        difficulty: 'easy',
         energyCost: 2,
+        baseReward: 10,
         stages: [
             {
                 title: 'Movement in the Wreckage',
@@ -132,9 +139,12 @@ export const ALL_EXCURSIONS: ExcursionDef[] = [
     {
         id: 'exc-samples',
         name: 'Samples Required',
+        subtitle: 'QS7 contamination extraction',
         location: 'Quarantine Sector 7',
         description: 'QS7 has the freshest contamination data in the region. Getting it out intact is the part nobody documented.',
+        difficulty: 'hard',
         energyCost: 3,
+        baseReward: 5,
         stages: [
             {
                 title: 'Entry Point',
@@ -240,9 +250,12 @@ export const ALL_EXCURSIONS: ExcursionDef[] = [
     {
         id: 'exc-apex',
         name: 'Find the Apex',
+        subtitle: 'Extreme fauna intelligence',
         location: 'Sublevel Research Complex',
         description: 'Intel only. The Apex has been sighted in the Sublevel. Observation from a safe distance. What constitutes safe is still being determined.',
+        difficulty: 'extreme',
         energyCost: 4,
+        baseReward: 20,
         stages: [
             {
                 title: 'Descent',
@@ -350,9 +363,12 @@ export const ALL_EXCURSIONS: ExcursionDef[] = [
     {
         id: 'exc-ward',
         name: 'The Ward',
+        subtitle: 'Hospital intelligence run',
         location: 'Mercy General Hospital',
         description: "Pre-war intake forms still on the desks. The records aren't complete. Going in might tell you why.",
+        difficulty: 'medium',
         energyCost: 3,
+        baseReward: 5,
         stages: [
             {
                 title: 'Intake',
@@ -438,9 +454,12 @@ export const ALL_EXCURSIONS: ExcursionDef[] = [
     {
         id: 'exc-signal',
         name: 'Signal Lost',
+        subtitle: 'Cross-sector intelligence',
         location: 'Cross-sector',
         description: "A signal on 2.3 MHz. Intermittent. Either a pre-war beacon on residual power, or something learned to press a button. Both possibilities are fine.",
+        difficulty: 'medium',
         energyCost: 3,
+        baseReward: 5,
         stages: [
             {
                 title: 'Static',
@@ -531,4 +550,86 @@ export const ALL_EXCURSIONS: ExcursionDef[] = [
 
 export function getExcursionById(id: string): ExcursionDef | undefined {
     return ALL_EXCURSIONS.find(e => e.id === id);
+}
+
+// ── Display helpers ────────────────────────────────────────────────────────
+
+export const DIFFICULTY_COLORS: Record<ExcursionDifficulty, string> = {
+    easy: '#4ade80',
+    medium: '#facc15',
+    hard: '#f97316',
+    extreme: '#f43f5e',
+};
+
+export const DIFFICULTY_LABELS: Record<ExcursionDifficulty, string> = {
+    easy: 'LOW RISK',
+    medium: 'MODERATE',
+    hard: 'HIGH RISK',
+    extreme: 'EXTREME',
+};
+
+// ── Run helpers ────────────────────────────────────────────────────────────
+
+export function startExcursion(def: ExcursionDef): ExcursionRun {
+    return {
+        excursionId: def.id,
+        currentStageIndex: 0,
+        status: 'active',
+        loreUnlocks: [],
+        totalScrip: def.baseReward,
+        pendingItemRarity: undefined,
+        pendingEnergyCost: 0,
+        log: [],
+    };
+}
+
+const RARITY_ORDER: Rarity[] = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'unique'];
+
+function higherRarity(a: Rarity | undefined, b: Rarity | undefined): Rarity | undefined {
+    if (!a) return b;
+    if (!b) return a;
+    return RARITY_ORDER.indexOf(a) >= RARITY_ORDER.indexOf(b) ? a : b;
+}
+
+export function resolveOption(
+    run: ExcursionRun,
+    option: ExcursionOption,
+    playerWC: number,
+): ExcursionRun {
+    let success = true;
+
+    if (option.type === 'fight') {
+        success = playerWC >= (option.wcRequired ?? 0);
+    } else if (option.type === 'luck') {
+        success = Math.random() < (option.luckChance ?? 0.5);
+    }
+
+    const outcome = success ? option.success : (option.failure ?? option.success);
+    const newLog = [...run.log, outcome.text];
+
+    const newLoreUnlocks: ExcursionLoreUnlock[] = outcome.snippetId && outcome.terraId
+        ? [...run.loreUnlocks, { terraId: outcome.terraId, snippetId: outcome.snippetId }]
+        : run.loreUnlocks;
+
+    let nextStageIndex = run.currentStageIndex + 1;
+    if (outcome.nextStage !== undefined) nextStageIndex = outcome.nextStage;
+
+    const ended = outcome.ends === true;
+    const newEnergyCost = run.pendingEnergyCost + (outcome.energyCost ?? 0) + (option.energyCost ?? 0);
+
+    return {
+        ...run,
+        currentStageIndex: ended ? run.currentStageIndex : nextStageIndex,
+        status: ended ? 'ended' : 'active',
+        loreUnlocks: newLoreUnlocks,
+        totalScrip: run.totalScrip + (outcome.scrip ?? 0),
+        pendingItemRarity: higherRarity(run.pendingItemRarity as Rarity | undefined, outcome.itemRarity),
+        pendingEnergyCost: newEnergyCost,
+        log: newLog,
+        endedText: ended ? outcome.text : run.endedText,
+    };
+}
+
+export function rollExcursionRewardItem(rarity: Rarity): Item {
+    return rollRandomItem(rarity, rarity);
 }

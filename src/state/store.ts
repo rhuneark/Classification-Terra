@@ -6,6 +6,7 @@ import type {
     PassiveResults,
     GameScreen,
     ResearchQueueItem,
+    ExcursionRun,
 } from '../game/types.ts';
 import { BACKPACK_SLOTS, MAX_ENERGY } from '../game/types.ts';
 
@@ -40,6 +41,7 @@ export interface AppState {
     luckBonusActive: boolean;
     selectedInventoryItemId: string | null;
     loginBonus: { scrip: number; streak: number } | null;
+    activeExcursion: ExcursionRun | null;
 }
 
 const listeners = new Set<() => void>();
@@ -69,6 +71,7 @@ let state: AppState = {
     luckBonusActive: false,
     selectedInventoryItemId: null,
     loginBonus: null,
+    activeExcursion: null,
 };
 
 export const store = {

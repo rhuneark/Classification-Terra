@@ -10,14 +10,17 @@ import LootScreen from './LootScreen.tsx';
 import BackpackScreen from './BackpackScreen.tsx';
 import CodexScreen from './CodexScreen.tsx';
 import TraderScreen from './TraderScreen.tsx';
+import LogScreen from './LogScreen.tsx';
 import PassiveResultsPopup from './PassiveResultsPopup.tsx';
 import MenuOverlay from './MenuOverlay.tsx';
+import ExcursionModal from './ExcursionModal.tsx';
 
 const TABS: { id: GameScreenType; label: string }[] = [
     { id: 'loot', label: 'RUINS' },
     { id: 'backpack', label: 'LOADOUT' },
     { id: 'codex', label: 'CODEX' },
     { id: 'trader', label: 'OUTPOST' },
+    { id: 'log', label: 'LOG' },
 ];
 
 export default function GameScreen() {
@@ -114,8 +117,10 @@ export default function GameScreen() {
                 {screen === 'backpack' && <BackpackScreen />}
                 {screen === 'codex' && <CodexScreen />}
                 {screen === 'trader' && <TraderScreen />}
+                {screen === 'log' && <LogScreen />}
 
                 <PassiveResultsPopup />
+                <ExcursionModal />
 
                 {paused && (
                     <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.78)', zIndex: 60 }}>
