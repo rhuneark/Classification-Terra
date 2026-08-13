@@ -6,10 +6,10 @@ export default function LoadingScreen() {
     return (
         <div className="flex h-full flex-col items-center justify-center gap-6 px-10" style={{ background: '#050d07' }}>
             <div className="text-center">
-                <h1 className="text-[1.8rem] font-bold tracking-widest text-primary">CLASSIFICATION</h1>
-                <div className="text-[1.15rem] font-bold tracking-[0.18em]" style={{ color: '#4ade80' }}>: TERRA</div>
+                <h1 className="text-[1.8rem] font-bold tracking-widest text-primary">CLASSIFICATION:</h1>
+                <div className="text-[1.15rem] font-bold tracking-[0.18em]" style={{ color: '#4ade80' }}>TERRA</div>
             </div>
-            <p className="text-[0.85rem] tracking-widest" style={{ color: '#6b7a6c' }}>MUTATED FAUNA FIELD CODEX</p>
+            <p className="text-[0.85rem] tracking-widest leading-relaxed text-center" style={{ color: '#6b7a6c' }}>SURVIVE THE RUINS.<br />CLASSIFY WHAT THE INFECTION MADE.</p>
             <div
                 className="h-2 w-full max-w-xs overflow-hidden rounded-full"
                 style={{ background: '#0b1a0d' }}

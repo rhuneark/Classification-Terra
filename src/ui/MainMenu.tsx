@@ -34,10 +34,10 @@ export default function MainMenu() {
     return (
         <div className="relative flex h-full flex-col items-center justify-center gap-6 px-8" style={{ background: '#0b1a0d' }}>
             <div className="text-center">
-                <h1 className="text-[2rem] font-bold tracking-widest text-primary">CLASSIFICATION</h1>
-                <div className="text-[1.25rem] font-bold tracking-[0.18em]" style={{ color: '#4ade80' }}>: TERRA</div>
-                <p className="mt-2 text-[0.78rem] tracking-widest" style={{ color: '#5a8a5c' }}>
-                    MUTATED FAUNA FIELD CODEX
+                <h1 className="text-[2rem] font-bold tracking-widest text-primary">CLASSIFICATION:</h1>
+                <div className="text-[1.25rem] font-bold tracking-[0.18em]" style={{ color: '#4ade80' }}>TERRA</div>
+                <p className="mt-2 text-[0.78rem] tracking-widest leading-relaxed" style={{ color: '#5a8a5c' }}>
+                    SURVIVE THE RUINS.<br />CLASSIFY WHAT THE INFECTION MADE.
                 </p>
             </div>
 
