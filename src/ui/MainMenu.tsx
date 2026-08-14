@@ -6,6 +6,8 @@ import ExplorerBoard from './ExplorerBoard.tsx';
 import WorldLoreModal from './WorldLoreModal.tsx';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
+const isPromoMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('promo');
+
 export default function MainMenu() {
     const loadout = useStore((s) => s.loadout);
     const currency = useStore((s) => s.currency);
@@ -13,6 +15,25 @@ export default function MainMenu() {
     const [showHtp, setShowHtp] = useState(false);
     const [showExplorer, setShowExplorer] = useState(false);
     const [showLore, setShowLore] = useState(false);
+    const [promoStatus, setPromoStatus] = useState<'idle' | 'generating' | 'done' | 'error'>('idle');
+    const [promoUrl, setPromoUrl] = useState<string | null>(null);
+
+    async function handlePromoGen() {
+        setPromoStatus('generating');
+        try {
+            const result = await RundotGameAPI.audioGen.generate({
+                type: 'music',
+                prompt: 'Dark atmospheric post-apocalyptic chiptune, minor key, slow tempo 80 BPM, lo-fi 8-bit square wave lead, eerie and tense, sparse percussion, distant metallic echoes, haunting melody, survival horror game soundtrack',
+                durationSec: 90,
+                model: 'elevenlabs',
+                clientRef: 'promo-track-v1',
+            });
+            setPromoUrl(result.audioUrl);
+            setPromoStatus('done');
+        } catch {
+            setPromoStatus('error');
+        }
+    }
 
     function handlePlay() {
         store.patch({ phase: 'playing', screen: 'loot' });
@@ -84,6 +105,35 @@ export default function MainMenu() {
                     <span className="ml-2 text-[0.72rem]" style={{ color: '#5aaa5c' }}>The 10 Paperclips</span>
                 </button>
             </div>
+
+            {isPromoMode && (
+                <div className="w-full max-w-xs rounded p-3 text-center" style={{ background: '#0a1a10', border: '1px solid #22ddee44' }}>
+                    <div className="text-[0.7rem] font-bold tracking-widest mb-2" style={{ color: '#22ddee' }}>PROMO AUDIO GENERATOR</div>
+                    {promoStatus === 'idle' && (
+                        <button type="button" className="w-full rounded py-2 text-[0.85rem] font-bold tracking-wide"
+                            style={{ background: '#112a2e', color: '#22ddee', border: '1px solid #22ddee55' }}
+                            onClick={handlePromoGen}>
+                            GENERATE 90s TRACK
+                        </button>
+                    )}
+                    {promoStatus === 'generating' && (
+                        <p className="text-[0.82rem]" style={{ color: '#8aaa8c' }}>Generating... this takes ~30s</p>
+                    )}
+                    {promoStatus === 'done' && promoUrl && (
+                        <div className="space-y-2">
+                            <p className="text-[0.75rem]" style={{ color: '#4ade80' }}>Track ready!</p>
+                            <a href={promoUrl} download="classification-terra-promo.mp3" target="_blank" rel="noreferrer"
+                                className="block w-full rounded py-2 text-[0.85rem] font-bold tracking-wide"
+                                style={{ background: '#0a2e10', color: '#4ade80', border: '1px solid #4ade8055' }}>
+                                DOWNLOAD MP3
+                            </a>
+                        </div>
+                    )}
+                    {promoStatus === 'error' && (
+                        <p className="text-[0.8rem]" style={{ color: '#f97316' }}>Generation failed — try again</p>
+                    )}
+                </div>
+            )}
 
             {showLore && (
                 <WorldLoreModal onClose={() => setShowLore(false)} />
