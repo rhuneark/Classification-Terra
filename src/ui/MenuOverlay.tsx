@@ -60,9 +60,9 @@ export default function MenuOverlay({ onClose }: Props) {
                         type="button"
                         className="rounded px-4 py-1.5 text-[0.85rem] font-bold transition-transform active:scale-95"
                         style={{
-                            background: muteMusic ? '#1a0a00' : '#0b2e0d',
+                            background: muteMusic ? '#1a0000' : '#0b2e0d',
                             color: muteMusic ? '#f97316' : '#4ade80',
-                            border: `1px solid ${muteMusic ? '#4a2000' : '#1a5e1c'}`,
+                            border: `1px solid ${muteMusic ? '#4a0a0a' : '#1a5e1c'}`,
                         }}
                         onClick={toggleMusic}
                     >
@@ -79,9 +79,9 @@ export default function MenuOverlay({ onClose }: Props) {
                         type="button"
                         className="rounded px-4 py-1.5 text-[0.85rem] font-bold transition-transform active:scale-95"
                         style={{
-                            background: muteSfx ? '#1a0a00' : '#0b2e0d',
+                            background: muteSfx ? '#1a0000' : '#0b2e0d',
                             color: muteSfx ? '#f97316' : '#4ade80',
-                            border: `1px solid ${muteSfx ? '#4a2000' : '#1a5e1c'}`,
+                            border: `1px solid ${muteSfx ? '#4a0a0a' : '#1a5e1c'}`,
                         }}
                         onClick={toggleSfx}
                     >
@@ -93,7 +93,7 @@ export default function MenuOverlay({ onClose }: Props) {
                     <button
                         type="button"
                         className="w-full rounded py-3 text-[0.95rem] font-bold tracking-wide transition-transform active:scale-95"
-                        style={{ background: '#1a0a00', color: '#f97316', border: '1px solid #4a2000' }}
+                        style={{ background: '#1a0000', color: '#f97316', border: '1px solid #4a0a0a' }}
                         onClick={returnToTitle}
                     >
                         RETURN TO TITLE

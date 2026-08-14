@@ -256,7 +256,7 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
                             </p>
                             <div className="mt-3 flex gap-2">
                                 <button type="button" className="flex-1 rounded py-2 text-[0.85rem] font-bold transition-transform active:scale-95"
-                                    style={{ background: '#f43f5e22', color: '#f43f5e', border: '1px solid #f43f5e66' }}
+                                    style={{ background: '#ff333322', color: '#ff3333', border: '1px solid #ff333366' }}
                                     onClick={onScrap}>
                                     SCRAP IT
                                 </button>
@@ -301,14 +301,14 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
                     {event.flavorText}
                 </div>
                 {event.lostItem && (
-                    <div className="mt-3 rounded p-3" style={{ background: '#1a0a00', border: '1px solid #4a1500' }}>
+                    <div className="mt-3 rounded p-3" style={{ background: '#1a0000', border: '1px solid #4a0a0a' }}>
                         <div className="text-[0.72rem] font-bold" style={{ color: '#f97316' }}>LOST</div>
                         <div className="mt-0.5 text-[1rem] font-bold text-white">{event.lostItem.name}</div>
                         <div className="text-[0.75rem]" style={{ color: '#a07060' }}>{event.lostItem.description}</div>
                     </div>
                 )}
                 {event.energyLost != null && (
-                    <div className="mt-3 rounded p-3" style={{ background: '#1a0a00', border: '1px solid #4a1500' }}>
+                    <div className="mt-3 rounded p-3" style={{ background: '#1a0000', border: '1px solid #4a0a0a' }}>
                         <div className="text-[0.72rem] font-bold" style={{ color: '#f97316' }}>LOST</div>
                         <div className="mt-0.5 text-[1rem] font-bold text-white">{event.energyLost} ⚡ energy</div>
                     </div>

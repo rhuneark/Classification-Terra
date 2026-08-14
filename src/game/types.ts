@@ -169,7 +169,7 @@ export const RARITY_COLORS: Record<Rarity, string> = {
     rare: '#60a5fa',
     epic: '#c084fc',
     legendary: '#fb923c',
-    unique: '#f43f5e',
+    unique: '#ff3333',
 };
 
 export const RARITY_LABELS: Record<Rarity, string> = {
@@ -186,7 +186,7 @@ export const DANGER_LABELS: Record<LocationDanger, string> = {
 };
 
 export const DANGER_COLORS: Record<LocationDanger, string> = {
-    low: '#4ade80', medium: '#facc15', high: '#f97316', extreme: '#f43f5e',
+    low: '#4ade80', medium: '#facc15', high: '#f97316', extreme: '#ff3333',
 };
 
 export const SLOT_COLORS: Record<EquipSlot, string> = {
@@ -194,7 +194,7 @@ export const SLOT_COLORS: Record<EquipSlot, string> = {
     'torso': '#4ade80',
     'legs': '#facc15',
     'feet': '#a78bfa',
-    'hand': '#f43f5e',
+    'hand': '#ff3333',
     'protection': '#fb923c',
     'consumable-slot': '#34d399',
 };

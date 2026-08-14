@@ -145,7 +145,7 @@ function LoadoutSlotCard({ slotKey, item, onTap }: { slotKey: LoadoutKey; item: 
                     </div>
                     <div className="mt-auto pt-1 flex gap-1.5">
                         {item.damage > 0 && (
-                            <span className="text-[0.6rem] font-bold" style={{ color: '#f43f5e' }}>ATK {item.damage}</span>
+                            <span className="text-[0.6rem] font-bold" style={{ color: '#ff3333' }}>ATK {item.damage}</span>
                         )}
                         {item.defense > 0 && (
                             <span className="text-[0.6rem] font-bold" style={{ color: '#60a5fa' }}>DEF {item.defense}</span>
@@ -193,7 +193,7 @@ function ItemCard({ item, onClick, selected, compact = false }: { item: Item; on
                 </div>
                 <div className="shrink-0 text-right space-y-0.5">
                     {item.damage > 0 && (
-                        <div className="text-[0.7rem] font-bold tabular-nums" style={{ color: '#f43f5e' }}>ATK {item.damage}</div>
+                        <div className="text-[0.7rem] font-bold tabular-nums" style={{ color: '#ff3333' }}>ATK {item.damage}</div>
                     )}
                     {item.defense > 0 && (
                         <div className="text-[0.7rem] font-bold tabular-nums" style={{ color: '#60a5fa' }}>DEF {item.defense}</div>
@@ -360,7 +360,7 @@ export default function BackpackScreen() {
                         <div className="text-right">
                             <div className="text-[1.1rem] font-bold text-white">WC {wc}</div>
                             <div className="flex gap-2 justify-end">
-                                <span className="text-[0.65rem] font-bold" style={{ color: '#f43f5e' }}>ATK {stats.attack}</span>
+                                <span className="text-[0.65rem] font-bold" style={{ color: '#ff3333' }}>ATK {stats.attack}</span>
                                 <span className="text-[0.65rem] font-bold" style={{ color: '#60a5fa' }}>DEF {stats.defense}</span>
                             </div>
                         </div>

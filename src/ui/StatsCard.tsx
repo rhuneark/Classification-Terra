@@ -26,7 +26,7 @@ export default function StatsCard({ onClose }: Props) {
         { label: 'Defeats', value: `${save.totalBattles - save.wins}` },
         { label: 'Locations Scavenged', value: `${save.totalScavenges ?? 0}` },
         { label: 'Ambushes Survived', value: `${save.totalAmbushes ?? 0}` },
-        { label: 'Paperclips Found', value: `${paperclipsFound}/10`, color: paperclipsFound > 0 ? '#f43f5e' : undefined },
+        { label: 'Paperclips Found', value: `${paperclipsFound}/10`, color: paperclipsFound > 0 ? '#ff3333' : undefined },
     ];
 
     return (
@@ -56,8 +56,8 @@ export default function StatsCard({ onClose }: Props) {
                 </div>
 
                 {paperclipsFound > 0 && (
-                    <div className="mt-3 rounded p-2 text-center text-[0.78rem]" style={{ background: '#160820', border: '1px solid #f43f5e33' }}>
-                        <span style={{ color: '#f43f5e' }}>
+                    <div className="mt-3 rounded p-2 text-center text-[0.78rem]" style={{ background: '#160820', border: '1px solid #ff333333' }}>
+                        <span style={{ color: '#ff3333' }}>
                             {paperclipsFound === 10
                                 ? 'You found all 10 paperclips. Legendary.'
                                 : `You found ${paperclipsFound} paperclip${paperclipsFound > 1 ? 's' : ''}. Remarkable.`}

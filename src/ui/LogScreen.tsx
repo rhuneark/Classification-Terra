@@ -54,7 +54,7 @@ function typeColor(type: string, rarity?: string): string {
     switch (type) {
         case 'ambush': return '#f97316';
         case 'battle-win': return '#4ade80';
-        case 'battle-loss': return '#f43f5e';
+        case 'battle-loss': return '#ff3333';
         case 'lore': return '#c084fc';
         case 'trade': return '#60a5fa';
         default: return '#4a6a4c';

@@ -214,7 +214,7 @@ export default function ExcursionModal() {
                                         <div className="text-[0.92rem] font-bold text-white">{option.label}</div>
                                         <div className="mt-0.5 flex flex-wrap gap-2">
                                             {isFight && (
-                                                <span className="text-[0.68rem] font-bold" style={{ color: canFight ? '#facc15' : '#a04010' }}>
+                                                <span className="text-[0.68rem] font-bold" style={{ color: canFight ? '#facc15' : '#882222' }}>
                                                     WC {option.wcRequired}+ {canFight ? '✓' : '✗'}
                                                 </span>
                                             )}
@@ -224,7 +224,7 @@ export default function ExcursionModal() {
                                                 </span>
                                             )}
                                             {energyCost > 0 && (
-                                                <span className="text-[0.68rem]" style={{ color: canAffordEnergy ? '#f97316' : '#a04010' }}>
+                                                <span className="text-[0.68rem]" style={{ color: canAffordEnergy ? '#f97316' : '#882222' }}>
                                                     -{energyCost} ⚡
                                                 </span>
                                             )}
