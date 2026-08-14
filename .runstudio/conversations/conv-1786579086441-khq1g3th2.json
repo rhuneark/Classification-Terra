@@ -13814,11 +13814,29 @@
       "timestamp": 1786749979488,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1786750316718",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "If I test the paperclip, will it be the first and show up for everyone else? I want to test without messing it up for others",
+      "timestamp": 1786750316718,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786750338797-193cfifpf",
+      "role": "assistant",
+      "content": "Yes — on the deployed build, the SDK calls are real. If you trigger the Easter egg there, your username gets submitted as world-first for `#11 (?)` and it's permanent (lowest timestamp wins, can't be beaten once submitted).\n\n**Safe ways to test it:**\n\n1. **Local dev** — run `npm run dev` on your machine and test there. The SDK is mocked in local dev, so the leaderboard call fires but goes nowhere. The paperclip still gets added to your local state so you can verify the full flow.\n\n2. **I temporarily remove the leaderboard submit** — I comment out just that one line, deploy, you test it on the private link, confirm everything works, then I put it back and redeploy for real. Takes two deploys but keeps `#11` clean.\n\n3. **Accept the tradeoff** — if your username showing up as the first discoverer of your own Easter egg is fine with you, just go ahead. It's actually kind of fitting that the creator finds it first.\n\nWhich do you prefer?",
+      "isShownToUser": true,
+      "timestamp": 1786750343921,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1786579086441,
-  "updatedAt": 1786749979504,
-  "tokenUsage": 83710,
+  "updatedAt": 1786750343930,
+  "tokenUsage": 84674,
   "script": "ftue-remix",
   "claudeSessionId": "8471f7c6-c1e1-4563-86a1-cbfe1516d81d"
 }
