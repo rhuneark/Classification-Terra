@@ -1,5 +1,5 @@
 import type { Item, BattleResult, Build } from './types.ts';
-import { computeWeightClass } from './weightClass.ts';
+import { computeWeightClassFromArray } from './weightClass.ts';
 
 function pick<T>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
@@ -46,7 +46,7 @@ const FINAL_LOST = [
 ];
 
 export function resolveBattle(playerBackpack: (Item | null)[], opponent: Build): BattleResult {
-    const playerWC = computeWeightClass(playerBackpack);
+    const playerWC = computeWeightClassFromArray(playerBackpack);
     const opponentWC = opponent.weightClass;
 
     const winProb = (playerWC + 1) / (playerWC + opponentWC + 2);

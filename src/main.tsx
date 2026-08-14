@@ -40,7 +40,7 @@ async function boot() {
     let passiveWins = 0;
     let passiveCurrency = 0;
     if (passiveBattleCount > 0) {
-        const playerWC = computeWeightClass(save.backpack);
+        const playerWC = computeWeightClass(save.loadout);
         for (let i = 0; i < passiveBattleCount; i++) {
             const opp = getRandomNPCOpponent();
             const winProb = (playerWC + 1) / (playerWC + opp.weightClass + 2);
@@ -106,11 +106,12 @@ async function boot() {
         maxEnergy: MAX_ENERGY,
         currency: newCurrency,
         inventory: newInventory,
-        backpack: save.backpack,
+        loadout: save.loadout,
         researchQueue: remainingQueue,
         foundUniqueIds: save.foundUniqueIds ?? [],
         discoveredTerraIds: save.discoveredTerraIds ?? [],
         collectedLoreIds: save.collectedLoreIds ?? [],
+        completedExcursionIds: save.completedExcursionIds ?? [],
         muteMusic: save.muteMusic ?? false,
         muteSfx: save.muteSfx ?? false,
         energyBoostUntil: save.energyBoostUntil ?? 0,
@@ -162,11 +163,12 @@ async function boot() {
                 energy: s.energy,
                 currency: s.currency,
                 inventory: s.inventory,
-                backpack: s.backpack,
+                loadout: s.loadout,
                 researchQueue: s.researchQueue,
                 eventLog: s.eventLog,
                 energyBoostUntil: s.energyBoostUntil,
                 foundUniqueIds: s.foundUniqueIds,
+                completedExcursionIds: s.completedExcursionIds,
                 lastOnline: Date.now(),
             });
             scheduleEnergyNotif(s.energy);

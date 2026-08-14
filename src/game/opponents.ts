@@ -1,6 +1,6 @@
 import type { Build, Item } from './types.ts';
 import { getItemById, rollRandomItem } from './items.ts';
-import { computeWeightClass } from './weightClass.ts';
+import { computeWeightClassFromArray } from './weightClass.ts';
 
 function g(id: string) {
     return getItemById(id) ?? null;
@@ -11,7 +11,7 @@ function makeBuild(id: string, name: string, slots: (string | null)[]): Build {
     const equipped = backpack.filter(Boolean) as Item[];
     return {
         id, name, backpack,
-        weightClass: computeWeightClass(backpack),
+        weightClass: computeWeightClassFromArray(backpack),
         isNPC: true,
         stealableItems: equipped.slice(0, Math.min(2, equipped.length)),
     };
@@ -84,7 +84,7 @@ function generateFakePlayer(seed: number): Build {
         id: `player-${seed}-${String(Date.now()).slice(-5)}`,
         name,
         backpack,
-        weightClass: computeWeightClass(backpack),
+        weightClass: computeWeightClassFromArray(backpack),
         isNPC: false,
         isPlayer: true,
         stealableItems: stealable,

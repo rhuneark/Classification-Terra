@@ -10,6 +10,7 @@ import type { ExcursionOption } from '../game/excursions.ts';
 import { computeWeightClass } from '../game/weightClass.ts';
 import { updateSave, addEarnedScrip, getSave } from '../state/save.ts';
 import { randomResearchDuration } from '../game/types.ts';
+import type { LogEntry } from '../game/types.ts';
 import { playBattleWin, playBattleLoss, playClick } from '../game/audio.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
@@ -18,7 +19,7 @@ function newId() { return String(++_instanceCounter); }
 
 export default function ExcursionModal() {
     const activeExcursion = useStore(s => s.activeExcursion);
-    const backpack = useStore(s => s.backpack);
+    const loadout = useStore(s => s.loadout);
     const energy = useStore(s => s.energy);
 
     if (!activeExcursion) return null;
@@ -26,7 +27,7 @@ export default function ExcursionModal() {
     const def = getExcursionById(activeExcursion.excursionId);
     if (!def) return null;
 
-    const playerWC = computeWeightClass(backpack);
+    const playerWC = computeWeightClass(loadout);
     const isEnded = activeExcursion.status === 'ended';
     const currentStage = isEnded ? null : def.stages[activeExcursion.currentStageIndex];
 
@@ -93,6 +94,20 @@ export default function ExcursionModal() {
             }];
         }
 
+        // Log the excursion completion
+        const logEntry: LogEntry = {
+            id: newId(),
+            type: 'excursion',
+            message: `[EXCURSION] ${def!.name} complete.${activeExcursion.totalScrip > 0 ? ` +${activeExcursion.totalScrip} scrip recovered.` : ''}`,
+            timestamp: Date.now(),
+        };
+        const newEventLog = [logEntry, ...s.eventLog].slice(0, 50);
+
+        // Mark excursion as completed (one-time)
+        const newCompletedIds = s.completedExcursionIds.includes(def!.id)
+            ? s.completedExcursionIds
+            : [...s.completedExcursionIds, def!.id];
+
         addEarnedScrip(activeExcursion.totalScrip);
         store.patch({
             currency: newCurrency,
@@ -101,6 +116,8 @@ export default function ExcursionModal() {
             discoveredTerraIds: newDiscoveredTerraIds,
             collectedLoreIds: newCollectedLoreIds,
             activeExcursion: null,
+            eventLog: newEventLog,
+            completedExcursionIds: newCompletedIds,
         });
         updateSave({
             currency: newCurrency,
@@ -109,6 +126,9 @@ export default function ExcursionModal() {
             discoveredTerraIds: newDiscoveredTerraIds,
             collectedLoreIds: newCollectedLoreIds,
             totalScavenges: (save.totalScavenges ?? 0),
+            eventLog: newEventLog,
+            completedExcursionIds: newCompletedIds,
+            totalExcursions: (save.totalExcursions ?? 0) + 1,
         });
 
         if (activeExcursion.totalScrip > 0) playBattleWin();

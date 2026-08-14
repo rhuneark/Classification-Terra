@@ -105,38 +105,48 @@ function LocationCard({ location, onTap, isChallenge, challengeDone }: {
     );
 }
 
-function ExcursionCard({ exc, onTap }: { exc: ExcursionDef; onTap: () => void }) {
+function ExcursionCard({ exc, onTap, completed }: { exc: ExcursionDef; onTap: () => void; completed: boolean }) {
     const energy = useStore(s => s.energy);
     const canAfford = energy >= exc.energyCost;
     const diffColor = DIFFICULTY_COLORS[exc.difficulty];
+    const disabled = !canAfford || completed;
     return (
         <button
             type="button"
             className="w-full rounded p-3.5 text-left transition-transform active:scale-[0.98]"
             style={{
-                background: '#0e1c18',
-                border: `1px solid ${canAfford ? diffColor + '44' : '#1a2810'}`,
-                opacity: canAfford ? 1 : 0.5,
+                background: completed ? '#090e09' : '#0e1c18',
+                border: `1px solid ${completed ? '#1a2e1c' : canAfford ? diffColor + '44' : '#1a2810'}`,
+                opacity: disabled ? 0.6 : 1,
             }}
             onClick={onTap}
-            disabled={!canAfford}
+            disabled={disabled}
         >
             <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[0.6rem] font-bold tracking-widest rounded px-1 py-0.5"
-                            style={{ color: diffColor, background: diffColor + '18', border: `1px solid ${diffColor}33` }}>
-                            {DIFFICULTY_LABELS[exc.difficulty]}
-                        </span>
+                        {completed ? (
+                            <span className="text-[0.6rem] font-bold tracking-widest rounded px-1 py-0.5"
+                                style={{ color: '#4a6a4c', background: '#0e2010', border: '1px solid #1a3e1c' }}>
+                                COMPLETED
+                            </span>
+                        ) : (
+                            <span className="text-[0.6rem] font-bold tracking-widest rounded px-1 py-0.5"
+                                style={{ color: diffColor, background: diffColor + '18', border: `1px solid ${diffColor}33` }}>
+                                {DIFFICULTY_LABELS[exc.difficulty]}
+                            </span>
+                        )}
                         <span className="text-[0.6rem]" style={{ color: '#4a6a4c' }}>{exc.stages.length} STAGES</span>
                     </div>
-                    <div className="text-[0.95rem] font-bold text-white leading-tight">{exc.name}</div>
-                    <div className="mt-0.5 text-[0.8rem] leading-snug" style={{ color: '#a0c0a2' }}>
-                        {exc.description}
+                    <div className="text-[0.95rem] font-bold leading-tight" style={{ color: completed ? '#4a6a4c' : 'white' }}>{exc.name}</div>
+                    <div className="mt-0.5 text-[0.8rem] leading-snug" style={{ color: completed ? '#3a5a3c' : '#a0c0a2' }}>
+                        {completed ? 'Already extracted.' : exc.description}
                     </div>
                 </div>
                 <div className="shrink-0 text-right">
-                    <div className="text-[0.82rem] font-bold" style={{ color: canAfford ? '#4ade80' : '#3a5a3c' }}>{exc.energyCost} ⚡</div>
+                    {!completed && (
+                        <div className="text-[0.82rem] font-bold" style={{ color: canAfford ? '#4ade80' : '#3a5a3c' }}>{exc.energyCost} ⚡</div>
+                    )}
                 </div>
             </div>
         </button>
@@ -335,6 +345,7 @@ export default function LootScreen() {
     const maxEnergy = useStore(s => s.maxEnergy);
     const activeLootEvent = useStore(s => s.activeLootEvent);
     const luckBonusActive = useStore(s => s.luckBonusActive);
+    const completedExcursionIds = useStore(s => s.completedExcursionIds);
     const today = getTodayStr();
     const [, forceUpdate] = useState(0);
 
@@ -528,6 +539,7 @@ export default function LootScreen() {
     function handleExcursionTap(exc: ExcursionDef) {
         const s = store.get();
         if (s.energy < exc.energyCost) return;
+        if (s.completedExcursionIds.includes(exc.id)) return;
         playClick();
         const newEnergy = s.energy - exc.energyCost;
         const run = startExcursion(exc);
@@ -580,7 +592,7 @@ export default function LootScreen() {
                                     NEXT BRIEFING {countdown}
                                 </div>
                             </div>
-                            <ExcursionCard exc={exc} onTap={() => handleExcursionTap(exc)} />
+                            <ExcursionCard exc={exc} onTap={() => handleExcursionTap(exc)} completed={completedExcursionIds.includes(exc.id)} />
                         </div>
                     );
                 })()}

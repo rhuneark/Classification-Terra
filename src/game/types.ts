@@ -2,8 +2,52 @@ export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'un
 export type ItemType = 'weapon' | 'armor' | 'utility' | 'consumable' | 'lore';
 export type SpecialTag = 'bio' | 'hazmat' | 'bleed' | 'stun' | 'aoe' | 'nav' | 'cleanse' | 'growth';
 export type LocationDanger = 'low' | 'medium' | 'high' | 'extreme';
-export type LogType = 'loot' | 'ambush' | 'battle-win' | 'battle-loss' | 'trade' | 'info' | 'lore';
+export type LogType = 'loot' | 'ambush' | 'battle-win' | 'battle-loss' | 'trade' | 'info' | 'lore' | 'excursion';
 export type GameScreen = 'loot' | 'backpack' | 'codex' | 'trader' | 'log';
+
+// Equipment slot system
+export type EquipSlot = 'head' | 'torso' | 'legs' | 'feet' | 'hand' | 'protection' | 'consumable-slot';
+
+export interface Loadout {
+    head: Item | null;
+    torso: Item | null;
+    legs: Item | null;
+    feet: Item | null;
+    hand1: Item | null;
+    hand2: Item | null;
+    protection: Item | null;
+    consumableSlot: Item | null;
+}
+
+export function emptyLoadout(): Loadout {
+    return { head: null, torso: null, legs: null, feet: null, hand1: null, hand2: null, protection: null, consumableSlot: null };
+}
+
+export function loadoutItems(loadout: Loadout): Item[] {
+    return Object.values(loadout).filter(Boolean) as Item[];
+}
+
+export const SLOT_LABELS: Record<string, string> = {
+    head: 'HEAD',
+    torso: 'TORSO',
+    legs: 'LEGS',
+    feet: 'FEET',
+    hand1: 'HAND L',
+    hand2: 'HAND R',
+    protection: 'PROTECT',
+    consumableSlot: 'CONSUMBL',
+};
+
+export const SLOT_ACCEPT: Record<string, EquipSlot[]> = {
+    head: ['head'],
+    torso: ['torso'],
+    legs: ['legs'],
+    feet: ['feet'],
+    hand1: ['hand'],
+    hand2: ['hand'],
+    protection: ['protection'],
+    consumableSlot: ['consumable-slot'],
+};
 
 export interface ExcursionLoreUnlock {
     terraId: string;
@@ -33,6 +77,7 @@ export interface Item {
     defense: number;
     special: SpecialTag[];
     sellValue: number;
+    equipSlot?: EquipSlot;
     buyValue?: number;
     energyRestore?: number;
     luckBonus?: boolean;
@@ -114,7 +159,6 @@ export interface PassiveResults {
     hoursAway: number;
 }
 
-export const BACKPACK_SLOTS = 8;
 export const MAX_ENERGY = 20;
 export const ENERGY_REGEN_MINUTES = 5;
 export const TRADER_REFRESH_MS = 2 * 60 * 1000;
@@ -143,6 +187,16 @@ export const DANGER_LABELS: Record<LocationDanger, string> = {
 
 export const DANGER_COLORS: Record<LocationDanger, string> = {
     low: '#4ade80', medium: '#facc15', high: '#f97316', extreme: '#f43f5e',
+};
+
+export const SLOT_COLORS: Record<EquipSlot, string> = {
+    'head': '#60a5fa',
+    'torso': '#4ade80',
+    'legs': '#facc15',
+    'feet': '#a78bfa',
+    'hand': '#f43f5e',
+    'protection': '#fb923c',
+    'consumable-slot': '#34d399',
 };
 
 // Research time ranges [min, max] in ms per rarity

@@ -6,13 +6,13 @@ import { PAPERCLIPS } from '../game/items.ts';
 interface Props { onClose: () => void; }
 
 export default function StatsCard({ onClose }: Props) {
-    const backpack = useStore(s => s.backpack);
+    const loadout = useStore(s => s.loadout);
     const foundUniqueIds = useStore(s => s.foundUniqueIds);
     const currency = useStore(s => s.currency);
-    const wc = computeWeightClass(backpack);
+    const wc = computeWeightClass(loadout);
     const save = getSave();
 
-    const equippedCount = backpack.filter(Boolean).length;
+    const equippedCount = Object.values(loadout).filter(Boolean).length;
     const winRate = save.totalBattles > 0 ? Math.round((save.wins / save.totalBattles) * 100) : 0;
     const paperclipsFound = foundUniqueIds.filter(id => PAPERCLIPS.some(p => p.id === id)).length;
 

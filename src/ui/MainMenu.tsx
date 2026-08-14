@@ -7,9 +7,9 @@ import WorldLoreModal from './WorldLoreModal.tsx';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 export default function MainMenu() {
-    const backpack = useStore((s) => s.backpack);
+    const loadout = useStore((s) => s.loadout);
     const currency = useStore((s) => s.currency);
-    const wc = computeWeightClass(backpack);
+    const wc = computeWeightClass(loadout);
     const [showHtp, setShowHtp] = useState(false);
     const [showExplorer, setShowExplorer] = useState(false);
     const [showLore, setShowLore] = useState(false);

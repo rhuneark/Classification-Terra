@@ -30,8 +30,8 @@ export default function GameScreen() {
     const maxEnergy = useStore(s => s.maxEnergy);
     const currency = useStore(s => s.currency);
     const energyBoostUntil = useStore(s => s.energyBoostUntil);
-    const backpack = useStore(s => s.backpack);
-    const wc = computeWeightClass(backpack);
+    const loadout = useStore(s => s.loadout);
+    const wc = computeWeightClass(loadout);
     const muteSfx = useStore(s => s.muteSfx);
     const muteMusic = useStore(s => s.muteMusic);
     const [showMenu, setShowMenu] = useState(false);

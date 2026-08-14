@@ -7,8 +7,9 @@ import type {
     GameScreen,
     ResearchQueueItem,
     ExcursionRun,
+    Loadout,
 } from '../game/types.ts';
-import { BACKPACK_SLOTS, MAX_ENERGY } from '../game/types.ts';
+import { MAX_ENERGY, emptyLoadout } from '../game/types.ts';
 
 export interface AppState {
     phase: 'loading' | 'menu' | 'playing';
@@ -22,12 +23,13 @@ export interface AppState {
     energyBoostUntil: number;
 
     inventory: Item[];
-    backpack: (Item | null)[];
+    loadout: Loadout;
     researchQueue: ResearchQueueItem[];
 
     foundUniqueIds: string[];
     discoveredTerraIds: string[];
     collectedLoreIds: string[];
+    completedExcursionIds: string[];
     muteMusic: boolean;
     muteSfx: boolean;
 
@@ -56,11 +58,12 @@ let state: AppState = {
     currency: 0,
     energyBoostUntil: 0,
     inventory: [],
-    backpack: Array(BACKPACK_SLOTS).fill(null) as (Item | null)[],
+    loadout: emptyLoadout(),
     researchQueue: [],
     foundUniqueIds: [],
     discoveredTerraIds: [],
     collectedLoreIds: [],
+    completedExcursionIds: [],
     muteMusic: false,
     muteSfx: false,
     eventLog: [],

@@ -1,16 +1,16 @@
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { sdkReady } from '../sdk/runSdk.ts';
-import type { Item, LogEntry, ResearchQueueItem, Rarity, ItemType, SpecialTag, LogType } from '../game/types.ts';
-import { BACKPACK_SLOTS, MAX_ENERGY } from '../game/types.ts';
+import type { Item, LogEntry, ResearchQueueItem, Rarity, ItemType, SpecialTag, LogType, Loadout } from '../game/types.ts';
+import { MAX_ENERGY, emptyLoadout } from '../game/types.ts';
 import { getItemById } from '../game/items.ts';
 
-const SAVE_KEY = 'spore-run:save:v2';
+const SAVE_KEY = 'spore-run:save:v3';
 
 export interface SaveData {
     currency: number;
     energy: number;
     inventory: Item[];
-    backpack: (Item | null)[];
+    loadout: Loadout;
     researchQueue: ResearchQueueItem[];
     eventLog: LogEntry[];
     lastOnline: number;
@@ -28,7 +28,15 @@ export interface SaveData {
     lastDailyChallengeDay: string;
     discoveredTerraIds: string[];
     collectedLoreIds: string[];
+    completedExcursionIds: string[];
     totalExcursions: number;
+}
+
+function makeDefaultLoadout(): Loadout {
+    const l = emptyLoadout();
+    l.hand1 = getItemById('duct-taped-club') ?? null;
+    l.torso = getItemById('leather-vest') ?? null;
+    return l;
 }
 
 const DEFAULTS: SaveData = {
@@ -39,11 +47,7 @@ const DEFAULTS: SaveData = {
         getItemById('cracked-face-shield')!,
         getItemById('antibiotic-strip')!,
     ].filter(Boolean),
-    backpack: [
-        getItemById('duct-taped-club')!,
-        getItemById('leather-vest')!,
-        null, null, null, null, null, null,
-    ],
+    loadout: makeDefaultLoadout(),
     researchQueue: [],
     eventLog: [{
         id: 'start-1',
@@ -66,6 +70,7 @@ const DEFAULTS: SaveData = {
     lastDailyChallengeDay: '',
     discoveredTerraIds: [],
     collectedLoreIds: [],
+    completedExcursionIds: [],
     totalExcursions: 0,
 };
 
@@ -84,6 +89,7 @@ function parseItem(raw: unknown): Item | null {
         defense: Math.max(0, Number(r.defense) || 0),
         special: Array.isArray(r.special) ? (r.special as SpecialTag[]) : [],
         sellValue: Math.max(0, Number(r.sellValue) || 0),
+        equipSlot: typeof r.equipSlot === 'string' ? (r.equipSlot as import('../game/types.ts').EquipSlot) : undefined,
         buyValue: r.buyValue != null ? Math.max(0, Number(r.buyValue)) : undefined,
         energyRestore: r.energyRestore != null ? Number(r.energyRestore) : undefined,
         luckBonus: r.luckBonus ? true : undefined,
@@ -92,6 +98,22 @@ function parseItem(raw: unknown): Item | null {
         uniqueDropRate: r.uniqueDropRate != null ? Number(r.uniqueDropRate) : undefined,
         loreTerraId: typeof r.loreTerraId === 'string' ? r.loreTerraId : undefined,
         loreSnippetId: typeof r.loreSnippetId === 'string' ? r.loreSnippetId : undefined,
+    };
+}
+
+function parseLoadout(raw: unknown): Loadout {
+    const def = emptyLoadout();
+    if (!raw || typeof raw !== 'object') return def;
+    const r = raw as Record<string, unknown>;
+    return {
+        head: r.head ? parseItem(r.head) : null,
+        torso: r.torso ? parseItem(r.torso) : null,
+        legs: r.legs ? parseItem(r.legs) : null,
+        feet: r.feet ? parseItem(r.feet) : null,
+        hand1: r.hand1 ? parseItem(r.hand1) : null,
+        hand2: r.hand2 ? parseItem(r.hand2) : null,
+        protection: r.protection ? parseItem(r.protection) : null,
+        consumableSlot: r.consumableSlot ? parseItem(r.consumableSlot) : null,
     };
 }
 
@@ -125,18 +147,13 @@ function parse(raw: string | null): SaveData | null {
     if (!raw) return null;
     try {
         const p = JSON.parse(raw) as Partial<Record<string, unknown>>;
-        const backpackRaw = Array.isArray(p.backpack) ? p.backpack : [];
-        const backpack: (Item | null)[] = Array(BACKPACK_SLOTS).fill(null);
-        for (let i = 0; i < Math.min(backpackRaw.length, BACKPACK_SLOTS); i++) {
-            backpack[i] = backpackRaw[i] ? parseItem(backpackRaw[i]) : null;
-        }
         return {
             currency: Math.max(0, Number(p.currency) || 0),
             energy: Math.min(MAX_ENERGY, Math.max(0, Number(p.energy) || 0)),
             inventory: Array.isArray(p.inventory)
                 ? p.inventory.map(parseItem).filter(Boolean) as Item[]
                 : [],
-            backpack,
+            loadout: parseLoadout(p.loadout),
             researchQueue: Array.isArray(p.researchQueue)
                 ? p.researchQueue.map(parseResearchItem).filter(Boolean) as ResearchQueueItem[]
                 : [],
@@ -163,6 +180,9 @@ function parse(raw: string | null): SaveData | null {
                 : [],
             collectedLoreIds: Array.isArray(p.collectedLoreIds)
                 ? (p.collectedLoreIds as unknown[]).filter(s => typeof s === 'string') as string[]
+                : [],
+            completedExcursionIds: Array.isArray(p.completedExcursionIds)
+                ? (p.completedExcursionIds as unknown[]).filter(s => typeof s === 'string') as string[]
                 : [],
             totalExcursions: Math.max(0, Number(p.totalExcursions) || 0),
         };
