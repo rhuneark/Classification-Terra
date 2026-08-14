@@ -10,6 +10,8 @@ export interface SaveData {
     currency: number;
     energy: number;
     inventory: Item[];
+    safeHouse: Item[];
+    inventoryCapacity: number;
     loadout: Loadout;
     researchQueue: ResearchQueueItem[];
     eventLog: LogEntry[];
@@ -54,6 +56,8 @@ const DEFAULTS: SaveData = {
         getItemById('cracked-face-shield')!,
         getItemById('antibiotic-strip')!,
     ].filter(Boolean),
+    safeHouse: [],
+    inventoryCapacity: 20,
     loadout: makeDefaultLoadout(),
     researchQueue: [],
     eventLog: [{
@@ -214,6 +218,10 @@ function parse(raw: string | null): SaveData | null {
             inventory: Array.isArray(p.inventory)
                 ? p.inventory.map(parseItem).filter(Boolean) as Item[]
                 : [],
+            safeHouse: Array.isArray(p.safeHouse)
+                ? (p.safeHouse as unknown[]).map(parseItem).filter(Boolean) as Item[]
+                : [],
+            inventoryCapacity: Math.max(20, Number(p.inventoryCapacity) || 20),
             loadout: parseLoadout(p.loadout),
             researchQueue: Array.isArray(p.researchQueue)
                 ? p.researchQueue.map(parseResearchItem).filter(Boolean) as ResearchQueueItem[]

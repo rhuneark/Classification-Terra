@@ -27,6 +27,8 @@ export interface AppState {
     energyBoostUntil: number;
 
     inventory: Item[];
+    safeHouse: Item[];
+    inventoryCapacity: number;
     loadout: Loadout;
     researchQueue: ResearchQueueItem[];
 
@@ -72,6 +74,8 @@ let state: AppState = {
     currency: 0,
     energyBoostUntil: 0,
     inventory: [],
+    safeHouse: [],
+    inventoryCapacity: 20,
     loadout: emptyLoadout(),
     researchQueue: [],
     foundUniqueIds: [],

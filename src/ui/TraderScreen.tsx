@@ -132,9 +132,13 @@ function InventorySellCard({ item, onSell }: { item: Item; onSell: () => void })
     );
 }
 
+const BAG_UPGRADE_COST = 150;
+const BAG_UPGRADE_MAX = 45;
+
 export default function TraderScreen() {
     const currency = useStore(s => s.currency);
     const inventory = useStore(s => s.inventory);
+    const inventoryCapacity = useStore(s => s.inventoryCapacity);
     const traderInventory = useStore(s => s.traderInventory);
     const traderLastRefresh = useStore(s => s.traderLastRefresh);
     const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
@@ -217,6 +221,18 @@ export default function TraderScreen() {
         RundotGameAPI.analytics.recordCustomEvent('trader_item_sold', { itemId: item.id, sellValue: item.sellValue, rarity: item.rarity }).catch(() => {});
     }
 
+    function handleBagUpgrade() {
+        const s = store.get();
+        if (s.currency < BAG_UPGRADE_COST || s.inventoryCapacity >= BAG_UPGRADE_MAX) return;
+        const newCurrency = s.currency - BAG_UPGRADE_COST;
+        const newCapacity = s.inventoryCapacity + 5;
+        const logEntry = { id: makeLogId(), type: 'trade' as const, message: `[OUTPOST] Bag expanded to ${newCapacity} slots.`, timestamp: Date.now() };
+        const newLog = [logEntry, ...s.eventLog].slice(0, 50);
+        store.patch({ currency: newCurrency, inventoryCapacity: newCapacity, eventLog: newLog });
+        updateSave({ currency: newCurrency, inventoryCapacity: newCapacity, eventLog: newLog });
+        RundotGameAPI.analytics.recordCustomEvent('bag_upgrade_purchased', { newCapacity }).catch(() => {});
+    }
+
     return (
         <div className="flex h-full flex-col" style={{ background: '#070e08' }}>
             {/* Header */}
@@ -245,7 +261,7 @@ export default function TraderScreen() {
                             borderBottom: activeTab === tab ? '2px solid #7ccf5a' : '2px solid transparent',
                         }}
                         onClick={() => setActiveTab(tab)}>
-                        {tab === 'buy' ? 'FOR SALE' : `SELL GEAR (${inventory.length})`}
+                        {tab === 'buy' ? 'FOR SALE' : `SELL FROM BAG (${inventory.length})`}
                     </button>
                 ))}
             </div>
@@ -254,6 +270,41 @@ export default function TraderScreen() {
             <div className="scroll-area flex-1 p-3 pb-20 space-y-3">
                 {activeTab === 'buy' && (
                     <>
+                        {/* Bag upgrade */}
+                        {inventoryCapacity < BAG_UPGRADE_MAX && (
+                            <div>
+                                <div className="mb-1.5 text-[0.68rem] font-bold tracking-widest" style={{ color: '#5a7e5c' }}>UPGRADES</div>
+                                <div className="rounded p-3" style={{ background: '#0e2010', border: '1px solid #243e26' }}>
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div className="min-w-0 flex-1">
+                                            <div className="text-[0.95rem] font-bold" style={{ color: '#60a5fa' }}>Duffle Bag Expansion</div>
+                                            <div className="text-[0.68rem] font-bold" style={{ color: '#4a7abcbb' }}>UPGRADE · +5 SLOTS</div>
+                                            <div className="mt-0.5 text-[0.87rem] leading-snug" style={{ color: '#bcd4bd' }}>
+                                                Reinforced lining. Extra compartment. Room for more gear before you hit the safe house.
+                                            </div>
+                                            <div className="mt-0.5 text-[0.8rem]" style={{ color: '#7aaa7c' }}>
+                                                Current: {inventoryCapacity} → {inventoryCapacity + 5} slots
+                                            </div>
+                                        </div>
+                                        <div className="shrink-0 text-right">
+                                            <div className="text-[1rem] font-bold" style={{ color: '#fb923c' }}>{BAG_UPGRADE_COST}</div>
+                                            <div className="text-[0.65rem]" style={{ color: '#6a8e6c' }}>SCRIP</div>
+                                            <button type="button"
+                                                className="mt-1 rounded px-3 py-1 text-[0.82rem] font-bold tracking-wide transition-transform active:scale-95"
+                                                style={{
+                                                    background: currency >= BAG_UPGRADE_COST ? '#7ccf5a' : '#1a2e1c',
+                                                    color: currency >= BAG_UPGRADE_COST ? '#070e08' : '#4a6a4c',
+                                                }}
+                                                disabled={currency < BAG_UPGRADE_COST}
+                                                onClick={handleBagUpgrade}>
+                                                BUY
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Always-available staples */}
                         <div>
                             <div className="mb-1.5 text-[0.68rem] font-bold tracking-widest" style={{ color: '#5a7e5c' }}>

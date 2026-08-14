@@ -37,9 +37,9 @@ export default function MainMenu() {
                 const newFoundIds = [...s.foundUniqueIds, CLASSIFIED_PAPERCLIP.id];
                 store.patch({ foundUniqueIds: newFoundIds });
                 updateSave({ foundUniqueIds: newFoundIds });
-                // TEST MODE: leaderboard submit disabled — re-enable before final deploy
-                // const score = Math.floor(Date.now() / 1000);
-                // RundotGameAPI.leaderboard.submitScore({ mode: 'paperclip-11', score, duration: 1 }).catch(() => {});
+                // Submit to leaderboard as first-finder record
+                const score = Math.floor(Date.now() / 1000);
+                RundotGameAPI.leaderboard.submitScore({ mode: 'paperclip-11', score, duration: 1 }).catch(() => {});
             }
         } catch {
             setPromoStatus('error');

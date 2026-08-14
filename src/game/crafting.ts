@@ -188,6 +188,40 @@ export function applyCraft(recipe: CraftRecipe, inventory: Item[]): { newInvento
     return { newInventory: remaining, result };
 }
 
+/** Like applyCraft but draws ingredients from bag first, then safe house. */
+export function applyCraftFull(
+    recipe: CraftRecipe,
+    bag: Item[],
+    safeHouse: Item[]
+): { newBag: Item[]; newSafeHouse: Item[]; result: Item } | null {
+    const combined = [...bag, ...safeHouse];
+    if (!canCraft(recipe, combined)) return null;
+    const result = CRAFTED_ITEMS.find(i => i.id === recipe.resultItemId);
+    if (!result) return null;
+
+    let remainingBag = [...bag];
+    let remainingSafeHouse = [...safeHouse];
+
+    for (const ing of recipe.ingredients) {
+        let toRemove = ing.count;
+        const newBag: Item[] = [];
+        for (const item of remainingBag) {
+            if (item.id === ing.itemId && toRemove > 0) { toRemove--; }
+            else { newBag.push(item); }
+        }
+        remainingBag = newBag;
+        if (toRemove > 0) {
+            const newSh: Item[] = [];
+            for (const item of remainingSafeHouse) {
+                if (item.id === ing.itemId && toRemove > 0) { toRemove--; }
+                else { newSh.push(item); }
+            }
+            remainingSafeHouse = newSh;
+        }
+    }
+    return { newBag: remainingBag, newSafeHouse: remainingSafeHouse, result };
+}
+
 /** Return active set bonuses for a given set of equipped item IDs */
 export function getActiveCraftSetBonuses(equippedItemIds: string[]): CraftSet[] {
     return CRAFT_SETS.filter(set =>

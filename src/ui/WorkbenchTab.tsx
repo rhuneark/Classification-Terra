@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { store, useStore } from '../state/store.ts';
 import { updateSave } from '../state/save.ts';
-import { CRAFT_RECIPES, CRAFT_SETS, CRAFTED_ITEMS, canCraft, applyCraft, getActiveCraftSetBonuses } from '../game/crafting.ts';
+import { CRAFT_RECIPES, CRAFT_SETS, CRAFTED_ITEMS, canCraft, applyCraftFull, getActiveCraftSetBonuses } from '../game/crafting.ts';
 import { RARITY_COLORS, RARITY_LABELS, loadoutItems } from '../game/types.ts';
 import { getItemById } from '../game/items.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 export default function WorkbenchTab() {
     const inventory = useStore(s => s.inventory);
+    const safeHouse = useStore(s => s.safeHouse);
     const loadout = useStore(s => s.loadout);
     const foundUniqueIds = useStore(s => s.foundUniqueIds);
     const [craftedMsg, setCraftedMsg] = useState<string | null>(null);
@@ -20,14 +21,15 @@ export default function WorkbenchTab() {
         const s = store.get();
         const recipe = CRAFT_RECIPES.find(r => r.id === recipeId);
         if (!recipe) return;
-        const result = applyCraft(recipe, s.inventory);
+        const result = applyCraftFull(recipe, s.inventory, s.safeHouse);
         if (!result) return;
 
-        const { newInventory, result: craftedItem } = result;
+        const { newBag, newSafeHouse, result: craftedItem } = result;
+        const newInventory = [...newBag, craftedItem];
         const newTotalCrafts = (s.totalCrafts ?? 0) + 1;
 
-        store.patch({ inventory: newInventory, totalCrafts: newTotalCrafts });
-        updateSave({ inventory: newInventory, totalCrafts: newTotalCrafts });
+        store.patch({ inventory: newInventory, safeHouse: newSafeHouse, totalCrafts: newTotalCrafts });
+        updateSave({ inventory: newInventory, safeHouse: newSafeHouse, totalCrafts: newTotalCrafts });
 
         setCraftedMsg(`${craftedItem.name} added to Safe House.`);
         setTimeout(() => setCraftedMsg(null), 3000);
@@ -52,8 +54,9 @@ export default function WorkbenchTab() {
         if (!resultItem) return null;
 
         const color = RARITY_COLORS[resultItem.rarity];
-        const craftable = canCraft(recipe, inventory);
-        const alreadyHave = inventory.some(i => i.id === resultItem.id) || equippedIds.includes(resultItem.id);
+        const combined = [...inventory, ...safeHouse];
+        const craftable = canCraft(recipe, combined);
+        const alreadyHave = combined.some(i => i.id === resultItem.id) || equippedIds.includes(resultItem.id);
 
         return (
             <div className="rounded p-2.5 mb-2"
@@ -90,7 +93,7 @@ export default function WorkbenchTab() {
                     <div className="text-[0.62rem] font-bold tracking-widest mb-1" style={{ color: '#5a8a5c' }}>REQUIRES</div>
                     {recipe.ingredients.map(ing => {
                         const ingItem = getItemById(ing.itemId);
-                        const have = inventory.filter(i => i.id === ing.itemId).length;
+                        const have = combined.filter(i => i.id === ing.itemId).length;
                         const ok = have >= ing.count;
                         return (
                             <div key={ing.itemId} className="flex items-center gap-1.5">

@@ -263,9 +263,12 @@ function ConsumablePanel({ item, onUse, onDiscard }: {
 export default function BackpackScreen() {
     const loadout = useStore(s => s.loadout);
     const inventory = useStore(s => s.inventory);
+    const safeHouse = useStore(s => s.safeHouse);
+    const inventoryCapacity = useStore(s => s.inventoryCapacity);
     const selectedId = useStore(s => s.selectedInventoryItemId);
     const [showStats, setShowStats] = useState(false);
     const [loadoutTab, setLoadoutTab] = useState<'lab' | 'gear' | 'bench'>('gear');
+    const [bagMsg, setBagMsg] = useState<string | null>(null);
 
     const stats = getLoadoutStats(loadout);
     const wc = stats.wc;
@@ -274,6 +277,66 @@ export default function BackpackScreen() {
     const gearInventory = inventory.filter(i => i.type !== 'consumable' && i.type !== 'lore' && i.type !== 'pack');
     const consumables = inventory.filter(i => i.type === 'consumable');
     const packItems = inventory.filter(i => i.type === 'pack');
+
+    // Bag capacity counts gear + pack (not consumables)
+    const bagGearCount = gearInventory.length + packItems.length;
+    const bagFull = bagGearCount >= inventoryCapacity;
+
+    function showMsg(msg: string) {
+        setBagMsg(msg);
+        setTimeout(() => setBagMsg(null), 2500);
+    }
+
+    function handleStore(item: Item) {
+        const s = store.get();
+        const newInventory = s.inventory.filter(i => i !== item);
+        const newSafeHouse = [...s.safeHouse, item];
+        store.patch({ inventory: newInventory, safeHouse: newSafeHouse });
+        updateSave({ inventory: newInventory, safeHouse: newSafeHouse });
+        RundotGameAPI.analytics.recordCustomEvent('safehouse_item_stored', { itemId: item.id, rarity: item.rarity }).catch(() => {});
+    }
+
+    function handleRetrieve(item: Item) {
+        const s = store.get();
+        const currentGearCount = s.inventory.filter(i => i.type !== 'consumable' && i.type !== 'lore').length;
+        if (currentGearCount >= s.inventoryCapacity) {
+            showMsg('Bag full. Store or equip something first.');
+            return;
+        }
+        const newSafeHouse = s.safeHouse.filter(i => i !== item);
+        const newInventory = [...s.inventory, item];
+        store.patch({ safeHouse: newSafeHouse, inventory: newInventory });
+        updateSave({ safeHouse: newSafeHouse, inventory: newInventory });
+        RundotGameAPI.analytics.recordCustomEvent('safehouse_item_retrieved', { itemId: item.id, rarity: item.rarity }).catch(() => {});
+    }
+
+    function handleEquipFromSafeHouse(item: Item) {
+        if (!item.equipSlot) { handleRetrieve(item); return; }
+        const s = store.get();
+        const acceptingSlots = SLOT_ORDER.filter(slot => SLOT_ACCEPT[slot].includes(item.equipSlot as EquipSlot));
+        if (acceptingSlots.length === 0) { handleRetrieve(item); return; }
+        const emptySlot = acceptingSlots.find(slot => s.loadout[slot] === null);
+        const targetSlot = emptySlot ?? acceptingSlots[0];
+        const displaced = s.loadout[targetSlot];
+        const newLoadout = { ...s.loadout, [targetSlot]: item };
+        const newSafeHouse = s.safeHouse.filter(i => i !== item);
+        // If bag has space put displaced there, otherwise store it in safe house
+        const currentGearCount = s.inventory.filter(i => i.type !== 'consumable' && i.type !== 'lore').length;
+        let newInventory = [...s.inventory];
+        let finalSafeHouse = newSafeHouse;
+        if (displaced) {
+            if (currentGearCount < s.inventoryCapacity) {
+                newInventory = [...newInventory, displaced];
+            } else {
+                finalSafeHouse = [...finalSafeHouse, displaced];
+            }
+        }
+        const newPackItem = newLoadout.consumableSlot;
+        const newMaxEnergy = 20 + (newPackItem?.packMaxEnergy ?? 0);
+        store.patch({ loadout: newLoadout, inventory: newInventory, safeHouse: finalSafeHouse, selectedInventoryItemId: null, maxEnergy: newMaxEnergy });
+        updateSave({ loadout: newLoadout, inventory: newInventory, safeHouse: finalSafeHouse });
+        RundotGameAPI.analytics.recordCustomEvent('safehouse_item_equipped', { itemId: item.id, slot: targetSlot, rarity: item.rarity }).catch(() => {});
+    }
 
     // Compute maxEnergy bonus from equipped pack item
     const equippedPack = loadout.consumableSlot;
@@ -469,30 +532,121 @@ export default function BackpackScreen() {
                         </div>
                     )}
 
-                    {packItems.length > 0 && (
-                        <div>
-                            <div className="mb-1.5 text-[0.68rem] font-bold tracking-widests" style={{ color: '#4a6a4c' }}>
-                                PACK ITEMS <span className="text-[0.6rem] font-normal" style={{ color: '#2e4a30' }}>— TAP TO EQUIP PACK SLOT</span>
-                            </div>
-                            <div className="space-y-1.5">
-                                {packItems.map(item => (
-                                    <ItemCard key={item.id + item.name} item={item} onClick={() => handleInventoryTap(item)} selected={selectedId === item.id} compact />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
+                    {/* DUFFLE BAG — gear + pack items with STORE button */}
                     <div>
-                        <div className="mb-1.5 text-[0.68rem] font-bold tracking-widests" style={{ color: '#4a6a4c' }}>
-                            SAFE HOUSE ({gearInventory.length})
+                        <div className="flex items-center justify-between mb-1.5">
+                            <div className="text-[0.68rem] font-bold tracking-widests" style={{ color: bagFull ? '#f97316' : '#4a6a4c' }}>
+                                DUFFLE BAG
+                            </div>
+                            <div className="text-[0.65rem] font-bold" style={{ color: bagFull ? '#f97316' : '#3a5a3c' }}>
+                                {bagGearCount}/{inventoryCapacity}{bagFull ? ' · FULL' : ''}
+                            </div>
                         </div>
-                        {gearInventory.length === 0 ? (
-                            <p className="text-[0.88rem]" style={{ color: '#3a5a3c' }}>Nothing here. Researched items appear when ready.</p>
-                        ) : (
-                            <div className="space-y-1.5">
-                                {gearInventory.map(item => (
-                                    <ItemCard key={item.id + item.name} item={item} onClick={() => handleInventoryTap(item)} selected={selectedId === item.id} />
+                        {bagMsg && (
+                            <div className="mb-1.5 rounded px-2 py-1 text-[0.78rem] text-center" style={{ background: '#1a2010', color: '#f97316', border: '1px solid #3a2010' }}>
+                                {bagMsg}
+                            </div>
+                        )}
+                        {packItems.length > 0 && (
+                            <div className="mb-2 space-y-1.5">
+                                {packItems.map(item => (
+                                    <div key={item.id + item.name + 'pack'}>
+                                        <ItemCard item={item} onClick={() => handleInventoryTap(item)} selected={selectedId === item.id} compact />
+                                        <button type="button"
+                                            className="mt-0.5 w-full rounded py-1 text-[0.72rem] font-bold tracking-wide transition-transform active:scale-95"
+                                            style={{ background: '#0a1a2e', color: '#60a5fa', border: '1px solid #1a3a5e' }}
+                                            onClick={() => handleStore(item)}>
+                                            STORE →
+                                        </button>
+                                    </div>
                                 ))}
+                            </div>
+                        )}
+                        {gearInventory.length === 0 && packItems.length === 0 ? (
+                            <p className="text-[0.88rem]" style={{ color: '#3a5a3c' }}>Bag empty. Researched items arrive here when ready.</p>
+                        ) : (
+                            <div className="space-y-2">
+                                {gearInventory.map(item => (
+                                    <div key={item.id + item.name + 'bag'}>
+                                        <ItemCard item={item} onClick={() => handleInventoryTap(item)} selected={selectedId === item.id} />
+                                        <button type="button"
+                                            className="mt-0.5 w-full rounded py-1 text-[0.72rem] font-bold tracking-wide transition-transform active:scale-95"
+                                            style={{ background: '#0a1a2e', color: '#60a5fa', border: '1px solid #1a3a5e' }}
+                                            onClick={() => handleStore(item)}>
+                                            STORE →
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* SAFE HOUSE — protected unlimited storage */}
+                    <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                            <div className="text-[0.68rem] font-bold tracking-widests" style={{ color: '#6a9e6c' }}>
+                                SAFE HOUSE
+                            </div>
+                            <div className="text-[0.65rem]" style={{ color: '#3a5a3c' }}>
+                                {safeHouse.length > 0 ? `${safeHouse.length} stored · protected` : '∞ · protected'}
+                            </div>
+                        </div>
+                        {safeHouse.length === 0 ? (
+                            <p className="text-[0.78rem] rounded p-2" style={{ color: '#3a5a3c', background: '#080f09', border: '1px solid #142816' }}>
+                                Items stored here are safe from sell and raids. Tap STORE → on any bag item.
+                            </p>
+                        ) : (
+                            <div className="space-y-2">
+                                {safeHouse.map(item => {
+                                    const color = RARITY_COLORS[item.rarity];
+                                    const isCraftIngredient = CRAFT_INGREDIENT_IDS.has(item.id);
+                                    return (
+                                        <div key={item.id + item.name + 'sh'} className="rounded p-[10px_12px]"
+                                            style={{ background: '#080e0a', border: `1px solid ${color}33` }}>
+                                            <div className="flex items-start justify-between gap-2 mb-1.5">
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="truncate text-[0.95rem] font-bold" style={{ color }}>{item.name}</div>
+                                                    <div className="mt-0.5 text-[0.8rem] leading-snug" style={{ color: '#9ab09c' }}>{item.description}</div>
+                                                    <div className="mt-0.5 flex flex-wrap gap-1">
+                                                        <span className="text-[0.65rem] font-bold" style={{ color: color + 'aa' }}>{RARITY_LABELS[item.rarity]}</span>
+                                                        {item.equipSlot && item.type !== 'consumable' && (
+                                                            <span className="text-[0.62rem] font-bold rounded px-1" style={{ color: SLOT_COLORS[item.equipSlot], background: SLOT_COLORS[item.equipSlot] + '18' }}>
+                                                                {item.type === 'pack' ? 'PACK' : item.equipSlot.toUpperCase().replace('-', ' ')}
+                                                            </span>
+                                                        )}
+                                                        {isCraftIngredient && (
+                                                            <span className="text-[0.62rem] rounded px-1" style={{ color: '#a78bfa', background: '#a78bfa18' }}>⚙</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="shrink-0 text-right space-y-0.5">
+                                                    {item.damage > 0 && <div className="text-[0.7rem] font-bold" style={{ color: '#ffd060' }}>ATK {item.damage}</div>}
+                                                    {item.defense > 0 && <div className="text-[0.7rem] font-bold" style={{ color: '#60a5fa' }}>DEF {item.defense}</div>}
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-1.5">
+                                                {item.equipSlot && (
+                                                    <button type="button"
+                                                        className="flex-1 rounded py-1 text-[0.72rem] font-bold transition-transform active:scale-95"
+                                                        style={{ background: '#0e2010', color: '#7ccf5a', border: '1px solid #2a5e2c' }}
+                                                        onClick={() => handleEquipFromSafeHouse(item)}>
+                                                        EQUIP
+                                                    </button>
+                                                )}
+                                                <button type="button"
+                                                    className="flex-1 rounded py-1 text-[0.72rem] font-bold transition-transform active:scale-95"
+                                                    style={{
+                                                        background: bagFull ? '#0e1a0e' : '#0a1a2e',
+                                                        color: bagFull ? '#4a6a4c' : '#60a5fa',
+                                                        border: bagFull ? '1px solid #1a2a1e' : '1px solid #1a3a5e',
+                                                    }}
+                                                    onClick={() => handleRetrieve(item)}>
+                                                    {bagFull ? 'BAG FULL' : '← RETRIEVE'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
