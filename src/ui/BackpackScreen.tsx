@@ -7,6 +7,7 @@ import { updateSave } from '../state/save.ts';
 import { primeEnergyRegenTimer } from '../game/energyRegen.ts';
 import StatsCard from './StatsCard.tsx';
 import WorkbenchTab from './WorkbenchTab.tsx';
+import { CRAFT_RECIPES } from '../game/crafting.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 type LoadoutKey = keyof Loadout;
@@ -17,6 +18,8 @@ const SLOT_KEY_TO_EQUIP: Record<LoadoutKey, EquipSlot> = {
     head: 'head', torso: 'torso', legs: 'legs', feet: 'feet',
     hand1: 'hand', hand2: 'hand', protection: 'protection', consumableSlot: 'pack',
 };
+
+const CRAFT_INGREDIENT_IDS = new Set(CRAFT_RECIPES.flatMap(r => r.ingredients.map(i => i.itemId)));
 
 function fmt(ms: number): string {
     if (ms <= 0) return 'READY';
@@ -174,6 +177,7 @@ function LoadoutSlotCard({ slotKey, item, onTap }: { slotKey: LoadoutKey; item: 
 
 function ItemCard({ item, onClick, selected, compact = false }: { item: Item; onClick: () => void; selected?: boolean; compact?: boolean }) {
     const color = RARITY_COLORS[item.rarity];
+    const isCraftIngredient = CRAFT_INGREDIENT_IDS.has(item.id);
     return (
         <button type="button"
             className="w-full rounded text-left transition-transform active:scale-[0.98]"
@@ -191,6 +195,9 @@ function ItemCard({ item, onClick, selected, compact = false }: { item: Item; on
                             <span className="text-[0.62rem] font-bold rounded px-1" style={{ color: SLOT_COLORS[item.equipSlot], background: SLOT_COLORS[item.equipSlot] + '18' }}>
                                 {item.type === 'pack' ? 'PACK' : item.equipSlot.toUpperCase().replace('-', ' ')}
                             </span>
+                        )}
+                        {isCraftIngredient && (
+                            <span className="text-[0.62rem] rounded px-1" style={{ color: '#a78bfa', background: '#a78bfa18' }}>⚙</span>
                         )}
                         {item.special.map(s => (
                             <span key={s} className="rounded px-1 text-[0.65rem]" style={{ background: '#1a3e1c', color: '#5ade70' }}>

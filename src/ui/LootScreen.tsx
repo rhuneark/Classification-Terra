@@ -374,7 +374,7 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
 }
 
 // Tier-based survivor encounter chance
-const SURVIVOR_CHANCE: Record<string, number> = { low: 0.04, medium: 0.03, high: 0.02, extreme: 0.01 };
+const SURVIVOR_CHANCE: Record<string, number> = { low: 0.05, medium: 0.04, high: 0.03, extreme: 0.02 };
 // Scan delay in ms before revealing loot result
 const SCAN_DELAY: Record<string, number> = { low: 400, medium: 600, high: 800, extreme: 1000 };
 

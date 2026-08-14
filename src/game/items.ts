@@ -34,15 +34,20 @@ const COMMON: Item[] = [
     itm('torn-raincoat','Torn Raincoat',"Stays on. That's the one thing it does.",'common','armor',5,0,5,[],2,{equipSlot:'torso' as EquipSlot}),
     itm('plastic-shoulder','Plastic Shoulder Guard',"Repurposed from sporting goods. Still has the logo.",'common','armor',5,0,5,[],2,{equipSlot:'torso' as EquipSlot}),
     itm('leather-vest','Leather Vest',"Cracked in the back. Holds form up front.",'common','armor',8,0,8,[],3,{equipSlot:'torso' as EquipSlot}),
-    // Utility → hand
-    itm('antibiotic-strip','Expired Antibiotic Strip',"Three years past. You've had worse odds.",'common','utility',2,0,2,[],1,{equipSlot:'hand' as EquipSlot}),
+    // Utility → legs (belt/pocket carry)
+    itm('antibiotic-strip','Expired Antibiotic Strip',"Three years past. You've had worse odds.",'common','utility',2,0,2,[],1,{equipSlot:'legs' as EquipSlot}),
     itm('tin-can','Crumpled Tin Can',"Good for throwing. Better for denting skulls.",'common','utility',3,1,0,[],1,{equipSlot:'hand' as EquipSlot}),
-    itm('shoelace','Scavenged Shoelace',"Holds things together. Metaphorically too.",'common','utility',1,0,1,[],1,{equipSlot:'hand' as EquipSlot}),
-    itm('broken-compass','Pocket Compass (broken)',"North is somewhere to your left. Probably.",'common','utility',2,0,1,[],1,{equipSlot:'hand' as EquipSlot}),
-    itm('spent-lighter','Spent Lighter',"Sparks occasionally. Keeps people guessing.",'common','utility',2,1,0,[],1,{equipSlot:'hand' as EquipSlot}),
-    itm('water-manual','Water-Damaged Manual',"Most of it survived. The important parts, unclear.",'common','utility',3,0,2,[],1,{equipSlot:'hand' as EquipSlot}),
-    itm('flat-battery','Flat Phone Battery',"Useless as power source. Excellent as shim.",'common','utility',1,0,1,[],1,{equipSlot:'hand' as EquipSlot}),
-    itm('corroded-keys','Corroded Keys (no lock)',"You keep them. You don't know why.",'common','utility',2,0,1,[],1,{equipSlot:'hand' as EquipSlot}),
+    itm('shoelace','Scavenged Shoelace',"Holds things together. Metaphorically too.",'common','utility',1,0,1,[],1,{equipSlot:'legs' as EquipSlot}),
+    itm('broken-compass','Pocket Compass (broken)',"North is somewhere to your left. Probably.",'common','utility',2,0,1,[],1,{equipSlot:'legs' as EquipSlot}),
+    itm('spent-lighter','Spent Lighter',"Sparks occasionally. Keeps people guessing.",'common','utility',2,1,0,[],1,{equipSlot:'legs' as EquipSlot}),
+    itm('water-manual','Water-Damaged Manual',"Most of it survived. The important parts, unclear.",'common','utility',3,0,2,[],1,{equipSlot:'legs' as EquipSlot}),
+    itm('flat-battery','Flat Phone Battery',"Useless as power source. Excellent as shim.",'common','utility',1,0,1,[],1,{equipSlot:'legs' as EquipSlot}),
+    itm('corroded-keys','Corroded Keys (no lock)',"You keep them. You don't know why.",'common','utility',2,0,1,[],1,{equipSlot:'legs' as EquipSlot}),
+    // Additional armor → feet and legs
+    itm('rubber-overshoe','Rubber Overshoe (pair)',"Not rated for anything. Better than barefoot.",'common','armor',4,0,4,[],2,{equipSlot:'feet' as EquipSlot}),
+    itm('toe-cap','Steel Toe-Cap (salvaged)',"One shoe. The toe is definitely protected.",'common','armor',3,0,3,[],1,{equipSlot:'feet' as EquipSlot}),
+    itm('torn-cargo-pants','Torn Cargo Pants',"Seven pockets. Two intact. Still useful.",'common','armor',4,0,4,[],2,{equipSlot:'legs' as EquipSlot}),
+    itm('knee-wrap','Improvised Knee Wrap',"Bandage material. Both knees. Asymmetric but functional.",'common','armor',3,0,3,[],1,{equipSlot:'legs' as EquipSlot}),
 ];
 
 // ── UNCOMMON ──────────────────────────────────────────────────────────────
@@ -71,15 +76,20 @@ const UNCOMMON: Item[] = [
     itm('chain-mail-frag','Chain Mail Fragment',"Pre-collapse. Somebody was prepared.",'uncommon','armor',24,0,24,[],10,{equipSlot:'torso' as EquipSlot}),
     itm('trauma-plate','Trauma Plate (single)',"One plate. Put it where it counts.",'uncommon','armor',20,0,20,[],8,{equipSlot:'torso' as EquipSlot}),
     itm('military-cap','Military Cap',"Rank insignia removed. Better that way.",'uncommon','armor',15,0,15,[],6,{equipSlot:'head' as EquipSlot}),
-    // Utility → hand
-    itm('antiseptic-spray','Antiseptic Spray (half)',"50% capacity. Better than 0%.",'uncommon','utility',12,0,8,[],5,{equipSlot:'hand' as EquipSlot}),
-    itm('quarantine-badge','Quarantine Badge (expired)',"They stopped checking expiry dates. Useful again.",'uncommon','utility',10,0,7,[],5,{equipSlot:'hand' as EquipSlot}),
-    itm('rope-5m','Scavenged Rope (5m)',"Load-rated to 200lbs. You weigh 170. Fine.",'uncommon','utility',11,0,7,[],5,{equipSlot:'hand' as EquipSlot}),
-    itm('motion-detect','Motion Detector (damaged)',"Triggers on motion. Also on stillness. Occasionally neither.",'uncommon','utility',14,0,8,[],6,{equipSlot:'hand' as EquipSlot}),
-    itm('lockpick-set','Lockpick Set (incomplete)',"Eight picks, missing the tension wrench. Improvise.",'uncommon','utility',13,0,7,[],6,{equipSlot:'hand' as EquipSlot}),
+    // Utility → legs (belt/pocket) or hand (actively held)
+    itm('antiseptic-spray','Antiseptic Spray (half)',"50% capacity. Better than 0%.",'uncommon','utility',12,0,8,[],5,{equipSlot:'legs' as EquipSlot}),
+    itm('quarantine-badge','Quarantine Badge (expired)',"They stopped checking expiry dates. Useful again.",'uncommon','utility',10,0,7,[],5,{equipSlot:'legs' as EquipSlot}),
+    itm('rope-5m','Scavenged Rope (5m)',"Load-rated to 200lbs. You weigh 170. Fine.",'uncommon','utility',11,0,7,[],5,{equipSlot:'legs' as EquipSlot}),
+    itm('motion-detect','Motion Detector (damaged)',"Triggers on motion. Also on stillness. Occasionally neither.",'uncommon','utility',14,0,8,[],6,{equipSlot:'legs' as EquipSlot}),
+    itm('lockpick-set','Lockpick Set (incomplete)',"Eight picks, missing the tension wrench. Improvise.",'uncommon','utility',13,0,7,[],6,{equipSlot:'legs' as EquipSlot}),
     itm('field-binos','Field Binoculars (foggy lens)',"Doubles your effective scouting range. Halves your clarity.",'uncommon','utility',14,0,9,['nav'],6,{equipSlot:'hand' as EquipSlot}),
-    itm('signal-flare','Signal Flare (one)',"Single use. Make it matter.",'uncommon','utility',12,0,8,[],5,{equipSlot:'hand' as EquipSlot}),
-    itm('purif-tabs','Water Purification Tablets',"One pack. Eight tabs. Sixteen days clean.",'uncommon','utility',11,0,7,[],5,{equipSlot:'hand' as EquipSlot}),
+    itm('signal-flare','Signal Flare (one)',"Single use. Make it matter.",'uncommon','utility',12,0,8,[],5,{equipSlot:'legs' as EquipSlot}),
+    itm('purif-tabs','Water Purification Tablets',"One pack. Eight tabs. Sixteen days clean.",'uncommon','utility',11,0,7,[],5,{equipSlot:'legs' as EquipSlot}),
+    // Additional armor → feet and legs
+    itm('jungle-boots','Field Jungle Boots',"Waterproof. Snake-resistant. Not tested on Terras.",'uncommon','armor',20,0,20,[],8,{equipSlot:'feet' as EquipSlot}),
+    itm('ankle-guards','Ankle Guards (pair)',"Strapped tight. You won't roll these.",'uncommon','armor',16,0,16,[],6,{equipSlot:'feet' as EquipSlot}),
+    itm('kevlar-shins','Kevlar Shin Guards',"Rated for impact. Not rated for questioning your decisions.",'uncommon','armor',18,0,18,[],7,{equipSlot:'legs' as EquipSlot}),
+    itm('field-trousers','Field Trousers (reinforced)',"Double-stitched at the knees. Someone learned this the hard way.",'uncommon','armor',17,0,17,[],7,{equipSlot:'legs' as EquipSlot}),
 ];
 
 // ── RARE ──────────────────────────────────────────────────────────────────
@@ -104,13 +114,18 @@ const RARE: Item[] = [
     itm('nbc-partial','NBC Suit (partial, sealed)',"Nuclear/bio/chem. Two of three functions intact.",'rare','armor',43,0,43,['hazmat'],18,{equipSlot:'protection' as EquipSlot}),
     itm('knee-plates','Impact-Resistant Kneepads',"Both knees. Both covered. Thank you.",'rare','armor',33,0,33,[],14,{equipSlot:'legs' as EquipSlot}),
     itm('ceramic-plate','Ceramic Body Armor Plate',"Single plate. Position it wisely.",'rare','armor',37,0,37,[],16,{equipSlot:'torso' as EquipSlot}),
-    // Utility → hand
-    itm('specimen-jar','Infected Specimen Jar',"The seal holds. Mostly.",'rare','utility',26,0,16,['bio'],11,{equipSlot:'hand' as EquipSlot}),
-    itm('outbreak-map','Outbreak Map (general)',"Coverage: regional. Accuracy: approximate.",'rare','utility',24,0,14,['nav'],10,{equipSlot:'hand' as EquipSlot}),
+    // Utility → legs (belt carry) or hand (actively used)
+    itm('specimen-jar','Infected Specimen Jar',"The seal holds. Mostly.",'rare','utility',26,0,16,['bio'],11,{equipSlot:'legs' as EquipSlot}),
+    itm('outbreak-map','Outbreak Map (general)',"Coverage: regional. Accuracy: approximate.",'rare','utility',24,0,14,['nav'],10,{equipSlot:'legs' as EquipSlot}),
     itm('medical-toolkit','Medical Toolkit (incomplete)',"Missing the sutures and the optimism. Has everything else.",'rare','utility',28,0,18,[],12,{equipSlot:'hand' as EquipSlot}),
-    itm('geiger-counter','Field Geiger Counter',"Clicks occasionally. You've accepted this.",'rare','utility',22,0,14,[],10,{equipSlot:'hand' as EquipSlot}),
-    itm('encrypted-radio','Encrypted Radio',"Encrypted. Also broken. Nobody can hear you either way.",'rare','utility',26,0,16,[],11,{equipSlot:'hand' as EquipSlot}),
+    itm('geiger-counter','Field Geiger Counter',"Clicks occasionally. You've accepted this.",'rare','utility',22,0,14,[],10,{equipSlot:'legs' as EquipSlot}),
+    itm('encrypted-radio','Encrypted Radio',"Encrypted. Also broken. Nobody can hear you either way.",'rare','utility',26,0,16,[],11,{equipSlot:'legs' as EquipSlot}),
     itm('portable-lab','Portable Lab Kit',"Fits in a case. Results in 20 minutes. Doesn't lie.",'rare','utility',30,0,18,['bio'],12,{equipSlot:'hand' as EquipSlot}),
+    // Additional armor → feet and legs
+    itm('nbc-boots','NBC-Rated Boots',"Sealed at the ankle. Certified for two of three hazard types.",'rare','armor',37,0,37,['hazmat'],16,{equipSlot:'feet' as EquipSlot}),
+    itm('exo-boots','Exo-Boots (powered ankles)',"Servos at the ankle. Adds force. Adds noise.",'rare','armor',34,0,34,[],14,{equipSlot:'feet' as EquipSlot}),
+    itm('exo-leg-brace','Exo Leg Brace (prototype)',"One leg. Military-grade stabilization.",'rare','armor',33,0,33,[],14,{equipSlot:'legs' as EquipSlot}),
+    itm('nbc-trousers','NBC-Rated Trousers',"Lower-half containment. Sealed seams. Still missing the top half.",'rare','armor',36,0,36,['hazmat'],15,{equipSlot:'legs' as EquipSlot}),
 ];
 
 // ── EPIC ──────────────────────────────────────────────────────────────────
@@ -132,13 +147,18 @@ const EPIC: Item[] = [
     itm('tactical-shield','Tactical Shield (cracked)',"Crack is horizontal. Ballistics still deflect.",'epic','armor',64,0,64,[],27,{equipSlot:'hand' as EquipSlot}),
     itm('adaptive-camo','Adaptive Camouflage Vest',"Thermal disruptive patterning. Nobody sees you until they do.",'epic','armor',70,0,70,[],29,{equipSlot:'torso' as EquipSlot}),
     itm('rad-suit-partial','Radiation Shielding Suit (70%)',"Provides 70% coverage. That 30% gap is on you.",'epic','armor',68,0,68,['hazmat'],29,{equipSlot:'protection' as EquipSlot}),
-    // Utility → hand
-    itm('sector7-map','Outbreak Map (Sector 7)',"Sector 7 was the epicenter. This map predates the cover-up.",'epic','utility',48,0,30,['nav','bio'],20,{equipSlot:'hand' as EquipSlot}),
+    // Utility → legs (belt) or hand (actively held)
+    itm('sector7-map','Outbreak Map (Sector 7)',"Sector 7 was the epicenter. This map predates the cover-up.",'epic','utility',48,0,30,['nav','bio'],20,{equipSlot:'legs' as EquipSlot}),
     itm('symbiont-brace','Fungal Symbiont Brace',"It's alive. It's yours now. Mutually.",'epic','utility',52,0,34,['bio','growth'],22,{equipSlot:'hand' as EquipSlot}),
     itm('field-med-kit','Enhanced Field Medical Kit',"Field trauma, surgical repair, blood-typing. One bag.",'epic','utility',46,0,28,[],19,{equipSlot:'hand' as EquipSlot}),
     itm('tactical-drone','Tactical Drone (damaged)',"One working rotor. Still gathers intel. Loudly.",'epic','utility',50,0,30,['nav'],21,{equipSlot:'hand' as EquipSlot}),
-    itm('classified-file','Classified Intelligence File',"Redacted heavily. What isn't redacted is worse.",'epic','utility',44,0,28,[],19,{equipSlot:'hand' as EquipSlot}),
-    itm('neural-fragment','Neural Interface Fragment',"Pre-collapse tech. Interfaces with something. Unclear what.",'epic','utility',48,0,30,[],20,{equipSlot:'hand' as EquipSlot}),
+    itm('classified-file','Classified Intelligence File',"Redacted heavily. What isn't redacted is worse.",'epic','utility',44,0,28,[],19,{equipSlot:'legs' as EquipSlot}),
+    itm('neural-fragment','Neural Interface Fragment',"Pre-collapse tech. Interfaces with something. Unclear what.",'epic','utility',48,0,30,[],20,{equipSlot:'legs' as EquipSlot}),
+    // Additional armor → feet and legs
+    itm('power-treads','Power Armor Treads',"Magnetic soles. Micro-servos in the heel. You move quieter than you should.",'epic','armor',78,0,78,[],32,{equipSlot:'feet' as EquipSlot}),
+    itm('bio-sealed-boots','Bio-Sealed Boots (experimental)',"Full lower-limb contamination isolation. Field-tested once.",'epic','armor',72,0,72,['hazmat','bio'],30,{equipSlot:'feet' as EquipSlot}),
+    itm('exo-leg-assembly','Exo Leg Assembly (full)',"Both legs. Military prototype. The gait takes adjustment.",'epic','armor',80,0,80,[],33,{equipSlot:'legs' as EquipSlot}),
+    itm('containment-pants','Adaptive Containment Trousers',"Self-seals minor tears. Monitors for contamination.",'epic','armor',75,0,75,['hazmat','bio'],31,{equipSlot:'legs' as EquipSlot}),
 ];
 
 // ── LEGENDARY ─────────────────────────────────────────────────────────────
@@ -154,13 +174,16 @@ const LEGENDARY: Item[] = [
     itm('director-nbc','Director Chen\'s NBC Suit',"Custom-fitted. Her name is on the collar. She left without it.",'legendary','armor',148,0,148,['hazmat','bio'],60,{equipSlot:'protection' as EquipSlot}),
     itm('power-armor-frame','Last Surviving Power Armor (frame)',"Exoskeleton. Needs power. Has presence anyway.",'legendary','armor',155,0,155,[],63,{equipSlot:'protection' as EquipSlot}),
     itm('containment-shell','Adaptive Containment Shell',"Self-seals breaches. Adapts to hazard signatures. Unnerving.",'legendary','armor',145,0,145,['hazmat','bio','cleanse'],59,{equipSlot:'protection' as EquipSlot}),
-    // Utility → hand
+    // Utility → legs (belt carry) or hand (actively used)
     itm('cure7-vial','Last Vial of Cure-7',"Final one. The researcher wrote 'Don't use this' on it. You disagree.",'legendary','utility',115,0,72,['bio','cleanse'],47,{equipSlot:'hand' as EquipSlot}),
-    itm('director-badge','Director Chen\'s Access Badge',"Opens every door she ever entered. She entered most of them.",'legendary','utility',118,0,75,['nav'],48,{equipSlot:'hand' as EquipSlot}),
-    itm('eden-keycard','Project EDEN Keycard',"Black card. No markings. Tier-above-classified.",'legendary','utility',112,0,70,[],46,{equipSlot:'hand' as EquipSlot}),
-    itm('last-broadcast','Last Known Broadcast (recorded)',"Seven minutes of audio. You've listened to it twelve times.",'legendary','utility',110,0,68,[],45,{equipSlot:'hand' as EquipSlot}),
+    itm('director-badge','Director Chen\'s Access Badge',"Opens every door she ever entered. She entered most of them.",'legendary','utility',118,0,75,['nav'],48,{equipSlot:'legs' as EquipSlot}),
+    itm('eden-keycard','Project EDEN Keycard',"Black card. No markings. Tier-above-classified.",'legendary','utility',112,0,70,[],46,{equipSlot:'legs' as EquipSlot}),
+    itm('last-broadcast','Last Known Broadcast (recorded)',"Seven minutes of audio. You've listened to it twelve times.",'legendary','utility',110,0,68,[],45,{equipSlot:'legs' as EquipSlot}),
     itm('sporemother-crown','Sporemother\'s Crown',"Grown, not forged. It knows when it's worn.",'legendary','utility',145,0,98,['bio','growth'],59,{equipSlot:'head' as EquipSlot}),
     itm('safe-haven-key','Last Safe Haven Key',"The door it opens is on a map you don't have. Keep the key anyway.",'legendary','utility',140,0,95,['nav'],57,{equipSlot:'hand' as EquipSlot}),
+    // Additional armor → feet and legs
+    itm('director-boots','Director Chen\'s Field Boots',"Custom orthopedic. Her initials are on the insole. She left without them.",'legendary','armor',145,0,145,['hazmat','bio'],59,{equipSlot:'feet' as EquipSlot}),
+    itm('apex-leg-plates','Apex-Class Leg Plating',"Recovered from the only person who fought an Apex and walked out.",'legendary','armor',152,0,152,[],62,{equipSlot:'legs' as EquipSlot}),
 ];
 
 // ── UNIQUE: THE 10 PAPERCLIPS ──────────────────────────────────────────────
