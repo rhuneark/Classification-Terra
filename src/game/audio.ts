@@ -242,3 +242,94 @@ export function startAmbient(): void {
 
     scheduleLoop(c.currentTime + 0.1);
 }
+
+// ---------- Offline WAV export ----------
+// Renders the chiptune theme using OfflineAudioContext (faster than real-time)
+// and triggers a browser download of the result as a PCM WAV file.
+
+export async function exportMusicWav(numLoops = 3): Promise<void> {
+    const BPM = 86;
+    const B = 60 / BPM;
+
+    const MELODY: [number, number][] = [
+        [330, 1], [294, 0.5], [262, 1.5], [220, 1], [247, 0.5], [262, 0.5], [0, 3],
+        [330, 0.5], [392, 0.5], [330, 1], [294, 1], [262, 0.5], [247, 0.5], [220, 2], [0, 2],
+        [196, 0.5], [220, 0.5], [262, 1], [294, 0.5], [330, 0.5], [294, 0.5], [262, 0.5], [220, 0.5], [196, 0.5], [0, 3],
+        [220, 1], [247, 0.5], [220, 0.5], [196, 1], [175, 1], [220, 2], [0, 2],
+    ];
+    const BASS: [number, number][] = [
+        [110, 2], [110, 2], [131, 2], [131, 2],
+        [110, 2], [110, 2], [98, 2],  [110, 2],
+        [98, 2],  [110, 2], [131, 2], [147, 2],
+        [110, 2], [98, 2],  [110, 4],
+    ];
+
+    const loopBeats = MELODY.reduce((s, [, d]) => s + d, 0);
+    const loopS = loopBeats * B;
+    const totalS = loopS * numLoops + 1.0;
+    const SR = 44100;
+
+    const offCtx = new OfflineAudioContext(1, Math.ceil(SR * totalS), SR);
+    const master = offCtx.createGain();
+    master.gain.value = 0.65 * 0.22;
+    master.connect(offCtx.destination);
+
+    function schedOsc(freq: number, type: OscillatorType, vol: number, t: number, atkMs: number, susMs: number, relMs: number) {
+        const node = offCtx.createOscillator();
+        const g = offCtx.createGain();
+        node.type = type;
+        node.frequency.setValueAtTime(freq, t);
+        const a = atkMs / 1000, s = susMs / 1000, r = relMs / 1000;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol, t + a);
+        g.gain.setValueAtTime(vol, t + a + s);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + a + s + r);
+        node.connect(g); g.connect(master);
+        node.start(t); node.stop(t + a + s + r + 0.02);
+    }
+
+    for (let loop = 0; loop < numLoops; loop++) {
+        const startT = loop * loopS;
+        let t = startT;
+        for (const [freq, dur] of MELODY) {
+            const durS = dur * B;
+            if (freq > 0) {
+                const atkMs = 4, relMs = 35;
+                const susMs = Math.max(10, durS * 1000 * 0.78 - atkMs - relMs);
+                schedOsc(freq, 'square', 0.28, t, atkMs, susMs, relMs);
+            }
+            t += durS;
+        }
+        let bt = startT;
+        for (const [freq, dur] of BASS) {
+            const durS = dur * B;
+            if (freq > 0) schedOsc(freq, 'triangle', 0.38, bt, 8, durS * 1000 * 0.88, 50);
+            bt += durS;
+        }
+    }
+
+    const rendered = await offCtx.startRendering();
+
+    // Encode mono 16-bit PCM WAV
+    const nSamples = rendered.length;
+    const dataSize = nSamples * 2;
+    const ab = new ArrayBuffer(44 + dataSize);
+    const v = new DataView(ab);
+    const ws = (off: number, str: string) => { for (let i = 0; i < str.length; i++) v.setUint8(off + i, str.charCodeAt(i)); };
+    ws(0, 'RIFF'); v.setUint32(4, 36 + dataSize, true); ws(8, 'WAVE');
+    ws(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+    v.setUint16(22, 1, true); v.setUint32(24, SR, true);
+    v.setUint32(28, SR * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    ws(36, 'data'); v.setUint32(40, dataSize, true);
+    const ch = rendered.getChannelData(0);
+    for (let i = 0; i < nSamples; i++) {
+        const s = Math.max(-1, Math.min(1, ch[i]));
+        v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    }
+
+    const blob = new Blob([ab], { type: 'audio/wav' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'classification-terra-theme.wav'; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+}

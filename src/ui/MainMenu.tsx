@@ -5,6 +5,7 @@ import HowToPlay from './HowToPlay.tsx';
 import ExplorerBoard from './ExplorerBoard.tsx';
 import WorldLoreModal from './WorldLoreModal.tsx';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
+import { exportMusicWav } from '../game/audio.ts';
 
 export default function MainMenu() {
     const loadout = useStore((s) => s.loadout);
@@ -16,7 +17,6 @@ export default function MainMenu() {
     const [titleTaps, setTitleTaps] = useState(0);
     const [showPromo, setShowPromo] = useState(false);
     const [promoStatus, setPromoStatus] = useState<'idle' | 'generating' | 'done' | 'error'>('idle');
-    const [promoUrl, setPromoUrl] = useState<string | null>(null);
 
     function handleTitleTap() {
         const next = titleTaps + 1;
@@ -27,14 +27,7 @@ export default function MainMenu() {
     async function handlePromoGen() {
         setPromoStatus('generating');
         try {
-            const result = await RundotGameAPI.audioGen.generate({
-                type: 'music',
-                prompt: '8-bit chiptune, Fallout-inspired post-apocalyptic wasteland theme, NES square wave and triangle wave instruments only, upbeat but melancholic minor key melody, 95 BPM, catchy retro video game music, no ambience, no sound effects, pure chiptune composition, classic RPG overworld feel with dark undertones',
-                durationSec: 90,
-                model: 'elevenlabs',
-                clientRef: 'promo-track-v1',
-            });
-            setPromoUrl(result.audioUrl);
+            await exportMusicWav(3);
             setPromoStatus('done');
         } catch {
             setPromoStatus('error');
@@ -123,17 +116,10 @@ export default function MainMenu() {
                         </button>
                     )}
                     {promoStatus === 'generating' && (
-                        <p className="text-[0.82rem]" style={{ color: '#8aaa8c' }}>Generating... this takes ~30s</p>
+                        <p className="text-[0.82rem]" style={{ color: '#8aaa8c' }}>Rendering... takes a few seconds</p>
                     )}
-                    {promoStatus === 'done' && promoUrl && (
-                        <div className="space-y-2">
-                            <p className="text-[0.75rem]" style={{ color: '#4ade80' }}>Track ready!</p>
-                            <a href={promoUrl} download="classification-terra-promo.mp3" target="_blank" rel="noreferrer"
-                                className="block w-full rounded py-2 text-[0.85rem] font-bold tracking-wide"
-                                style={{ background: '#0a2e10', color: '#4ade80', border: '1px solid #4ade8055' }}>
-                                DOWNLOAD MP3
-                            </a>
-                        </div>
+                    {promoStatus === 'done' && (
+                        <p className="text-[0.75rem]" style={{ color: '#4ade80' }}>Download started — check your downloads folder</p>
                     )}
                     {promoStatus === 'error' && (
                         <p className="text-[0.8rem]" style={{ color: '#f97316' }}>Generation failed — try again</p>
