@@ -6,8 +6,6 @@ import ExplorerBoard from './ExplorerBoard.tsx';
 import WorldLoreModal from './WorldLoreModal.tsx';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
-const isPromoMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('promo');
-
 export default function MainMenu() {
     const loadout = useStore((s) => s.loadout);
     const currency = useStore((s) => s.currency);
@@ -15,8 +13,16 @@ export default function MainMenu() {
     const [showHtp, setShowHtp] = useState(false);
     const [showExplorer, setShowExplorer] = useState(false);
     const [showLore, setShowLore] = useState(false);
+    const [titleTaps, setTitleTaps] = useState(0);
+    const [showPromo, setShowPromo] = useState(false);
     const [promoStatus, setPromoStatus] = useState<'idle' | 'generating' | 'done' | 'error'>('idle');
     const [promoUrl, setPromoUrl] = useState<string | null>(null);
+
+    function handleTitleTap() {
+        const next = titleTaps + 1;
+        setTitleTaps(next);
+        if (next >= 5) { setShowPromo(true); setTitleTaps(0); }
+    }
 
     async function handlePromoGen() {
         setPromoStatus('generating');
@@ -55,7 +61,7 @@ export default function MainMenu() {
     return (
         <div className="relative flex h-full flex-col items-center justify-center gap-6 px-8" style={{ background: '#0b1a0d' }}>
             <div className="text-center">
-                <h1 className="text-[2rem] font-bold tracking-widest text-primary">CLASSIFICATION:</h1>
+                <h1 className="text-[2rem] font-bold tracking-widest text-primary" onClick={handleTitleTap}>CLASSIFICATION:</h1>
                 <div className="text-[1.25rem] font-bold tracking-[0.18em]" style={{ color: '#4ade80' }}>TERRA</div>
                 <p className="mt-2 text-[0.78rem] tracking-widest leading-relaxed" style={{ color: '#5a8a5c' }}>
                     SURVIVE THE RUINS.<br />CLASSIFY WHAT THE INFECTION MADE.
@@ -106,7 +112,7 @@ export default function MainMenu() {
                 </button>
             </div>
 
-            {isPromoMode && (
+            {showPromo && (
                 <div className="w-full max-w-xs rounded p-3 text-center" style={{ background: '#0a1a10', border: '1px solid #22ddee44' }}>
                     <div className="text-[0.7rem] font-bold tracking-widest mb-2" style={{ color: '#22ddee' }}>PROMO AUDIO GENERATOR</div>
                     {promoStatus === 'idle' && (
