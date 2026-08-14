@@ -266,7 +266,7 @@ export default function FactionScreen() {
                 </div>
             </div>
 
-            <div className="scroll-area flex-1 px-3 pt-3 pb-3 space-y-3">
+            <div className="scroll-area flex-1 px-3 pt-3 pb-20 space-y-3">
                 {tab === 'base' && (
                     <>
                         {/* Global Event */}
@@ -328,7 +328,7 @@ export default function FactionScreen() {
                                 <div className="rounded p-3 text-center" style={{ background: '#0a1a0c', border: '1px solid #1a3e1c' }}>
                                     <div className="text-[0.85rem]" style={{ color: '#3a5a3c' }}>No survivors recruited yet.</div>
                                     <div className="mt-0.5 text-[0.75rem]" style={{ color: '#2a4a2c' }}>
-                                        1% chance of finding one while scavenging the Ruins.
+                                        Explore the Ruins to discover Survivors.
                                     </div>
                                 </div>
                             ) : (

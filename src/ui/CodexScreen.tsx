@@ -172,7 +172,7 @@ export default function CodexScreen() {
                 </p>
             </div>
 
-            <div className="scroll-area flex-1 p-3 space-y-2">
+            <div className="scroll-area flex-1 p-3 pb-20 space-y-2">
                 {TERRA_VARIANTS.map(terra => (
                     <TerraEntry key={terra.id} terra={terra} collectedIds={collectedLoreIds} />
                 ))}

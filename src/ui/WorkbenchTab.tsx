@@ -160,7 +160,7 @@ export default function WorkbenchTab() {
                 </div>
             )}
 
-            <div className="scroll-area flex-1 px-3 pt-3 pb-3 space-y-4">
+            <div className="scroll-area flex-1 px-3 pt-3 pb-20 space-y-4">
                 {/* Sets */}
                 {setRecipes.map(({ set, recipes }) => {
                     const craftedCount = set.members.filter(m =>

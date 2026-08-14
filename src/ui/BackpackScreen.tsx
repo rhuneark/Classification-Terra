@@ -410,7 +410,7 @@ export default function BackpackScreen() {
 
             {loadoutTab === 'workbench' && <WorkbenchTab />}
 
-            {loadoutTab === 'gear' && <div className="scroll-area flex-1 px-3 pt-3 pb-2 space-y-4">
+            {loadoutTab === 'gear' && <div className="scroll-area flex-1 px-3 pt-3 pb-20 space-y-4">
                 <ResearchQueueSection />
 
                 {/* Named equipment slots */}

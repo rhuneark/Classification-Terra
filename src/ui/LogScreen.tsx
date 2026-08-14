@@ -13,7 +13,7 @@ export default function LogScreen() {
                 </p>
             </div>
 
-            <div className="scroll-area flex-1 px-3 py-2">
+            <div className="scroll-area flex-1 px-3 py-2 pb-20">
                 {eventLog.length === 0 && (
                     <p className="mt-8 text-center text-[0.85rem]" style={{ color: '#4a6a4c' }}>
                         No activity yet. Get out there.

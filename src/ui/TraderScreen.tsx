@@ -231,7 +231,7 @@ export default function TraderScreen() {
             </div>
 
             {/* Content */}
-            <div className="scroll-area flex-1 p-3 space-y-3">
+            <div className="scroll-area flex-1 p-3 pb-20 space-y-3">
                 {activeTab === 'buy' && (
                     <>
                         {/* Always-available staples */}

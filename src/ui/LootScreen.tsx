@@ -619,7 +619,7 @@ export default function LootScreen() {
                 )}
             </div>
 
-            <div className="scroll-area flex-1 space-y-2 p-3 pb-4">
+            <div className="scroll-area flex-1 space-y-2 p-3 pb-20">
                 {/* Scavenge locations */}
                 <div className="mb-1 text-[0.62rem] font-bold tracking-widest" style={{ color: '#3a5a3c' }}>LOCATIONS</div>
                 {ALL_LOCATIONS.map(loc => (
