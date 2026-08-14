@@ -15,7 +15,7 @@ export interface TerraVariant {
     name: string;
     formerlyKnownAs: string;
     classification: string;
-    threat: 'low' | 'moderate' | 'high' | 'extreme';
+    threat: 'low' | 'medium' | 'high' | 'extreme';
     description: string;
     signs: string;
     snippets: LoreSnippet[];
@@ -23,7 +23,7 @@ export interface TerraVariant {
 
 const AMBUSH_SNIPPET_CHANCE: Record<TerraVariant['threat'], number> = {
     low: 0.38,
-    moderate: 0.25,
+    medium: 0.25,
     high: 0.12,
     extreme: 0.03,
 };
@@ -77,7 +77,7 @@ export const TERRA_VARIANTS: TerraVariant[] = [
         name: 'The Lurker',
         formerlyKnownAs: 'Procyon lotor / Didelphis virginiana',
         classification: 'Terrae procyon-infernus',
-        threat: 'moderate',
+        threat: 'medium',
         description: 'Mid-size ambush predators, formerly scavengers. Infection expanded olfactory processing to threat-detection acuity. Solitary hunters that target stressed prey.',
         signs: 'Nothing. That\'s the sign.',
         snippets: [
@@ -115,7 +115,7 @@ export const TERRA_VARIANTS: TerraVariant[] = [
         name: 'The Turned',
         formerlyKnownAs: 'Homo sapiens',
         classification: 'Terrae homo-initiatus',
-        threat: 'moderate',
+        threat: 'medium',
         description: 'Early-stage infected humans. Still bipedal, still recognizably shaped. The infection preserves the form while emptying everything that made it familiar. Territorial, unpredictable, and deeply unsettling.',
         signs: 'Nothing seems wrong. Until the speed is wrong. Or the angle. Or the face.',
         snippets: [
@@ -459,7 +459,7 @@ export const TERRA_VARIANTS: TerraVariant[] = [
         name: 'The Hound',
         formerlyKnownAs: 'Canis lupus familiaris',
         classification: 'Terrae canis-fidelis',
-        threat: 'moderate',
+        threat: 'medium',
         description: 'Domesticated dogs, infection-modified. Pack loyalty intact, redirected. They no longer recognize former owners. They do still recognize pack hierarchy. Whoever leads their current pack leads them.',
         signs: 'Barking that stops too quickly. Coordinated movement without a signal. They wait at corners.',
         snippets: [
@@ -497,7 +497,7 @@ export const TERRA_VARIANTS: TerraVariant[] = [
         name: 'The Molt',
         formerlyKnownAs: 'Elaphe obsoleta / Crotalus horridus',
         classification: 'Terrae serpens-involutus',
-        threat: 'moderate',
+        threat: 'medium',
         description: 'Large serpents, infection-enlarged beyond any recorded baseline. Shed skins found near Mercy General lower levels frequently measure over six meters. The living specimens are larger. They do not move until they decide to.',
         signs: 'Skins along corridors, translucent, recent. A cold draft from below floor level. Silence that doesn\'t break when it should.',
         snippets: [
@@ -535,7 +535,7 @@ export const TERRA_VARIANTS: TerraVariant[] = [
         name: 'The Scion',
         formerlyKnownAs: 'Homo sapiens (juvenile)',
         classification: 'Terrae homo-junior',
-        threat: 'moderate',
+        threat: 'medium',
         description: 'Juvenile humans in early infection stage. The infection behaves differently in younger subjects — cognition degraded more slowly, but behavioral patterns became alien faster. They still use the spaces children use.',
         signs: 'Small handprints. Toys arranged. Voices on floors where there should be no voices.',
         snippets: [

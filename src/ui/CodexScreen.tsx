@@ -5,7 +5,7 @@ import type { TerraVariant, LoreSnippet } from '../game/terras.ts';
 
 const THREAT_COLORS: Record<string, string> = {
     low: '#4ade80',
-    moderate: '#facc15',
+    medium: '#22ddee',
     high: '#f97316',
     extreme: '#ffd060',
 };
