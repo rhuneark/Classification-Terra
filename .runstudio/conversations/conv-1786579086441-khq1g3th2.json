@@ -10329,1022 +10329,784 @@
       }
     },
     {
-      "id": "user-1786721157284",
-      "role": "user",
+      "id": "1786720944711-yz9g29tnt",
+      "role": "assistant",
+      "content": "Using tool: Write",
       "isShownToUser": true,
-      "content": "Can you finish the last update, my Internet cut off",
-      "timestamp": 1786721157284,
+      "timestamp": 1786720944711,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Write"
+      }
+    },
+    {
+      "id": "1786720960342-9bx26yrxz",
+      "role": "assistant",
+      "content": "Now write the two new UI components in parallel:",
+      "isShownToUser": true,
+      "timestamp": 1786720960352,
       "type": "text",
       "metadata": {}
     },
     {
-      "id": "1786721166645-vuf6j0xsm",
+      "id": "1786720999166-t4tm5mg3k",
       "role": "assistant",
-      "content": "Let me check what was completed and what still needs to be done.",
+      "content": "Using tool: Write",
       "isShownToUser": true,
-      "timestamp": 1786721166648,
+      "timestamp": 1786720999166,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Write"
+      }
+    },
+    {
+      "id": "1786721077549-5n4p8sr63",
+      "role": "assistant",
+      "content": "Using tool: Write",
+      "isShownToUser": true,
+      "timestamp": 1786721077549,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Write"
+      }
+    },
+    {
+      "id": "1786721093733-jwmsh69qs",
+      "role": "assistant",
+      "content": "Now I need to read LootScreen to add the survivor encounter logic:",
+      "isShownToUser": true,
+      "timestamp": 1786721093740,
       "type": "text",
       "metadata": {}
     },
     {
-      "id": "1786721167890-lp6hgf3xv",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721167890,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721168906-svyik1tib",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721168906,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721175981-w5ebnft16",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721175981,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721177841-movragj1w",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721177841,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721181616-dw81t3udz",
+      "id": "1786721093750-wn11m4jsy",
       "role": "assistant",
       "content": "Using tool: Read",
       "isShownToUser": true,
-      "timestamp": 1786721181616,
+      "timestamp": 1786721093750,
       "type": "toolUse",
       "metadata": {
         "toolName": "Read"
       }
     },
     {
-      "id": "1786721182119-kbrzp1o51",
+      "id": "1786721098335-jbf563pl3",
       "role": "assistant",
       "content": "Using tool: Read",
       "isShownToUser": true,
-      "timestamp": 1786721182119,
+      "timestamp": 1786721098335,
       "type": "toolUse",
       "metadata": {
         "toolName": "Read"
       }
     },
     {
-      "id": "1786721186714-detg1lo8g",
-      "role": "assistant",
-      "content": "The new files are fully written. Now I need to fix the TS errors and wire up both new tabs into `GameScreen.tsx` and `main.tsx`. Let me read those files.",
-      "isShownToUser": true,
-      "timestamp": 1786721187601,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721189103-wvpmbsbht",
+      "id": "1786721134046-rj41gp8t6",
       "role": "assistant",
       "content": "Using tool: Read",
       "isShownToUser": true,
-      "timestamp": 1786721189103,
+      "timestamp": 1786721134046,
       "type": "toolUse",
       "metadata": {
         "toolName": "Read"
       }
     },
     {
-      "id": "1786721189588-bqal5tynd",
+      "id": "1786721138711-sm6ng4x6t",
       "role": "assistant",
       "content": "Using tool: Read",
       "isShownToUser": true,
-      "timestamp": 1786721189588,
+      "timestamp": 1786721138711,
       "type": "toolUse",
       "metadata": {
         "toolName": "Read"
       }
     },
     {
-      "id": "1786721194410-rsqwv1bbg",
+      "id": "1786721156118-ahnelu459",
       "role": "assistant",
-      "content": "Now let me check what's in types.ts and store.ts to verify what was already added:",
+      "content": "Now I have the full picture. Adding survivor encounter + bounty tracking to LootScreen with targeted edits:",
       "isShownToUser": true,
-      "timestamp": 1786721194986,
+      "timestamp": 1786721156132,
       "type": "text",
       "metadata": {}
     },
     {
-      "id": "1786721197803-zutq3m6sg",
+      "id": "1786721164416-rwwqrw493",
       "role": "assistant",
-      "content": "Using tool: Bash",
+      "content": "Using tool: Edit",
       "isShownToUser": true,
-      "timestamp": 1786721197803,
+      "timestamp": 1786721164416,
       "type": "toolUse",
       "metadata": {
-        "toolName": "Bash"
+        "toolName": "Edit"
       }
     },
     {
-      "id": "1786721198862-tdp1e1toc",
+      "id": "1786721171561-jfadi5npn",
       "role": "assistant",
-      "content": "Using tool: Bash",
+      "content": "Using tool: Edit",
       "isShownToUser": true,
-      "timestamp": 1786721198862,
+      "timestamp": 1786721171561,
       "type": "toolUse",
       "metadata": {
-        "toolName": "Bash"
+        "toolName": "Edit"
       }
     },
     {
-      "id": "1786721207517-2wmhhd8oh",
+      "id": "1786721180607-utckooz9r",
       "role": "assistant",
-      "content": "Using tool: Bash",
+      "content": "Using tool: Edit",
       "isShownToUser": true,
-      "timestamp": 1786721207517,
+      "timestamp": 1786721180607,
       "type": "toolUse",
       "metadata": {
-        "toolName": "Bash"
+        "toolName": "Edit"
       }
     },
     {
-      "id": "1786721207543-ck5y4t32h",
+      "id": "1786721180607-1b0qw2djg",
       "role": "assistant",
-      "content": "Using tool: Bash",
+      "content": "Now add bounty tracking to handleAmbushDismiss and add the survivor modal:",
       "isShownToUser": true,
-      "timestamp": 1786721207543,
+      "timestamp": 1786721186119,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721188311-9qa86kqw2",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721188311,
       "type": "toolUse",
       "metadata": {
-        "toolName": "Bash"
+        "toolName": "Edit"
       }
     },
     {
-      "id": "1786721210501-ng62qd6fo",
-      "role": "assistant",
-      "content": "Using tool: Bash",
+      "id": "1786721188340-ju6hx57fo",
+      "role": "system",
+      "content": "Compacting project...",
       "isShownToUser": true,
-      "timestamp": 1786721210501,
-      "type": "toolUse",
+      "timestamp": 1786721188340,
+      "type": "compaction",
       "metadata": {
-        "toolName": "Bash"
+        "compaction": {
+          "trigger": "auto"
+        }
       }
     },
     {
-      "id": "1786721211497-ux99eljtr",
+      "id": "1786721336584-j5b3hym4r",
       "role": "assistant",
-      "content": "Using tool: Bash",
+      "content": "Now let me read the current LootScreen to find where to add the survivor modal:",
       "isShownToUser": true,
-      "timestamp": 1786721211497,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
+      "timestamp": 1786721337101,
+      "type": "text",
+      "metadata": {}
     },
     {
-      "id": "1786721225202-d60wkzl3y",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721225202,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721225236-ogfb2uq6g",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721225236,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721242170-3ekb4oyab",
+      "id": "1786721337494-pgq6mu502",
       "role": "assistant",
       "content": "Using tool: Read",
       "isShownToUser": true,
-      "timestamp": 1786721242170,
+      "timestamp": 1786721337494,
       "type": "toolUse",
       "metadata": {
         "toolName": "Read"
       }
     },
     {
-      "id": "1786721248308-qeuxrodis",
+      "id": "1786721369949-hfpyyj568",
+      "role": "assistant",
+      "content": "Now add the survivor modal handlers and JSX to LootScreen:",
+      "isShownToUser": true,
+      "timestamp": 1786721369953,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721372367-yjt8momhq",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721372367,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786721375386-8d8sw3zky",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786721375386,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786721378316-lh0h7nmy6",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721378316,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786721378316-hjtyw4hq3",
+      "role": "assistant",
+      "content": "Now add the handlers and modal. First the handlers, right before the return statement:",
+      "isShownToUser": true,
+      "timestamp": 1786721381609,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721386340-3804jo58c",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721386340,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786721386341-cujn7n0ug",
+      "role": "assistant",
+      "content": "Now add the survivor modal JSX after the activeLootEvent modal:",
+      "isShownToUser": true,
+      "timestamp": 1786721388691,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721402052-ksibrhx2x",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721402052,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786721405206-zqfj5gm0w",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786721405206,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786721410400-gu28xat04",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786721410400,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786721414079-b8wiy9htz",
+      "role": "assistant",
+      "content": "Good - there's already a basic survivor modal. I'll replace it with the improved version that shows role-specific info and uses the handlers I added:",
+      "isShownToUser": true,
+      "timestamp": 1786721414678,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721431778-h3nvrw0bs",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721431778,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786721434888-cw894qvxz",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786721434888,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786721440533-6c0tdqj3f",
+      "role": "assistant",
+      "content": "Good - the modal already uses the handlers. I'll update it to show the role-specific info and only appear when `!activeLootEvent`:",
+      "isShownToUser": true,
+      "timestamp": 1786721441186,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721451256-65lsd9yzd",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721451256,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786721451257-uvf7k5ehu",
+      "role": "assistant",
+      "content": "Now update `BackpackScreen.tsx` to add LOADOUT/WORKBENCH sub-tabs. Let me read it first:",
+      "isShownToUser": true,
+      "timestamp": 1786721454004,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721454897-yvtaxakvk",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786721454897,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786721459242-nvx2oz8k3",
       "role": "assistant",
       "content": "Using tool: Bash",
       "isShownToUser": true,
-      "timestamp": 1786721248308,
+      "timestamp": 1786721459242,
       "type": "toolUse",
       "metadata": {
         "toolName": "Bash"
       }
     },
     {
-      "id": "1786721252411-ufjbc17bs",
+      "id": "1786721462353-wtjrjdif4",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786721462353,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786721466653-udctvn4tv",
+      "role": "assistant",
+      "content": "BackpackScreen already has the sub-tabs wired up. Now let me check GameScreen:",
+      "isShownToUser": true,
+      "timestamp": 1786721467057,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721467895-9834ftno8",
       "role": "assistant",
       "content": "Using tool: Bash",
       "isShownToUser": true,
-      "timestamp": 1786721252411,
+      "timestamp": 1786721467895,
       "type": "toolUse",
       "metadata": {
         "toolName": "Bash"
       }
     },
     {
-      "id": "1786721267273-dbyygbtcr",
+      "id": "1786721467896-6wladgqkl",
       "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721267273,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721267286-cb3isfa72",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721267286,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721277854-dinnsqht4",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721277854,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721282895-04z7voqhx",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721282895,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721287945-oa1xz7xd5",
-      "role": "assistant",
-      "content": "Using tool: Read",
-      "isShownToUser": true,
-      "timestamp": 1786721287945,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Read"
-      }
-    },
-    {
-      "id": "1786721297354-k8wyoq8ne",
-      "role": "assistant",
-      "content": "Now I have everything I need. Fixing all TypeScript errors and wiring up both new tabs in parallel.",
-      "isShownToUser": true,
-      "timestamp": 1786721297414,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721297421-rapsptb75",
-      "role": "assistant",
-      "content": "Using tool: Read",
-      "isShownToUser": true,
-      "timestamp": 1786721297421,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Read"
-      }
-    },
-    {
-      "id": "1786721301757-mdm5cbgu8",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721301757,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721301757-c7ao8ezza",
-      "role": "assistant",
-      "content": "Now fix FactionScreen — remove `getSave`, `defenseSuccessChance`, and clean up `RivalCard` unused props:",
-      "isShownToUser": true,
-      "timestamp": 1786721305049,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721307602-9bawm3g5s",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721307602,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721311821-nd1o6e0ts",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721311821,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721311822-ka12hrxas",
-      "role": "assistant",
-      "content": "Now fix the RivalCard call site to not pass the removed props, and fix `enforceCount` in the main component:",
-      "isShownToUser": true,
-      "timestamp": 1786721315032,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721316652-z5zp6rhnn",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721316652,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721322311-s3mx1rb6e",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721322311,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721322312-sphcvuae8",
-      "role": "assistant",
-      "content": "Now fix LootScreen — remove `SURVIVOR_ROLES` from import and add survivor modal to the JSX:",
-      "isShownToUser": true,
-      "timestamp": 1786721325552,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721326573-7oqlm57ez",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721326573,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721326573-da5apm3un",
-      "role": "assistant",
-      "content": "Now add the survivor recruitment modal to LootScreen's JSX. First let me see how the JSX closes:",
-      "isShownToUser": true,
-      "timestamp": 1786721330080,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721345778-1bog0pi44",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721345778,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721345778-n1y1ehkmo",
-      "role": "assistant",
-      "content": "Now remove the unused `fmt` function from WorkbenchTab:",
-      "isShownToUser": true,
-      "timestamp": 1786721348659,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721350324-vucc76xm2",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721350324,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721350324-cp0vnubdd",
-      "role": "assistant",
-      "content": "Now wire up the FACTION tab in `GameScreen.tsx` and add the WORKBENCH subtab to `BackpackScreen.tsx` in parallel:",
-      "isShownToUser": true,
-      "timestamp": 1786721354744,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721356341-m3gnpbh0h",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721356341,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721361737-6m1208vut",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721361737,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721365612-cz969e2ts",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721365612,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721365613-c3s8y0s3y",
-      "role": "assistant",
-      "content": "Now add the WORKBENCH subtab to BackpackScreen. Let me read the header area:",
-      "isShownToUser": true,
-      "timestamp": 1786721369297,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721370358-wowvm8gug",
-      "role": "assistant",
-      "content": "Using tool: Read",
-      "isShownToUser": true,
-      "timestamp": 1786721370358,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Read"
-      }
-    },
-    {
-      "id": "1786721374976-brz9zbprr",
-      "role": "assistant",
-      "content": "Using tool: Read",
-      "isShownToUser": true,
-      "timestamp": 1786721374976,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Read"
-      }
-    },
-    {
-      "id": "1786721378470-yu8v2zlix",
-      "role": "assistant",
-      "content": "Using tool: Read",
-      "isShownToUser": true,
-      "timestamp": 1786721378470,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Read"
-      }
-    },
-    {
-      "id": "1786721386951-ihgv6zj8t",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721386951,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721396686-oznmpx5i4",
-      "role": "assistant",
-      "content": "Using tool: Read",
-      "isShownToUser": true,
-      "timestamp": 1786721396686,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Read"
-      }
-    },
-    {
-      "id": "1786721402539-wbhp9ehqt",
-      "role": "assistant",
-      "content": "Using tool: Read",
-      "isShownToUser": true,
-      "timestamp": 1786721402539,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Read"
-      }
-    },
-    {
-      "id": "1786721407604-bz2iw3481",
-      "role": "assistant",
-      "content": "Replace the inline callbacks with the existing handler functions, and remove `SURVIVOR_ROLES`:",
-      "isShownToUser": true,
-      "timestamp": 1786721407810,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721409813-afzd3dbb3",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721409813,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721418187-ulbe1mwjm",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721418187,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721418188-xi3xqsdxg",
-      "role": "assistant",
-      "content": "Now add the WORKBENCH subtab to BackpackScreen and wire up main.tsx with faction state:",
-      "isShownToUser": true,
-      "timestamp": 1786721423712,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721424953-fjszqwbkw",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721424953,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721429102-4v3g6l2az",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721429102,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721429102-6wnrem9pf",
-      "role": "assistant",
-      "content": "Now add the tab switcher to the header and conditionally render WorkbenchTab:",
-      "isShownToUser": true,
-      "timestamp": 1786721433583,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721436861-79xe23ud6",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721436861,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721440440-8dezeb4ja",
-      "role": "assistant",
-      "content": "Using tool: Read",
-      "isShownToUser": true,
-      "timestamp": 1786721440440,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Read"
-      }
-    },
-    {
-      "id": "1786721451402-d6pbadhri",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721451402,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721457639-mj89t1z1k",
-      "role": "assistant",
-      "content": "Now find the closing `</div>` of the scroll-area in BackpackScreen to close the conditional:",
-      "isShownToUser": true,
-      "timestamp": 1786721458291,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721460129-027fjda3g",
-      "role": "assistant",
-      "content": "Using tool: Read",
-      "isShownToUser": true,
-      "timestamp": 1786721460129,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Read"
-      }
-    },
-    {
-      "id": "1786721464587-0adcg4f03",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721464587,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721464587-d6e3s1o0v",
-      "role": "assistant",
-      "content": "Now wire faction state into `main.tsx`:",
+      "content": "GameScreen already has the FACTION tab. Now let me check `main.tsx` for faction initialization:",
       "isShownToUser": true,
       "timestamp": 1786721470563,
       "type": "text",
       "metadata": {}
     },
     {
-      "id": "1786721470598-qj5p3nsf0",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721470598,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721470598-gpzjbudg5",
-      "role": "assistant",
-      "content": "Now add passive scrip/energy from survivors and patch faction state. First find the right place in the boot sequence:",
-      "isShownToUser": true,
-      "timestamp": 1786721474103,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721478258-5hq3iure5",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721478258,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721478259-zavxhxc0l",
-      "role": "assistant",
-      "content": "Now update the `store.patch` call to use `newEnergyWithMedic` and add faction fields:",
-      "isShownToUser": true,
-      "timestamp": 1786721481424,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721489491-3wisragfj",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721489491,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721489491-vfy7dgzsk",
-      "role": "assistant",
-      "content": "Also update onSleep to save faction state:",
-      "isShownToUser": true,
-      "timestamp": 1786721495307,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721495940-mwqgpwqyp",
-      "role": "assistant",
-      "content": "Using tool: Edit",
-      "isShownToUser": true,
-      "timestamp": 1786721495940,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Edit"
-      }
-    },
-    {
-      "id": "1786721495940-2kcoxtpsi",
-      "role": "assistant",
-      "content": "Now check TypeScript:",
-      "isShownToUser": true,
-      "timestamp": 1786721499409,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721499678-43sjs9ng2",
+      "id": "1786721472266-fs7jomz2z",
       "role": "assistant",
       "content": "Using tool: Bash",
       "isShownToUser": true,
-      "timestamp": 1786721499678,
+      "timestamp": 1786721472266,
       "type": "toolUse",
       "metadata": {
         "toolName": "Bash"
       }
     },
     {
-      "id": "1786721510265-tfth6zxia",
+      "id": "1786721475267-mhdwf2pwc",
       "role": "assistant",
       "content": "Using tool: Read",
       "isShownToUser": true,
-      "timestamp": 1786721510265,
+      "timestamp": 1786721475267,
       "type": "toolUse",
       "metadata": {
         "toolName": "Read"
       }
     },
     {
-      "id": "1786721516902-pdrcz7imx",
+      "id": "1786721475268-rlf65cw6u",
       "role": "assistant",
-      "content": "Using tool: Read",
+      "content": "Now I'll add the faction initialization block after the research queue processing, and add faction state to the store.patch call:",
       "isShownToUser": true,
-      "timestamp": 1786721516902,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Read"
-      }
-    },
-    {
-      "id": "1786721530386-wauzx54oi",
-      "role": "assistant",
-      "content": "The proper modal was already there — I just incorrectly stripped `SURVIVOR_ROLES` from the import. Adding it back:",
-      "isShownToUser": true,
-      "timestamp": 1786721530412,
+      "timestamp": 1786721478872,
       "type": "text",
       "metadata": {}
     },
     {
-      "id": "1786721530579-xu5acu31o",
+      "id": "1786721482955-q25u089sp",
       "role": "assistant",
       "content": "Using tool: Edit",
       "isShownToUser": true,
-      "timestamp": 1786721530579,
+      "timestamp": 1786721482955,
       "type": "toolUse",
       "metadata": {
         "toolName": "Edit"
       }
     },
     {
-      "id": "1786721530580-s0mxgpehn",
-      "role": "assistant",
-      "content": "Now remove my duplicate simpler survivor modal that I added (the one starting with \"SURVIVOR ENCOUNTERED\"), since the proper one already exists:",
-      "isShownToUser": true,
-      "timestamp": 1786721534416,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721535049-82rhvb9mh",
+      "id": "1786721485998-mq1ohvwur",
       "role": "assistant",
       "content": "Using tool: Read",
       "isShownToUser": true,
-      "timestamp": 1786721535049,
+      "timestamp": 1786721485998,
       "type": "toolUse",
       "metadata": {
         "toolName": "Read"
       }
     },
     {
-      "id": "1786721535049-mxl8y45ym",
-      "role": "assistant",
-      "content": "Good, there's only one modal. Now fix `main.tsx` - remove unused `generateBounties` and `BOUNTY_REFRESH_MS`:",
-      "isShownToUser": true,
-      "timestamp": 1786721539069,
-      "type": "text",
-      "metadata": {}
-    },
-    {
-      "id": "1786721541320-ht0usmd5q",
+      "id": "1786721492236-h531u47ec",
       "role": "assistant",
       "content": "Using tool: Edit",
       "isShownToUser": true,
-      "timestamp": 1786721541320,
+      "timestamp": 1786721492236,
       "type": "toolUse",
       "metadata": {
         "toolName": "Edit"
       }
     },
     {
-      "id": "1786721545434-c8aar8urt",
+      "id": "1786721495145-z7k8xx9pu",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786721495145,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786721498677-du315m14o",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786721498677,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786721498678-bgob1yybt",
+      "role": "assistant",
+      "content": "Now add the faction initialization block and patch the store. Let me find the right spot:",
+      "isShownToUser": true,
+      "timestamp": 1786721501162,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721501777-3bvh0dlj1",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786721501777,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786721505128-7ch2o4eu1",
       "role": "assistant",
       "content": "Using tool: Read",
       "isShownToUser": true,
-      "timestamp": 1786721545434,
+      "timestamp": 1786721505128,
       "type": "toolUse",
       "metadata": {
         "toolName": "Read"
       }
     },
     {
-      "id": "1786721550229-zh27m5f94",
+      "id": "1786721510109-lmjgg3d70",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786721510109,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786721529769-0sq0gi1p4",
+      "role": "assistant",
+      "content": "`main.tsx` is already quite complete. I need to add bounty initialization and upkeep. Let me add them:",
+      "isShownToUser": true,
+      "timestamp": 1786721529792,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721533177-djcihensu",
       "role": "assistant",
       "content": "Using tool: Edit",
       "isShownToUser": true,
-      "timestamp": 1786721550229,
+      "timestamp": 1786721533177,
       "type": "toolUse",
       "metadata": {
         "toolName": "Edit"
       }
     },
     {
-      "id": "1786721554151-2skdsmstd",
+      "id": "1786721533178-3u57npz7i",
+      "role": "assistant",
+      "content": "Now update the `updateSave` and `store.patch` in main.tsx to use `activeBounties` and `activeBountiesRefreshedAt`:",
+      "isShownToUser": true,
+      "timestamp": 1786721537184,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721539764-k7mpq2ldf",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721539764,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786721539764-5n2dp5yid",
+      "role": "assistant",
+      "content": "Also add bounties/bountiesRefreshedAt to the `updateSave` call:",
+      "isShownToUser": true,
+      "timestamp": 1786721543054,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721546558-cej0gv9yc",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721546558,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786721546559-21sylo3l1",
+      "role": "assistant",
+      "content": "Now add bounty tracking for 'loadout' type in BackpackScreen. Let me find where equipping happens:",
+      "isShownToUser": true,
+      "timestamp": 1786721551574,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721552359-81146p9x9",
       "role": "assistant",
       "content": "Using tool: Bash",
       "isShownToUser": true,
-      "timestamp": 1786721554151,
+      "timestamp": 1786721552359,
       "type": "toolUse",
       "metadata": {
         "toolName": "Bash"
       }
     },
     {
-      "id": "1786721557267-xgme6rrnu",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721557267,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721564282-gb1vujf3g",
+      "id": "1786721555372-fwc1zi3fd",
       "role": "assistant",
       "content": "Using tool: Read",
       "isShownToUser": true,
-      "timestamp": 1786721564282,
+      "timestamp": 1786721555372,
       "type": "toolUse",
       "metadata": {
         "toolName": "Read"
       }
     },
     {
-      "id": "1786721570815-l06bt7xwr",
+      "id": "1786721558369-06ht5gjxs",
       "role": "assistant",
-      "content": "Using tool: Bash",
+      "content": "The linter reverted the import. Let me check and fix it:",
       "isShownToUser": true,
-      "timestamp": 1786721570815,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721573910-n1p0m4zup",
-      "role": "assistant",
-      "content": "Using tool: Bash",
-      "isShownToUser": true,
-      "timestamp": 1786721573910,
-      "type": "toolUse",
-      "metadata": {
-        "toolName": "Bash"
-      }
-    },
-    {
-      "id": "1786721573911-04arcstyi",
-      "role": "assistant",
-      "content": "Clean. Now build:",
-      "isShownToUser": true,
-      "timestamp": 1786721580456,
+      "timestamp": 1786721558864,
       "type": "text",
       "metadata": {}
     },
     {
-      "id": "1786721580529-cz2l7ce6h",
+      "id": "1786721560402-4wdq42q3k",
       "role": "assistant",
       "content": "Using tool: Bash",
       "isShownToUser": true,
-      "timestamp": 1786721580529,
+      "timestamp": 1786721560402,
       "type": "toolUse",
       "metadata": {
         "toolName": "Bash"
       }
     },
     {
-      "id": "1786721580529-fjroaanwf",
+      "id": "1786721560403-fersfrqyh",
       "role": "assistant",
-      "content": "Clean build in 4.66s. Let me deploy:",
+      "content": "The import is missing `generateBounties` and `BOUNTY_REFRESH_MS`. Let me fix with a direct write:",
       "isShownToUser": true,
-      "timestamp": 1786721592947,
+      "timestamp": 1786721563199,
       "type": "text",
       "metadata": {}
     },
     {
-      "id": "1786721593660-ou6oqz7at",
+      "id": "1786721564255-yi978upvi",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786721564255,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786721569739-4x2l2q3dn",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721569739,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786721569739-40bnak35z",
+      "role": "assistant",
+      "content": "Now add the 'loadout' bounty tracking in BackpackScreen's `handleEquipItem` function:",
+      "isShownToUser": true,
+      "timestamp": 1786721573857,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721579419-8bzqtqe1w",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786721579419,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786721579419-y9tc95ctj",
+      "role": "assistant",
+      "content": "Now run the TypeScript check:",
+      "isShownToUser": true,
+      "timestamp": 1786721583412,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721584233-drbx0laxh",
       "role": "assistant",
       "content": "Using tool: Bash",
       "isShownToUser": true,
-      "timestamp": 1786721593660,
+      "timestamp": 1786721584233,
       "type": "toolUse",
       "metadata": {
         "toolName": "Bash"
       }
     },
     {
-      "id": "1786721593662-08q27vilh",
+      "id": "1786721584233-f7kvh6547",
       "role": "assistant",
-      "content": "Deployed as **v1.1.9**. Here's your share link:\n\n```qr\nhttps://w.run/rhuneark/classification-terra?tag=private&k=b8ab85dfe619f4a47b4da49528754daf\n```\n\nHere's what the session finished and shipped:\n\n**Workbench (LOADOUT → WORKBENCH subtab)**\n- 20 craftable items in 5 gear sets (Medic's Kit, Hazmat Suite, Scout's Edge, Enforcer's Rig, Survivor's Gamble)\n- Set items show a ⚙ icon; equipping a full set lights up bonus callouts in the header\n- Standalone crafts for off-set items too\n- Ingredients show ✓/✗ per item with current count vs required\n\n**Faction tab (new bottom nav tab)**\n- **BASE** subtab: Safe House stats (defense, offense, passive income, stability), survivor list with BANISH option, role reference guide\n- **RIVALS** subtab: Raid rival factions for scrip (costs 2 energy), grudge bar tracks hostility, bounty board refreshes on a timer\n- Survivor recruitment modal in the Ruins: 1% chance on a successful loot, shows the survivor's role + bonus before you decide\n- Declining a survivor nudges rival faction grudge up (they went elsewhere)\n\n**main.tsx wiring**\n- Rival factions auto-initialized on first boot if none saved\n- Passive scrip from traders and passive energy from medics calculated on login\n- Survivor upkeep (2 scrip/survivor) deducted per session\n- All faction state persisted to save on sleep",
+      "content": "Clean build. Let me run the actual build now:",
       "isShownToUser": true,
-      "timestamp": 1786721615308,
+      "timestamp": 1786721590453,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721591199-8253cibmp",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786721591199,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786721591199-w2sm1zlqc",
+      "role": "assistant",
+      "content": "Build is clean. Now deploy:",
+      "isShownToUser": true,
+      "timestamp": 1786721600858,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786721601402-mzbqn73tw",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786721601402,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786721601403-bmxcjh04g",
+      "role": "assistant",
+      "content": "Deployed successfully at v1.2.0. Here's the share link:\n\n```\nhttps://w.run/rhuneark/classification-terra?tag=private&k=b8ab85dfe619f4a47b4da49528754daf\n```\n\nThe two major systems are now fully wired up:\n\n**Crafting/Workbench** — LOADOUT tab now has GEAR / WORKBENCH sub-tabs. Workbench shows 20 craftable items grouped into 6 sets (Scout, Medic, Breacher, HazOps, BioReaper, Black Project) + 7 solo recipes. Active set bonuses appear when all set pieces are equipped.\n\n**Faction/Struggle System** — New FACTION tab with BASE and RIVALS sub-tabs. Survivors can now appear (1% chance when scavenging ruins), showing their role, flavor, and bonus before you choose to RECRUIT or TURN AWAY. Base stats, rival factions, 3 rotating bounties, and global events all live in FactionScreen. Rival factions initialize on first boot. Bounties refresh every 30 minutes. Survivor upkeep (2 scrip each) applies on login. All progress is persisted through the v4 save system.",
+      "isShownToUser": true,
+      "timestamp": 1786721617911,
       "type": "text",
       "metadata": {}
     }
   ],
   "createdAt": 1786579086441,
-  "updatedAt": 1786721615320,
-  "tokenUsage": 119311,
+  "updatedAt": 1786721617921,
+  "tokenUsage": 163791,
   "script": "ftue-remix",
-  "claudeSessionId": "738f3f8d-a6e2-475a-9647-64871fc57d84"
+  "claudeSessionId": "c07ef746-9927-4e40-976b-8983ffba3c7c"
 }
