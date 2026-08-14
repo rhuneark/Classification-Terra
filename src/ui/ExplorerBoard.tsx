@@ -120,8 +120,8 @@ export default function ExplorerBoard({ onClose }: Props) {
                         );
                     })}
 
-                    {/* #11 — The Classified Paperclip */}
-                    <div className="rounded p-3"
+                    {/* #11 — only visible once claimed by someone, or if this player found it */}
+                    {(hasClassified || (findersLoaded && !!firstFinders[CLASSIFIED_PAPERCLIP.id])) && <div className="rounded p-3"
                         style={{
                             background: hasClassified ? '#160820' : '#0c1e0e',
                             border: `1px solid ${hasClassified ? RARITY_COLORS.unique + '66' : '#2a3e2c'}`,
@@ -168,7 +168,7 @@ export default function ExplorerBoard({ onClose }: Props) {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>}
                 </div>
 
                 {foundCount === 0 && !hasClassified && (
