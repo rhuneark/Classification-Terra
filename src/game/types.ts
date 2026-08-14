@@ -186,7 +186,7 @@ export const DANGER_LABELS: Record<LocationDanger, string> = {
 };
 
 export const DANGER_COLORS: Record<LocationDanger, string> = {
-    low: '#4ade80', medium: '#facc15', high: '#f97316', extreme: '#ffd060',
+    low: '#4ade80', medium: '#22ddee', high: '#f97316', extreme: '#ffd060',
 };
 
 export const SLOT_COLORS: Record<EquipSlot, string> = {
