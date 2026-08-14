@@ -175,22 +175,20 @@ export default function WorkbenchTab() {
                             {/* Set header */}
                             <div className="mb-2 rounded p-2.5"
                                 style={{ background: '#0a1a0c', border: '1px solid #1e3e20' }}>
-                                <div className="flex items-center justify-between gap-2">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <span className="text-[0.75rem] font-bold tracking-widest" style={{ color: '#fb923c' }}>
-                                            ⚙ {setName}
-                                        </span>
-                                        <span className="text-[0.65rem] rounded px-1.5"
-                                            style={{
-                                                background: craftedCount > 0 ? '#1a3e0c' : '#0e1a0e',
-                                                color: craftedCount > 0 ? '#4ade80' : '#4a7a4c',
-                                                border: '1px solid #243e26',
-                                            }}>
-                                            {craftedCount}/{set.members.length}
-                                        </span>
-                                    </div>
-                                    <span className="text-[0.7rem] shrink-0" style={{ color: '#7aaa7c' }}>{bonusDesc}</span>
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <span className="text-[0.75rem] font-bold tracking-widest" style={{ color: '#fb923c' }}>
+                                        ⚙ {setName}
+                                    </span>
+                                    <span className="text-[0.65rem] rounded px-1.5"
+                                        style={{
+                                            background: craftedCount > 0 ? '#1a3e0c' : '#0e1a0e',
+                                            color: craftedCount > 0 ? '#4ade80' : '#4a7a4c',
+                                            border: '1px solid #243e26',
+                                        }}>
+                                        {craftedCount}/{set.members.length}
+                                    </span>
                                 </div>
+                                <div className="mt-0.5 text-[0.72rem]" style={{ color: '#7aaa7c' }}>{bonusDesc}</div>
                                 {isHidden && (
                                     <div className="mt-1 text-[0.72rem]" style={{ color: '#5a7a5c' }}>
                                         Discover the hidden paperclip to reveal this set.

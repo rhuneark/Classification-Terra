@@ -14762,11 +14762,93 @@
       "timestamp": 1786751695590,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1786751921818",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "Okay, good. Also, there's some overlap issue with the way the sets show up now, especially the expanded ones, some of the subheading text overlaps into everything else. So either need to simplify it or move that subheader to its own line on all sets",
+      "timestamp": 1786751921818,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786751936703-re9sspn6h",
+      "role": "assistant",
+      "content": "The issue is the bonus description is sitting `justify-between` on the same row as the set name, causing overlap on narrow screens. I'll move it to its own line.",
+      "isShownToUser": true,
+      "timestamp": 1786751936721,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786751941033-uv4208s0f",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786751941033,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786751943564-4j1mrw365",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786751943564,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786751951231-mxsqebhcq",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786751951231,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786751955077-sa696w3f4",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786751955077,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786751969924-iusv63vma",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786751969924,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786751969925-2zqnxjas2",
+      "role": "assistant",
+      "content": "Deployed as v1.3.4. The bonus description (e.g. \"+25 WC from combined assault/defense stack\") now sits on its own line below the set name and piece count badge, so nothing overlaps regardless of how long the text is.",
+      "isShownToUser": true,
+      "timestamp": 1786751979413,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1786579086441,
-  "updatedAt": 1786751695596,
-  "tokenUsage": 2245,
+  "updatedAt": 1786751979420,
+  "tokenUsage": 4485,
   "script": "ftue-remix",
   "claudeSessionId": "8471f7c6-c1e1-4563-86a1-cbfe1516d81d"
 }
