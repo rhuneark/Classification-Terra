@@ -1112,7 +1112,7 @@ export function getExcursionById(id: string): ExcursionDef | undefined {
 
 export const DIFFICULTY_COLORS: Record<ExcursionDifficulty, string> = {
     easy: '#4ade80',
-    medium: '#facc15',
+    medium: '#22ddee',
     hard: '#f97316',
     extreme: '#ffd060',
 };
