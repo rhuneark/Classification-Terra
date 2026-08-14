@@ -7,7 +7,7 @@ const THREAT_COLORS: Record<string, string> = {
     low: '#4ade80',
     moderate: '#facc15',
     high: '#f97316',
-    extreme: '#ff3333',
+    extreme: '#ffd060',
 };
 
 function SnippetCard({ snippet }: { snippet: LoreSnippet }) {

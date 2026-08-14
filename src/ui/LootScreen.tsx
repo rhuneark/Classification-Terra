@@ -256,7 +256,7 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
                             </p>
                             <div className="mt-3 flex gap-2">
                                 <button type="button" className="flex-1 rounded py-2 text-[0.85rem] font-bold transition-transform active:scale-95"
-                                    style={{ background: '#ff333322', color: '#ff3333', border: '1px solid #ff333366' }}
+                                    style={{ background: '#ffd06022', color: '#ffd060', border: '1px solid #ffd06066' }}
                                     onClick={onScrap}>
                                     SCRAP IT
                                 </button>

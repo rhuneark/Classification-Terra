@@ -1114,7 +1114,7 @@ export const DIFFICULTY_COLORS: Record<ExcursionDifficulty, string> = {
     easy: '#4ade80',
     medium: '#facc15',
     hard: '#f97316',
-    extreme: '#ff3333',
+    extreme: '#ffd060',
 };
 
 export const DIFFICULTY_LABELS: Record<ExcursionDifficulty, string> = {
