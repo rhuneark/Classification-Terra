@@ -186,7 +186,10 @@ const LEGENDARY: Item[] = [
     itm('apex-leg-plates','Apex-Class Leg Plating',"Recovered from the only person who fought an Apex and walked out.",'legendary','armor',152,0,152,[],62,{equipSlot:'legs' as EquipSlot}),
 ];
 
-// ── UNIQUE: THE 10 PAPERCLIPS ──────────────────────────────────────────────
+// ── UNIQUE: THE 10 PAPERCLIPS + 1 CLASSIFIED ──────────────────────────────
+export const CLASSIFIED_PAPERCLIP: Item =
+    itm('paperclip-classified','CLASSIFIED: Paperclip',"Redacted. Its serial number has been removed from official records. This paperclip doesn't exist. You have it anyway.",'unique','utility',230,0,160,[],1,{equipSlot:'hand' as EquipSlot,setId:'classified-cache'});
+
 export const PAPERCLIPS: Item[] = [
     itm('paperclip-10','Half of a Paperclip',"Half a paperclip. Still more valuable than everything else you own.",'unique','utility',150,0,100,[],1,{uniqueDropRate:1/10_000,equipSlot:'hand' as EquipSlot}),
     itm('paperclip-9','Broken Paperclip',"Bent at 90 degrees, then broken. Still said to move mountains. Small ones.",'unique','utility',155,0,103,[],1,{uniqueDropRate:1/13_000,equipSlot:'hand' as EquipSlot}),
@@ -239,6 +242,7 @@ export const PACK_ITEMS: Item[] = [
 import { CRAFTED_ITEMS } from './crafting.ts';
 
 export function getItemById(id: string): Item | undefined {
+    if (id === 'paperclip-classified') return CLASSIFIED_PAPERCLIP;
     return ALL_ITEMS.find(i => i.id === id)
         ?? CONSUMABLES.find(i => i.id === id)
         ?? PACK_ITEMS.find(i => i.id === id)

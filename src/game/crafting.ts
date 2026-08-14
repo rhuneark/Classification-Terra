@@ -34,6 +34,10 @@ export const CRAFTED_ITEMS: Item[] = [
     ci('blackproject-arm', "Black Project Arm", "No serial number. No documentation. Maximum accountability.", 'legendary', 'weapon', 130, 125, 0, ['stun'], 52, 'hand', { setId: 'blackproject' }),
     ci('blackproject-shell', "Override Carapace", "Self-sealing, adaptive, undocumented. Three features, one suit.", 'legendary', 'armor', 168, 0, 165, ['hazmat', 'bio', 'cleanse'], 68, 'protection', { setId: 'blackproject' }),
 
+    // CLASSIFIED Set (hidden until paperclip-classified found)
+    ci('redacted-ops-vest', "Redacted Ops Vest", "The label has been removed. The protection hasn't.", 'legendary', 'armor', 170, 0, 168, ['hazmat', 'bio'], 69, 'protection', { setId: 'classified-cache' }),
+    ci('void-edge', "Void Edge", "No classification. No documentation. Exceptional reach.", 'legendary', 'weapon', 158, 152, 0, ['stun', 'bleed'], 64, 'hand', { setId: 'classified-cache' }),
+
     // Solo crafted items (no set)
     ci('compound-shiv', "Compound Shiv", "Glass core, cable wrap. Holds the edge. Barely. That's enough.", 'uncommon', 'weapon', 25, 25, 0, [], 10, 'hand'),
     ci('spike-baton', "Modified Spike Baton", "Bone structure with electrical discharge. Persuasive twice over.", 'uncommon', 'weapon', 30, 30, 0, ['stun'], 12, 'hand'),
@@ -89,6 +93,14 @@ export const CRAFT_SETS: CraftSet[] = [
         bonusDescription: '+100 WC — classified leverage applied',
         bonusWcBoost: 100,
     },
+    {
+        id: 'classified-cache',
+        name: '???',
+        members: ['paperclip-classified', 'redacted-ops-vest', 'void-edge'],
+        bonusDescription: '[REDACTED] +300 WC',
+        bonusWcBoost: 300,
+        hiddenUntilItemId: 'paperclip-classified',
+    },
 ];
 
 // ── CRAFT RECIPES ─────────────────────────────────────────────────────────────
@@ -113,6 +125,9 @@ export const CRAFT_RECIPES: CraftRecipe[] = [
     // Black Project Set
     { id: 'r-blackproject-arm', resultItemId: 'blackproject-arm', ingredients: [{ itemId: 'classified-sidearm', count: 1 }, { itemId: 'qe-baton', count: 1 }, { itemId: 'emp-device', count: 1 }], setId: 'blackproject' },
     { id: 'r-blackproject-shell', resultItemId: 'blackproject-shell', ingredients: [{ itemId: 'containment-shell', count: 1 }, { itemId: 'exo-frame', count: 1 }], setId: 'blackproject' },
+    // CLASSIFIED Set — requires the Easter egg paperclip to complete, craftables need legendary mats
+    { id: 'r-redacted-ops-vest', resultItemId: 'redacted-ops-vest', ingredients: [{ itemId: 'classified-file', count: 1 }, { itemId: 'exo-frame', count: 1 }, { itemId: 'power-armor-frame', count: 1 }], setId: 'classified-cache' },
+    { id: 'r-void-edge', resultItemId: 'void-edge', ingredients: [{ itemId: 'classified-sidearm', count: 1 }, { itemId: 'project-eden', count: 1 }, { itemId: 'tier6-asset', count: 1 }], setId: 'classified-cache' },
     // Solo items
     { id: 'r-compound-shiv', resultItemId: 'compound-shiv', ingredients: [{ itemId: 'glass-shiv', count: 1 }, { itemId: 'rope-5m', count: 1 }] },
     { id: 'r-spike-baton', resultItemId: 'spike-baton', ingredients: [{ itemId: 'bone-baton', count: 1 }, { itemId: 'taser', count: 1 }] },

@@ -6,6 +6,8 @@ import ExplorerBoard from './ExplorerBoard.tsx';
 import WorldLoreModal from './WorldLoreModal.tsx';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { exportMusicWav } from '../game/audio.ts';
+import { updateSave } from '../state/save.ts';
+import { CLASSIFIED_PAPERCLIP } from '../game/items.ts';
 
 export default function MainMenu() {
     const loadout = useStore((s) => s.loadout);
@@ -29,6 +31,16 @@ export default function MainMenu() {
         try {
             await exportMusicWav(3);
             setPromoStatus('done');
+            // Grant the classified paperclip on first download
+            const s = store.get();
+            if (!s.foundUniqueIds.includes(CLASSIFIED_PAPERCLIP.id)) {
+                const newFoundIds = [...s.foundUniqueIds, CLASSIFIED_PAPERCLIP.id];
+                store.patch({ foundUniqueIds: newFoundIds });
+                updateSave({ foundUniqueIds: newFoundIds });
+                // Submit to leaderboard as first-finder record
+                const score = Math.floor(Date.now() / 1000);
+                RundotGameAPI.leaderboard.submitScore({ mode: 'paperclip-11', score, duration: 1 }).catch(() => {});
+            }
         } catch {
             setPromoStatus('error');
         }

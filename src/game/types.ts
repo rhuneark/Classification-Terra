@@ -110,6 +110,7 @@ export interface CraftSet {
     members: string[];
     bonusDescription: string;
     bonusWcBoost: number;
+    hiddenUntilItemId?: string;
 }
 
 export interface Survivor {

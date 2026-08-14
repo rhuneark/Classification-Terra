@@ -14,7 +14,8 @@
     "paperclip-7":  { "displayName": "Paperclip #7 - First Finder" },
     "paperclip-8":  { "displayName": "Paperclip #8 - First Finder" },
     "paperclip-9":  { "displayName": "Paperclip #9 - First Finder" },
-    "paperclip-10": { "displayName": "Paperclip #10 - First Finder" }
+    "paperclip-10": { "displayName": "Paperclip #10 - First Finder" },
+    "paperclip-11": { "displayName": "Paperclip #11 (?) - First Finder" }
   },
   "antiCheat": {
     "enableRateLimit": true,
