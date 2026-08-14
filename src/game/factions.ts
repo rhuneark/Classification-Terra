@@ -96,9 +96,17 @@ const NAMES_BY_ROLE: Record<SurvivorRole, string[]> = {
     enforcer: ['Ward', 'Iron', 'Hull', 'Bulwark', 'Rampart', 'Claw', 'Vice'],
 };
 
-export function generateSurvivor(): Survivor {
-    const roles: SurvivorRole[] = ['scavenger', 'guard', 'raider', 'medic', 'scout', 'engineer', 'enforcer'];
-    const role = roles[Math.floor(Math.random() * roles.length)];
+// Weighted pool by danger tier — higher tiers yield rarer specialist roles.
+const ROLE_POOLS: Record<string, SurvivorRole[]> = {
+    low:     ['scavenger','scavenger','scavenger','guard','guard','scout','medic'],
+    medium:  ['scavenger','scavenger','guard','guard','scout','medic','medic','engineer','raider'],
+    high:    ['guard','scout','medic','medic','engineer','engineer','raider','raider'],
+    extreme: ['medic','engineer','enforcer','raider','enforcer'],
+};
+
+export function generateSurvivor(danger?: string): Survivor {
+    const pool = ROLE_POOLS[danger ?? 'medium'] ?? ROLE_POOLS.medium;
+    const role: SurvivorRole = pool[Math.floor(Math.random() * pool.length)];
     const namePool = NAMES_BY_ROLE[role];
     const name = namePool[Math.floor(Math.random() * namePool.length)];
     return {

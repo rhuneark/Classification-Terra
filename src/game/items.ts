@@ -189,15 +189,27 @@ export const ALL_ITEMS: Item[] = [
 
 // ── CONSUMABLES ───────────────────────────────────────────────────────────
 export const CONSUMABLES: Item[] = [
-    itm('recovery-juice','Recovery Juice',"Tastes wrong. Works right.",'common','consumable',0,0,0,[],5,{buyValue:8,energyRestore:2,equipSlot:'consumable-slot' as EquipSlot}),
-    itm('regen-pot-small','Regen Pot (small)',"Labeled SMALL but nobody agrees on the scale.",'common','consumable',0,0,0,[],6,{buyValue:10,energyRestore:3,equipSlot:'consumable-slot' as EquipSlot}),
-    itm('regen-pot-med','Regen Pot (medium)',"Half a liter of something that works.",'uncommon','consumable',0,0,0,[],10,{buyValue:18,energyRestore:6,equipSlot:'consumable-slot' as EquipSlot}),
-    itm('regen-pot-large','Regen Pot (large)',"You'll feel it tomorrow. Tomorrow is fine.",'rare','consumable',0,0,0,[],18,{buyValue:32,energyRestore:11,equipSlot:'consumable-slot' as EquipSlot}),
-    itm('energy-drink','Energy Drink',"Regen rate: 1 per minute for 30 minutes. Side effects unlisted.",'uncommon','consumable',0,0,0,[],12,{buyValue:22,energyBoostDuration:30*60_000,equipSlot:'consumable-slot' as EquipSlot}),
-    itm('scout-map','Scout\'s Map',"Someone\'s notes. Next run: lower ambush chance.",'uncommon','consumable',0,0,0,[],10,{buyValue:30,luckBonus:true,equipSlot:'consumable-slot' as EquipSlot}),
-    itm('magnifier-small','Magnifying Glass (5-min)',"Speeds up research by 5 minutes.",'common','consumable',0,0,0,[],8,{buyValue:15,researchBoostMs:5*60_000,equipSlot:'consumable-slot' as EquipSlot}),
-    itm('magnifier-med','Magnifying Glass (15-min)',"Speeds up research by 15 minutes.",'uncommon','consumable',0,0,0,[],15,{buyValue:28,researchBoostMs:15*60_000,equipSlot:'consumable-slot' as EquipSlot}),
-    itm('magnifier-large','Magnifying Glass (30-min)',"Completes any research instantly.",'rare','consumable',0,0,0,[],25,{buyValue:50,researchBoostMs:999*60_000,equipSlot:'consumable-slot' as EquipSlot}),
+    itm('recovery-juice','Recovery Juice',"Tastes wrong. Works right.",'common','consumable',0,0,0,[],5,{buyValue:8,energyRestore:2}),
+    itm('regen-pot-small','Regen Pot (small)',"Labeled SMALL but nobody agrees on the scale.",'common','consumable',0,0,0,[],6,{buyValue:10,energyRestore:3}),
+    itm('regen-pot-med','Regen Pot (medium)',"Half a liter of something that works.",'uncommon','consumable',0,0,0,[],10,{buyValue:18,energyRestore:6}),
+    itm('regen-pot-large','Regen Pot (large)',"You'll feel it tomorrow. Tomorrow is fine.",'rare','consumable',0,0,0,[],18,{buyValue:32,energyRestore:11}),
+    itm('energy-drink','Energy Drink',"Regen rate: 1 per minute for 30 minutes. Side effects unlisted.",'uncommon','consumable',0,0,0,[],12,{buyValue:22,energyBoostDuration:30*60_000}),
+    itm('scout-map','Scout\'s Map',"Someone\'s notes. Next run: lower ambush chance.",'uncommon','consumable',0,0,0,[],10,{buyValue:30,luckBonus:true}),
+    itm('magnifier-small','Magnifying Glass (5-min)',"Speeds up research by 5 minutes.",'common','consumable',0,0,0,[],8,{buyValue:15,researchBoostMs:5*60_000}),
+    itm('magnifier-med','Magnifying Glass (15-min)',"Speeds up research by 15 minutes.",'uncommon','consumable',0,0,0,[],15,{buyValue:28,researchBoostMs:15*60_000}),
+    itm('magnifier-large','Magnifying Glass (30-min)',"Completes any research instantly.",'rare','consumable',0,0,0,[],25,{buyValue:50,researchBoostMs:999*60_000}),
+];
+
+// ── PACK ITEMS (passive enhancements, slot into PACK loadout slot) ─────────
+export const PACK_ITEMS: Item[] = [
+    itm('energy-cache','Energy Cache',"A sealed cell-cluster. Something inside is still producing.",'uncommon','pack',0,0,0,[],12,{buyValue:25,equipSlot:'pack' as EquipSlot,packMaxEnergy:5}),
+    itm('field-regulator','Jury-Rigged Regulator',"Slows your drain cycle. Speeds your recovery. Unclear how.",'rare','pack',0,0,0,[],20,{buyValue:40,equipSlot:'pack' as EquipSlot}),
+    itm('rust-membrane','Rust-Proof Membrane',"Blocks trace particulates. Also the kind of signal Terras track.",'uncommon','pack',0,0,0,[],15,{buyValue:28,equipSlot:'pack' as EquipSlot,packAmbushReduction:0.06}),
+    itm('scavengers-almanac','Scavenger\'s Almanac',"Dog-eared pages, someone\'s shorthand. Know where to look.",'rare','pack',0,0,0,[],18,{buyValue:35,equipSlot:'pack' as EquipSlot}),
+    itm('canteen-sludge','Canteen of Questionable Liquid',"Keeps you moving. That\'s the whole brief.",'common','pack',0,0,0,[],8,{buyValue:15,equipSlot:'pack' as EquipSlot}),
+    itm('cracked-field-manual','Cracked Field Manual',"Margins full of notes. Half wrong. Other half useful.",'common','pack',0,0,0,[],6,{buyValue:12,equipSlot:'pack' as EquipSlot}),
+    itm('signal-jammer-pack','Signal Jammer (passive)',"Scrambles Tferras\' comm-range. Rivals lose trace at twice the distance.",'rare','pack',0,0,0,[],22,{buyValue:45,equipSlot:'pack' as EquipSlot}),
+    itm('dense-cache','Dense Composite Cache',"Layers a field of static that reads as interference on standard scanners.",'epic','pack',0,0,0,[],35,{buyValue:70,equipSlot:'pack' as EquipSlot,packMaxEnergy:10,packAmbushReduction:0.04}),
 ];
 
 // ── LOOKUP & ROLLING ─────────────────────────────────────────────────────
@@ -206,6 +218,7 @@ import { CRAFTED_ITEMS } from './crafting.ts';
 export function getItemById(id: string): Item | undefined {
     return ALL_ITEMS.find(i => i.id === id)
         ?? CONSUMABLES.find(i => i.id === id)
+        ?? PACK_ITEMS.find(i => i.id === id)
         ?? CRAFTED_ITEMS.find(i => i.id === id);
 }
 

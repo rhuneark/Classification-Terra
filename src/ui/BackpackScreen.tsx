@@ -15,7 +15,7 @@ const SLOT_ORDER: LoadoutKey[] = ['head', 'torso', 'legs', 'feet', 'hand1', 'han
 
 const SLOT_KEY_TO_EQUIP: Record<LoadoutKey, EquipSlot> = {
     head: 'head', torso: 'torso', legs: 'legs', feet: 'feet',
-    hand1: 'hand', hand2: 'hand', protection: 'protection', consumableSlot: 'consumable-slot',
+    hand1: 'hand', hand2: 'hand', protection: 'protection', consumableSlot: 'pack',
 };
 
 function fmt(ms: number): string {
@@ -71,52 +71,53 @@ function ResearchQueueSection() {
         RundotGameAPI.analytics.recordCustomEvent('magnifier_used', { boost, itemId: qi.item.id }).catch(() => {});
     }
 
-    if (queue.length === 0) return null;
-
     const now = Date.now();
 
     return (
-        <div>
-            <div className="mb-1.5 text-[0.68rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>
-                RESEARCH LAB ({queue.length})
-            </div>
-            <div className="space-y-1.5">
-                {queue.map(qi => {
-                    const elapsed = now - qi.startedAt;
-                    const pct = Math.min(100, (elapsed / qi.durationMs) * 100);
-                    const remaining = Math.max(0, qi.durationMs - elapsed);
-                    const done = remaining === 0;
-                    const color = RARITY_COLORS[qi.item.rarity];
+        <div className="scroll-area flex-1 px-3 pt-3 pb-20 space-y-3">
+            {queue.length === 0 ? (
+                <p className="text-[0.88rem] mt-4 text-center" style={{ color: '#3a5a3c' }}>
+                    Nothing in the lab. Scavenge items to begin research.
+                </p>
+            ) : (
+                <div className="space-y-1.5">
+                    {queue.map(qi => {
+                        const elapsed = now - qi.startedAt;
+                        const pct = Math.min(100, (elapsed / qi.durationMs) * 100);
+                        const remaining = Math.max(0, qi.durationMs - elapsed);
+                        const done = remaining === 0;
+                        const color = RARITY_COLORS[qi.item.rarity];
 
-                    return (
-                        <div key={qi.instanceId} className="rounded p-2.5" style={{ background: '#0e2010', border: `1px solid ${done ? '#1a5e1c' : '#1a3e1c'}` }}>
-                            <div className="flex items-center justify-between gap-2">
-                                <div className="min-w-0 flex-1">
-                                    <div className="truncate text-[0.9rem] font-bold" style={{ color }}>{qi.item.name}</div>
-                                    <div className="text-[0.65rem]" style={{ color: color + 'aa' }}>{RARITY_LABELS[qi.item.rarity]}</div>
-                                </div>
-                                <div className="shrink-0 text-right">
-                                    <div className="text-[0.78rem] font-bold tabular-nums" style={{ color: done ? '#4ade80' : '#8aaa8c' }}>
-                                        {fmt(remaining)}
+                        return (
+                            <div key={qi.instanceId} className="rounded p-2.5" style={{ background: '#0e2010', border: `1px solid ${done ? '#1a5e1c' : '#1a3e1c'}` }}>
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="truncate text-[0.9rem] font-bold" style={{ color }}>{qi.item.name}</div>
+                                        <div className="text-[0.65rem]" style={{ color: color + 'aa' }}>{RARITY_LABELS[qi.item.rarity]}</div>
+                                    </div>
+                                    <div className="shrink-0 text-right">
+                                        <div className="text-[0.78rem] font-bold tabular-nums" style={{ color: done ? '#4ade80' : '#8aaa8c' }}>
+                                            {fmt(remaining)}
+                                        </div>
                                     </div>
                                 </div>
+                                <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: '#142816' }}>
+                                    <div className="h-full rounded-full transition-[width] duration-500"
+                                        style={{ width: `${pct}%`, background: done ? '#4ade80' : '#2a5e2c' }} />
+                                </div>
+                                {hasMagnifier && !done && (
+                                    <button type="button"
+                                        className="mt-2 w-full rounded px-3 py-1.5 text-[0.82rem] font-bold tracking-wide transition-transform active:scale-95"
+                                        style={{ background: '#0a1a2a', color: '#60c5ff', border: '2px solid #3a8acc', boxShadow: '0 0 8px #3a8acc55' }}
+                                        onClick={() => applyMagnifier(qi)}>
+                                        USE GLASS — {magnifiers[0].name.replace('Magnifying Glass ', '')} (-{fmt(magnifiers[0].researchBoostMs ?? 0)})
+                                    </button>
+                                )}
                             </div>
-                            <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: '#142816' }}>
-                                <div className="h-full rounded-full transition-[width] duration-500"
-                                    style={{ width: `${pct}%`, background: done ? '#4ade80' : '#2a5e2c' }} />
-                            </div>
-                            {hasMagnifier && !done && (
-                                <button type="button"
-                                    className="mt-2 w-full rounded px-3 py-1.5 text-[0.82rem] font-bold tracking-wide transition-transform active:scale-95"
-                                    style={{ background: '#0a1a2a', color: '#60c5ff', border: '2px solid #3a8acc', boxShadow: '0 0 8px #3a8acc55' }}
-                                    onClick={() => applyMagnifier(qi)}>
-                                    USE GLASS — {magnifiers[0].name.replace('Magnifying Glass ', '')} (-{fmt(magnifiers[0].researchBoostMs ?? 0)})
-                                </button>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 }
@@ -144,14 +145,20 @@ function LoadoutSlotCard({ slotKey, item, onTap }: { slotKey: LoadoutKey; item: 
                     <div className="truncate w-full text-[0.72rem] font-bold leading-tight" style={{ color: itemColor }}>
                         {item.name}
                     </div>
-                    <div className="mt-auto pt-1 flex gap-1.5">
+                    <div className="mt-auto pt-1 flex gap-1.5 flex-wrap">
                         {item.damage > 0 && (
                             <span className="text-[0.6rem] font-bold" style={{ color: '#ffd060' }}>ATK {item.damage}</span>
                         )}
                         {item.defense > 0 && (
                             <span className="text-[0.6rem] font-bold" style={{ color: '#60a5fa' }}>DEF {item.defense}</span>
                         )}
-                        {item.damage === 0 && item.defense === 0 && item.power > 0 && (
+                        {item.packMaxEnergy && (
+                            <span className="text-[0.6rem] font-bold" style={{ color: '#34d399' }}>+{item.packMaxEnergy}⚡MAX</span>
+                        )}
+                        {item.packAmbushReduction && (
+                            <span className="text-[0.6rem] font-bold" style={{ color: '#34d399' }}>-{Math.round(item.packAmbushReduction*100)}%AMB</span>
+                        )}
+                        {item.damage === 0 && item.defense === 0 && !item.packMaxEnergy && !item.packAmbushReduction && item.power > 0 && (
                             <span className="text-[0.6rem]" style={{ color: '#6a8e6c' }}>PWR {item.power}</span>
                         )}
                     </div>
@@ -180,9 +187,9 @@ function ItemCard({ item, onClick, selected, compact = false }: { item: Item; on
                     )}
                     <div className="mt-0.5 flex flex-wrap gap-1">
                         <span className="text-[0.65rem] font-bold" style={{ color: color + 'aa' }}>{RARITY_LABELS[item.rarity]}</span>
-                        {item.equipSlot && (
+                        {item.equipSlot && item.type !== 'consumable' && (
                             <span className="text-[0.62rem] font-bold rounded px-1" style={{ color: SLOT_COLORS[item.equipSlot], background: SLOT_COLORS[item.equipSlot] + '18' }}>
-                                {item.equipSlot.toUpperCase().replace('-', ' ')}
+                                {item.type === 'pack' ? 'PACK' : item.equipSlot.toUpperCase().replace('-', ' ')}
                             </span>
                         )}
                         {item.special.map(s => (
@@ -199,7 +206,13 @@ function ItemCard({ item, onClick, selected, compact = false }: { item: Item; on
                     {item.defense > 0 && (
                         <div className="text-[0.7rem] font-bold tabular-nums" style={{ color: '#60a5fa' }}>DEF {item.defense}</div>
                     )}
-                    {item.damage === 0 && item.defense === 0 && (
+                    {item.packMaxEnergy && (
+                        <div className="text-[0.7rem] font-bold tabular-nums" style={{ color: '#34d399' }}>+{item.packMaxEnergy}⚡</div>
+                    )}
+                    {item.packAmbushReduction && (
+                        <div className="text-[0.7rem] font-bold tabular-nums" style={{ color: '#34d399' }}>-{Math.round(item.packAmbushReduction*100)}%</div>
+                    )}
+                    {item.damage === 0 && item.defense === 0 && !item.packMaxEnergy && !item.packAmbushReduction && (
                         <div className="text-[0.7rem]" style={{ color: '#4a6a4c' }}>—</div>
                     )}
                 </div>
@@ -208,8 +221,8 @@ function ItemCard({ item, onClick, selected, compact = false }: { item: Item; on
     );
 }
 
-function ConsumablePanel({ item, onUse, onEquipSlot, onDiscard, canEquipSlot }: {
-    item: Item; onUse: () => void; onEquipSlot: () => void; onDiscard: () => void; canEquipSlot: boolean;
+function ConsumablePanel({ item, onUse, onDiscard }: {
+    item: Item; onUse: () => void; onDiscard: () => void;
 }) {
     const isMagnifier = !!item.researchBoostMs;
     return (
@@ -225,10 +238,6 @@ function ConsumablePanel({ item, onUse, onEquipSlot, onDiscard, canEquipSlot }: 
                     <div className="flex-1 rounded py-1.5 px-2 text-[0.8rem]" style={{ background: '#0a1a2a', color: '#60a5fa', border: '1px solid #1a4a6a' }}>
                         Tap USE GLASS on a Research Lab item
                     </div>
-                    {canEquipSlot && (
-                        <button type="button" className="rounded px-3 py-1.5 text-[0.8rem] font-bold transition-transform active:scale-95"
-                            style={{ background: '#1a2e3e', color: '#60a5fa', border: '1px solid #2a5e7a' }} onClick={onEquipSlot}>SLOT</button>
-                    )}
                     <button type="button" className="rounded px-3 py-1.5 text-[0.85rem] transition-transform active:scale-95"
                         style={{ background: '#1a2e1c', color: '#8aaa8c' }} onClick={onDiscard}>DISCARD</button>
                 </div>
@@ -236,10 +245,6 @@ function ConsumablePanel({ item, onUse, onEquipSlot, onDiscard, canEquipSlot }: 
                 <div className="mt-2 flex gap-2">
                     <button type="button" className="flex-1 rounded py-1.5 text-[0.88rem] font-bold tracking-wide transition-transform active:scale-95"
                         style={{ background: '#7ccf5a', color: '#070e08' }} onClick={onUse}>USE</button>
-                    {canEquipSlot && (
-                        <button type="button" className="rounded px-3 py-1.5 text-[0.82rem] font-bold transition-transform active:scale-95"
-                            style={{ background: '#1a2e3e', color: '#60a5fa', border: '1px solid #2a5e7a' }} onClick={onEquipSlot}>SLOT</button>
-                    )}
                     <button type="button" className="rounded px-3 py-1.5 text-[0.85rem] transition-transform active:scale-95"
                         style={{ background: '#1a2e1c', color: '#8aaa8c' }} onClick={onDiscard}>DISCARD</button>
                 </div>
@@ -253,21 +258,29 @@ export default function BackpackScreen() {
     const inventory = useStore(s => s.inventory);
     const selectedId = useStore(s => s.selectedInventoryItemId);
     const [showStats, setShowStats] = useState(false);
-    const [loadoutTab, setLoadoutTab] = useState<'gear' | 'workbench'>('gear');
+    const [loadoutTab, setLoadoutTab] = useState<'lab' | 'gear' | 'bench'>('gear');
 
     const stats = getLoadoutStats(loadout);
     const wc = stats.wc;
     const combos = getActiveComboLabels(loadout);
     const equippedCount = Object.values(loadout).filter(Boolean).length;
-    const regularInventory = inventory.filter(i => i.type !== 'consumable' && i.type !== 'lore');
+    const gearInventory = inventory.filter(i => i.type !== 'consumable' && i.type !== 'lore' && i.type !== 'pack');
     const consumables = inventory.filter(i => i.type === 'consumable');
+    const packItems = inventory.filter(i => i.type === 'pack');
+
+    // Compute maxEnergy bonus from equipped pack item
+    const equippedPack = loadout.consumableSlot;
+    const maxEnergyBonus = equippedPack?.packMaxEnergy ?? 0;
 
     function handleSlotTap(slotKey: LoadoutKey) {
         const item = loadout[slotKey];
         if (!item) return;
         const newLoadout = { ...loadout, [slotKey]: null };
         const newInventory = [...inventory, item];
-        store.patch({ loadout: newLoadout, inventory: newInventory });
+        // Recalculate maxEnergy after unequipping pack
+        const newPackItem = newLoadout.consumableSlot;
+        const newMaxEnergy = 20 + (newPackItem?.packMaxEnergy ?? 0);
+        store.patch({ loadout: newLoadout, inventory: newInventory, maxEnergy: newMaxEnergy });
         updateSave({ loadout: newLoadout, inventory: newInventory });
         RundotGameAPI.analytics.recordCustomEvent('loadout_item_unequipped', { itemId: item.id, slot: slotKey }).catch(() => {});
     }
@@ -291,6 +304,7 @@ export default function BackpackScreen() {
             return;
         }
 
+        // Prefer lowest-indexed empty slot, then fall back to first slot
         const emptySlot = acceptingSlots.find(slot => s.loadout[slot] === null);
         const targetSlot = emptySlot ?? acceptingSlots[0];
 
@@ -299,7 +313,11 @@ export default function BackpackScreen() {
         let newInventory = s.inventory.filter(i => i !== item);
         if (displaced) newInventory = [...newInventory, displaced];
 
-        store.patch({ loadout: newLoadout, inventory: newInventory, selectedInventoryItemId: null });
+        // Recalculate maxEnergy if pack slot changed
+        const newPackItem = newLoadout.consumableSlot;
+        const newMaxEnergy = 20 + (newPackItem?.packMaxEnergy ?? 0);
+
+        store.patch({ loadout: newLoadout, inventory: newInventory, selectedInventoryItemId: null, maxEnergy: newMaxEnergy });
         updateSave({ loadout: newLoadout, inventory: newInventory });
         RundotGameAPI.analytics.recordCustomEvent('loadout_item_equipped', { itemId: item.id, slot: targetSlot, rarity: item.rarity }).catch(() => {});
 
@@ -307,8 +325,8 @@ export default function BackpackScreen() {
         const bSt = store.get();
         const updatedBountiesL = bSt.bounties.map(b => {
             if (b.type === 'loadout' && !b.completed) {
-                const equippedCount = Object.values(newLoadout).filter(Boolean).length;
-                const newProgress = Math.min(equippedCount, b.target);
+                const cnt = Object.values(newLoadout).filter(Boolean).length;
+                const newProgress = Math.min(cnt, b.target);
                 return { ...b, progress: newProgress, completed: newProgress >= b.target };
             }
             return b;
@@ -342,16 +360,6 @@ export default function BackpackScreen() {
         updateSave({ inventory: newInventory, energy: updates.energy ?? s.energy });
     }
 
-    function handleConsumableEquipSlot(item: Item) {
-        const s = store.get();
-        if (s.loadout.consumableSlot !== null) return;
-        const newLoadout = { ...s.loadout, consumableSlot: item };
-        const newInventory = s.inventory.filter(i => i !== item);
-        store.patch({ loadout: newLoadout, inventory: newInventory, selectedInventoryItemId: null });
-        updateSave({ loadout: newLoadout, inventory: newInventory });
-        RundotGameAPI.analytics.recordCustomEvent('loadout_item_equipped', { itemId: item.id, slot: 'consumableSlot', rarity: item.rarity }).catch(() => {});
-    }
-
     function handleConsumableDiscard(item: Item) {
         const newInventory = store.get().inventory.filter(i => i !== item);
         store.patch({ inventory: newInventory, selectedInventoryItemId: null });
@@ -359,7 +367,6 @@ export default function BackpackScreen() {
     }
 
     const selectedConsumable = selectedId ? consumables.find(i => i.id === selectedId) : undefined;
-    const consumableSlotFree = loadout.consumableSlot === null;
 
     return (
         <div className="relative flex h-full flex-col" style={{ background: '#070e08' }}>
@@ -379,6 +386,9 @@ export default function BackpackScreen() {
                             <div className="flex gap-2 justify-end">
                                 <span className="text-[0.65rem] font-bold" style={{ color: '#ffd060' }}>ATK {stats.attack}</span>
                                 <span className="text-[0.65rem] font-bold" style={{ color: '#60a5fa' }}>DEF {stats.defense}</span>
+                                {maxEnergyBonus > 0 && (
+                                    <span className="text-[0.65rem] font-bold" style={{ color: '#34d399' }}>+{maxEnergyBonus}⚡</span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -392,9 +402,9 @@ export default function BackpackScreen() {
                         ))}
                     </div>
                 )}
-                {/* Subtab bar */}
+                {/* 3-tab bar */}
                 <div className="flex gap-0 mt-1">
-                    {(['gear', 'workbench'] as const).map(t => (
+                    {(['lab', 'gear', 'bench'] as const).map(t => (
                         <button key={t} type="button"
                             className="flex-1 py-2 text-[0.75rem] font-bold tracking-widest transition-colors"
                             style={{
@@ -402,72 +412,85 @@ export default function BackpackScreen() {
                                 borderBottom: loadoutTab === t ? '2px solid #7ccf5a' : '2px solid transparent',
                             }}
                             onClick={() => setLoadoutTab(t)}>
-                            {t === 'gear' ? 'GEAR' : 'WORKBENCH'}
+                            {t === 'lab' ? 'LAB' : t === 'gear' ? 'GEAR' : 'BENCH'}
                         </button>
                     ))}
                 </div>
             </div>
 
-            {loadoutTab === 'workbench' && <WorkbenchTab />}
+            {loadoutTab === 'lab' && <ResearchQueueSection />}
 
-            {loadoutTab === 'gear' && <div className="scroll-area flex-1 px-3 pt-3 pb-20 space-y-4">
-                <ResearchQueueSection />
+            {loadoutTab === 'bench' && <WorkbenchTab />}
 
-                {/* Named equipment slots */}
-                <div>
-                    <div className="mb-1.5 flex items-center justify-between">
-                        <div className="text-[0.68rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>EQUIPPED</div>
-                        <div className="text-[0.65rem]" style={{ color: '#3a5a3c' }}>{equippedCount}/8 SLOTS</div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1.5">
-                        {SLOT_ORDER.map(slotKey => (
-                            <LoadoutSlotCard
-                                key={slotKey}
-                                slotKey={slotKey}
-                                item={loadout[slotKey]}
-                                onTap={() => handleSlotTap(slotKey)}
-                            />
-                        ))}
-                    </div>
-                    <p className="mt-1 text-[0.7rem]" style={{ color: '#3a5a3c' }}>Tap a filled slot to unequip. Tap Safe House items to auto-equip.</p>
-                </div>
-
-                {selectedConsumable && (
-                    <ConsumablePanel
-                        item={selectedConsumable}
-                        onUse={() => handleConsumableUse(selectedConsumable)}
-                        onEquipSlot={() => handleConsumableEquipSlot(selectedConsumable)}
-                        onDiscard={() => handleConsumableDiscard(selectedConsumable)}
-                        canEquipSlot={consumableSlotFree}
-                    />
-                )}
-
-                {consumables.length > 0 && (
+            {loadoutTab === 'gear' && (
+                <div className="scroll-area flex-1 px-3 pt-3 pb-20 space-y-4">
+                    {/* Named equipment slots */}
                     <div>
-                        <div className="mb-1.5 text-[0.68rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>CONSUMABLES</div>
-                        <div className="space-y-1.5">
-                            {consumables.map(item => (
-                                <ItemCard key={item.id + item.name} item={item} onClick={() => handleInventoryTap(item)} selected={selectedId === item.id} compact />
+                        <div className="mb-1.5 flex items-center justify-between">
+                            <div className="text-[0.68rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>EQUIPPED</div>
+                            <div className="text-[0.65rem]" style={{ color: '#3a5a3c' }}>{equippedCount}/8 SLOTS</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5">
+                            {SLOT_ORDER.map(slotKey => (
+                                <LoadoutSlotCard
+                                    key={slotKey}
+                                    slotKey={slotKey}
+                                    item={loadout[slotKey]}
+                                    onTap={() => handleSlotTap(slotKey)}
+                                />
                             ))}
                         </div>
+                        <p className="mt-1 text-[0.7rem]" style={{ color: '#3a5a3c' }}>Tap a filled slot to unequip. Tap items to auto-equip.</p>
                     </div>
-                )}
 
-                <div>
-                    <div className="mb-1.5 text-[0.68rem] font-bold tracking-widests" style={{ color: '#4a6a4c' }}>
-                        SAFE HOUSE ({regularInventory.length})
-                    </div>
-                    {regularInventory.length === 0 ? (
-                        <p className="text-[0.88rem]" style={{ color: '#3a5a3c' }}>Nothing here. Researched items appear when ready.</p>
-                    ) : (
-                        <div className="space-y-1.5">
-                            {regularInventory.map(item => (
-                                <ItemCard key={item.id + item.name} item={item} onClick={() => handleInventoryTap(item)} selected={selectedId === item.id} />
-                            ))}
+                    {selectedConsumable && (
+                        <ConsumablePanel
+                            item={selectedConsumable}
+                            onUse={() => handleConsumableUse(selectedConsumable)}
+                            onDiscard={() => handleConsumableDiscard(selectedConsumable)}
+                        />
+                    )}
+
+                    {consumables.length > 0 && (
+                        <div>
+                            <div className="mb-1.5 text-[0.68rem] font-bold tracking-widest" style={{ color: '#4a6a4c' }}>CONSUMABLES</div>
+                            <div className="space-y-1.5">
+                                {consumables.map(item => (
+                                    <ItemCard key={item.id + item.name} item={item} onClick={() => handleInventoryTap(item)} selected={selectedId === item.id} compact />
+                                ))}
+                            </div>
                         </div>
                     )}
+
+                    {packItems.length > 0 && (
+                        <div>
+                            <div className="mb-1.5 text-[0.68rem] font-bold tracking-widests" style={{ color: '#4a6a4c' }}>
+                                PACK ITEMS <span className="text-[0.6rem] font-normal" style={{ color: '#2e4a30' }}>— TAP TO EQUIP PACK SLOT</span>
+                            </div>
+                            <div className="space-y-1.5">
+                                {packItems.map(item => (
+                                    <ItemCard key={item.id + item.name} item={item} onClick={() => handleInventoryTap(item)} selected={selectedId === item.id} compact />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div>
+                        <div className="mb-1.5 text-[0.68rem] font-bold tracking-widests" style={{ color: '#4a6a4c' }}>
+                            SAFE HOUSE ({gearInventory.length})
+                        </div>
+                        {gearInventory.length === 0 ? (
+                            <p className="text-[0.88rem]" style={{ color: '#3a5a3c' }}>Nothing here. Researched items appear when ready.</p>
+                        ) : (
+                            <div className="space-y-1.5">
+                                {gearInventory.map(item => (
+                                    <ItemCard key={item.id + item.name} item={item} onClick={() => handleInventoryTap(item)} selected={selectedId === item.id} />
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>}
+            )}
 
             {showStats && <StatsCard onClose={() => setShowStats(false)} />}
         </div>

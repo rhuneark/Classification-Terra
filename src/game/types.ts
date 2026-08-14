@@ -1,5 +1,5 @@
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'unique';
-export type ItemType = 'weapon' | 'armor' | 'utility' | 'consumable' | 'lore';
+export type ItemType = 'weapon' | 'armor' | 'utility' | 'consumable' | 'lore' | 'pack';
 export type SpecialTag = 'bio' | 'hazmat' | 'bleed' | 'stun' | 'aoe' | 'nav' | 'cleanse' | 'growth';
 export type LocationDanger = 'low' | 'medium' | 'high' | 'extreme';
 export type LogType = 'loot' | 'ambush' | 'battle-win' | 'battle-loss' | 'trade' | 'info' | 'lore' | 'excursion' | 'faction' | 'recruit';
@@ -7,7 +7,7 @@ export type GameScreen = 'loot' | 'backpack' | 'codex' | 'trader' | 'log' | 'fac
 export type SurvivorRole = 'scavenger' | 'guard' | 'raider' | 'medic' | 'scout' | 'engineer' | 'enforcer';
 
 // Equipment slot system
-export type EquipSlot = 'head' | 'torso' | 'legs' | 'feet' | 'hand' | 'protection' | 'consumable-slot';
+export type EquipSlot = 'head' | 'torso' | 'legs' | 'feet' | 'hand' | 'protection' | 'pack';
 
 export interface Loadout {
     head: Item | null;
@@ -36,7 +36,7 @@ export const SLOT_LABELS: Record<string, string> = {
     hand1: 'HAND L',
     hand2: 'HAND R',
     protection: 'PROTECT',
-    consumableSlot: 'CONSUMBL',
+    consumableSlot: 'PACK',
 };
 
 export const SLOT_ACCEPT: Record<string, EquipSlot[]> = {
@@ -47,7 +47,7 @@ export const SLOT_ACCEPT: Record<string, EquipSlot[]> = {
     hand1: ['hand'],
     hand2: ['hand'],
     protection: ['protection'],
-    consumableSlot: ['consumable-slot'],
+    consumableSlot: ['pack'],
 };
 
 export interface ExcursionLoreUnlock {
@@ -88,6 +88,8 @@ export interface Item {
     loreTerraId?: string;
     loreSnippetId?: string;
     setId?: string;
+    packMaxEnergy?: number;
+    packAmbushReduction?: number;
 }
 
 export interface CraftIngredient {
@@ -258,7 +260,7 @@ export const SLOT_COLORS: Record<EquipSlot, string> = {
     'feet': '#a78bfa',
     'hand': '#ffd060',
     'protection': '#fb923c',
-    'consumable-slot': '#34d399',
+    'pack': '#34d399',
 };
 
 // Research time ranges [min, max] in ms per rarity

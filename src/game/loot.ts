@@ -18,9 +18,11 @@ export function rollLootEvent(
     energy: number,
     luckBonus: boolean,
     collectedLoreIds: string[],
+    packAmbushReduction = 0,
 ): LootEvent {
+    const effectiveAmbushChance = Math.max(0, location.ambushChance - packAmbushReduction);
     const ambushRoll = luckBonus ? Math.random() * 1.4 : Math.random();
-    const isAmbush = ambushRoll < location.ambushChance;
+    const isAmbush = ambushRoll < effectiveAmbushChance;
 
     if (!isAmbush) {
         const foundItem = rollRandomItem(location.minRarity, location.maxRarity);

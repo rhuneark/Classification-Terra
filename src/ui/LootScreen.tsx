@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { store, useStore } from '../state/store.ts';
 import { ALL_LOCATIONS } from '../game/locations.ts';
 import { rollLootEvent, eventToLogEntry } from '../game/loot.ts';
@@ -14,6 +14,7 @@ import { ALL_EXCURSIONS, DIFFICULTY_COLORS, DIFFICULTY_LABELS, startExcursion } 
 import type { ExcursionDef } from '../game/excursions.ts';
 import { generateSurvivor, SURVIVOR_ROLES } from '../game/factions.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
+import { HapticFeedbackStyle } from '@series-inc/rundot-game-sdk';
 
 const _dailyChallenge = getDailyChallengeLocation();
 
@@ -151,6 +152,37 @@ function ExcursionCard({ exc, onTap, completed }: { exc: ExcursionDef; onTap: ()
                 </div>
             </div>
         </button>
+    );
+}
+
+function ScanningModal({ locationName, dangerColor, delay }: { locationName: string; dangerColor: string; delay: number }) {
+    const [progress, setProgress] = useState(0);
+    useEffect(() => {
+        let start: number | null = null;
+        let animId: number;
+        function animate(ts: number) {
+            if (!start) start = ts;
+            const elapsed = ts - start;
+            setProgress(Math.min(100, (elapsed / delay) * 100));
+            if (elapsed < delay) animId = requestAnimationFrame(animate);
+        }
+        animId = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(animId);
+    }, [delay]);
+    return (
+        <div className="absolute inset-0 flex items-center justify-center px-5" style={{ background: 'rgba(0,0,0,0.92)', zIndex: 40 }}>
+            <div className="w-full max-w-sm rounded p-6" style={{ background: '#0a1810', border: `1px solid ${dangerColor}44` }}>
+                <div className="text-[0.62rem] font-bold tracking-widest mb-1" style={{ color: dangerColor }}>
+                    SCANNING — {locationName.toUpperCase()}
+                </div>
+                <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: '#1a3020' }}>
+                    <div className="h-full rounded-full" style={{ width: `${progress}%`, background: dangerColor, transition: 'none' }} />
+                </div>
+                <div className="mt-3 text-[0.75rem] text-center tracking-widest" style={{ color: dangerColor + '88' }}>
+                    ANALYZING SIGNAL...
+                </div>
+            </div>
+        </div>
     );
 }
 
@@ -341,6 +373,11 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
     );
 }
 
+// Tier-based survivor encounter chance
+const SURVIVOR_CHANCE: Record<string, number> = { low: 0.04, medium: 0.03, high: 0.02, extreme: 0.01 };
+// Scan delay in ms before revealing loot result
+const SCAN_DELAY: Record<string, number> = { low: 400, medium: 600, high: 800, extreme: 1000 };
+
 export default function LootScreen() {
     const energy = useStore(s => s.energy);
     const maxEnergy = useStore(s => s.maxEnergy);
@@ -350,18 +387,30 @@ export default function LootScreen() {
     const today = getTodayStr();
     const [, forceUpdate] = useState(0);
     const [pendingSurvivor, setPendingSurvivor] = useState<Survivor | null>(null);
+    const [scanning, setScanning] = useState<{ locationName: string; dangerColor: string; delay: number } | null>(null);
+    const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         const iv = setInterval(() => forceUpdate(n => n + 1), 10_000);
-        return () => clearInterval(iv);
+        return () => {
+            clearInterval(iv);
+            if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+        };
     }, []);
     const challengeDone = getSave().lastDailyChallengeDay === today;
+
     function handleLocationTap(location: Location) {
         const s = store.get();
         if (s.energy < location.energyCost) return;
         playScavenge();
-        const event = rollLootEvent(location, s.inventory, s.energy, s.luckBonusActive, s.collectedLoreIds);
+
+        // Get ambush reduction from equipped pack item
+        const packAmbushReduction = s.loadout.consumableSlot?.packAmbushReduction ?? 0;
+        const event = rollLootEvent(location, s.inventory, s.energy, s.luckBonusActive, s.collectedLoreIds, packAmbushReduction);
         const newEnergy = s.energy - location.energyCost;
+
+        // Deduct energy immediately, hide luck bonus
+        store.patch({ energy: newEnergy, luckBonusActive: false });
 
         const todayStr = getTodayStr();
         const save = getSave();
@@ -371,29 +420,45 @@ export default function LootScreen() {
             updateSave({ lastDailyChallengeDay: todayStr });
             RundotGameAPI.analytics.recordCustomEvent('daily_challenge_completed', { locationId: location.id }).catch(() => {});
         }
-        const newCurrency = s.currency + challengeBonus;
-
-        store.patch({ energy: newEnergy, currency: newCurrency, activeLootEvent: event, luckBonusActive: false });
-        updateSave({ energy: newEnergy, currency: newCurrency, totalScavenges: (save.totalScavenges ?? 0) + 1 });
+        updateSave({ energy: newEnergy, totalScavenges: (save.totalScavenges ?? 0) + 1 });
         RundotGameAPI.analytics.recordCustomEvent('loot_location_visited', { location: location.id, eventType: event.type }).catch(() => {});
 
-        // 1% chance survivor encounter on a successful loot (not ambush), capped at 10 survivors
-        if (event.type === 'loot' && s.survivors.length < 10 && Math.random() < 0.01) {
-            setPendingSurvivor(generateSurvivor());
-        }
+        // Show scanning animation, then reveal result
+        const delay = SCAN_DELAY[location.danger] ?? 500;
+        setScanning({ locationName: location.name, dangerColor: DANGER_COLORS[location.danger], delay });
 
-        // Bounty: scavenge progress
-        const updatedBounties = s.bounties.map(b => {
-            if (b.type === 'scavenge' && !b.completed) {
-                const newProgress = Math.min(b.progress + 1, b.target);
-                return { ...b, progress: newProgress, completed: newProgress >= b.target };
+        if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+        scanTimerRef.current = setTimeout(() => {
+            setScanning(null);
+            const freshState = store.get();
+            const newCurrency = freshState.currency + challengeBonus;
+            store.patch({ currency: newCurrency, activeLootEvent: event });
+            updateSave({ currency: newCurrency });
+
+            // Haptics on item found
+            if (event.type === 'loot') {
+                RundotGameAPI.triggerHapticAsync(HapticFeedbackStyle.Medium).catch(() => {});
             }
-            return b;
-        });
-        if (updatedBounties.some((b, i) => b.progress !== s.bounties[i]?.progress)) {
-            store.patch({ bounties: updatedBounties });
-            updateSave({ bounties: updatedBounties });
-        }
+
+            // Tier-based survivor encounter
+            const survivorChance = SURVIVOR_CHANCE[location.danger] ?? 0.01;
+            if (event.type === 'loot' && freshState.survivors.length < 10 && Math.random() < survivorChance) {
+                setPendingSurvivor(generateSurvivor(location.danger));
+            }
+
+            // Bounty: scavenge progress
+            const updatedBounties = freshState.bounties.map(b => {
+                if (b.type === 'scavenge' && !b.completed) {
+                    const newProgress = Math.min(b.progress + 1, b.target);
+                    return { ...b, progress: newProgress, completed: newProgress >= b.target };
+                }
+                return b;
+            });
+            if (updatedBounties.some((b, i) => b.progress !== freshState.bounties[i]?.progress)) {
+                store.patch({ bounties: updatedBounties });
+                updateSave({ bounties: updatedBounties });
+            }
+        }, delay);
     }
 
     function handleTake() {
@@ -656,7 +721,15 @@ export default function LootScreen() {
                 })()}
             </div>
 
-            {activeLootEvent && (
+            {scanning && (
+                <ScanningModal
+                    locationName={scanning.locationName}
+                    dangerColor={scanning.dangerColor}
+                    delay={scanning.delay}
+                />
+            )}
+
+            {!scanning && activeLootEvent && (
                 <LootEventModal
                     event={activeLootEvent}
                     onTake={handleTake}
