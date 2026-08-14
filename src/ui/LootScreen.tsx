@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { store, useStore } from '../state/store.ts';
 import { ALL_LOCATIONS } from '../game/locations.ts';
 import { rollLootEvent, eventToLogEntry } from '../game/loot.ts';
@@ -15,6 +15,21 @@ import type { ExcursionDef } from '../game/excursions.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 const _dailyChallenge = getDailyChallengeLocation();
+
+// ── Excursion rotation (module-level, persists across tab switches) ────────
+const ROTATION_MS = 5 * 60 * 1000;
+let _excursionRotateAt = 0;
+let _excursionIndex = 0;
+
+function getActiveExcursion(): ExcursionDef {
+    if (Date.now() >= _excursionRotateAt) {
+        const next = (_excursionIndex + 1 + Math.floor(Math.random() * (ALL_EXCURSIONS.length - 1))) % ALL_EXCURSIONS.length;
+        _excursionIndex = next;
+        _excursionRotateAt = Date.now() + ROTATION_MS;
+    }
+    return ALL_EXCURSIONS[_excursionIndex];
+}
+// ──────────────────────────────────────────────────────────────────────────
 
 let _instanceCounter = Date.now();
 function newInstanceId() { return String(++_instanceCounter); }
@@ -321,6 +336,12 @@ export default function LootScreen() {
     const activeLootEvent = useStore(s => s.activeLootEvent);
     const luckBonusActive = useStore(s => s.luckBonusActive);
     const today = getTodayStr();
+    const [, forceUpdate] = useState(0);
+
+    useEffect(() => {
+        const iv = setInterval(() => forceUpdate(n => n + 1), 10_000);
+        return () => clearInterval(iv);
+    }, []);
     const challengeDone = getSave().lastDailyChallengeDay === today;
     function handleLocationTap(location: Location) {
         const s = store.get();
@@ -541,21 +562,28 @@ export default function LootScreen() {
                     />
                 ))}
 
-                {/* Excursions section */}
-                <div className="pt-2">
-                    <div className="mb-2 px-1 text-[0.62rem] font-bold tracking-widest" style={{ color: '#3a5a3c' }}>
-                        FIELD OPERATIONS
-                    </div>
-                    <div className="space-y-2">
-                        {ALL_EXCURSIONS.map(exc => (
-                            <ExcursionCard
-                                key={exc.id}
-                                exc={exc}
-                                onTap={() => handleExcursionTap(exc)}
-                            />
-                        ))}
-                    </div>
-                </div>
+                {/* Excursions section — single rotating mission */}
+                {(() => {
+                    const exc = getActiveExcursion();
+                    const msLeft = Math.max(0, _excursionRotateAt - Date.now());
+                    const totalSecs = Math.ceil(msLeft / 1000);
+                    const mins = Math.floor(totalSecs / 60);
+                    const secs = totalSecs % 60;
+                    const countdown = `${mins}:${String(secs).padStart(2, '0')}`;
+                    return (
+                        <div className="pt-2">
+                            <div className="mb-2 px-1 flex items-center justify-between">
+                                <div className="text-[0.62rem] font-bold tracking-widest" style={{ color: '#3a5a3c' }}>
+                                    FIELD OPERATION
+                                </div>
+                                <div className="text-[0.6rem]" style={{ color: '#2e4a30' }}>
+                                    NEXT BRIEFING {countdown}
+                                </div>
+                            </div>
+                            <ExcursionCard exc={exc} onTap={() => handleExcursionTap(exc)} />
+                        </div>
+                    );
+                })()}
             </div>
 
             {activeLootEvent && (

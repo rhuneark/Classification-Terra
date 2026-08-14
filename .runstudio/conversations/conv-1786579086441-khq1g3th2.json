@@ -7536,11 +7536,255 @@
       "timestamp": 1786659088847,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1786675240122",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "That's fine, but let's clean it up a bit. They shouldn't be laid out like that. It should be a random rotation of them, one at a time. Rotate every 5 minutes. Let's add 5 more excursions, so 10 total in rotation ranging from 5 stages to 10 stages, and low to extreme.",
+      "timestamp": 1786675240122,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786675250350-onhj3t6v5",
+      "role": "assistant",
+      "content": "Let me read the current excursions file and LootScreen before making changes.",
+      "isShownToUser": true,
+      "timestamp": 1786675250532,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786675251863-0tjk41xi0",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786675251863,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786675252406-fwcuiewnd",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786675252406,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786675257333-tvd9qcm97",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786675257333,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786675259974-epqtkpv4b",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786675259974,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786675260484-qurw15iy8",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786675260484,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786675299929-x0mazx3zd",
+      "role": "assistant",
+      "content": "Good. I have the full picture. Now I'll:\n1. Add 5 new excursions to `excursions.ts` (10 total, 5–10 stages, low to extreme)\n2. Add module-level rotation state so only one excursion shows at a time, rotating every 5 minutes with a countdown\n3. Update `LootScreen.tsx` to show the single rotating card",
+      "isShownToUser": true,
+      "timestamp": 1786675299943,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786675433903-1nkdj2ouw",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786675433903,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786675438799-vto0h8hyw",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1786675438799,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1786675553547-1zaetx9ua",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786675553547,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786675553547-aqs0knbsn",
+      "role": "assistant",
+      "content": "Now update `LootScreen.tsx` — replace the `ALL_EXCURSIONS.map(...)` grid with a single rotating card and countdown:",
+      "isShownToUser": true,
+      "timestamp": 1786675557194,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786675558277-y2oezaeyp",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786675558277,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786675558278-pbw9n7yyn",
+      "role": "assistant",
+      "content": "Now add the rotation state module-level and update the `ExcursionCard` section:",
+      "isShownToUser": true,
+      "timestamp": 1786675562120,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786675565727-i9l2czkfh",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786675565727,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786675565728-o9wfqbb7u",
+      "role": "assistant",
+      "content": "Now replace the excursions section in the component render with the single rotating card:",
+      "isShownToUser": true,
+      "timestamp": 1786675568293,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786675571934-vdfp2cq91",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786675571934,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786675571934-e263921si",
+      "role": "assistant",
+      "content": "Now replace the excursions grid render with the single-card + countdown:",
+      "isShownToUser": true,
+      "timestamp": 1786675574888,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786675580795-jlw0z59vh",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1786675580795,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1786675580796-ryxio2rlo",
+      "role": "assistant",
+      "content": "Now check TypeScript:",
+      "isShownToUser": true,
+      "timestamp": 1786675583659,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786675584061-hokmx19oa",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786675584061,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786675584062-u3bj1bgbt",
+      "role": "assistant",
+      "content": "Clean. Let me do a quick build confirm:",
+      "isShownToUser": true,
+      "timestamp": 1786675590045,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786675590300-qk5iwulgj",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1786675590300,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1786675590301-l0vekaiat",
+      "role": "assistant",
+      "content": "Build passes. Here's what changed:\n\n**5 new excursions added (10 total):**\n\n| # | Name | Difficulty | Stages | Location |\n|---|------|-----------|--------|----------|\n| 6 | The Nest Survey | Low | 4 | Collapsed Overpass |\n| 7 | Forty Hours | Medium | 5 | Mercy General |\n| 8 | Deep Current | Hard | 5 | Quarantine Sector 7 |\n| 9 | Pack Behavior | Hard | 6 | Quarantine Sector 7 |\n| 10 | Sublevel Seven | Extreme | 8 | Sublevel Research Complex |\n\n**Single rotating card** — the FIELD OPERATIONS section now shows one mission at a time. A small \"NEXT BRIEFING 4:30\" countdown sits in the top-right corner. Every 5 minutes it picks a different mission from the pool (never the same one back-to-back). The timer updates every 10 seconds, so the display stays accurate without hammering the render loop.\n\nReady to deploy when you are.",
+      "isShownToUser": true,
+      "timestamp": 1786675607514,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1786579086441,
-  "updatedAt": 1786659088853,
-  "tokenUsage": 96115,
+  "updatedAt": 1786675607527,
+  "tokenUsage": 118572,
   "script": "ftue-remix",
-  "claudeSessionId": "cec78977-0288-4587-925d-443a8966f308"
+  "claudeSessionId": "5ed9f7b4-a1d4-4bb9-978c-f38cc3115ee9"
 }
