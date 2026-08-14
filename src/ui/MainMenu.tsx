@@ -29,7 +29,7 @@ export default function MainMenu() {
         try {
             const result = await RundotGameAPI.audioGen.generate({
                 type: 'music',
-                prompt: 'Dark atmospheric post-apocalyptic chiptune, minor key, slow tempo 80 BPM, lo-fi 8-bit square wave lead, eerie and tense, sparse percussion, distant metallic echoes, haunting melody, survival horror game soundtrack',
+                prompt: '8-bit chiptune, Fallout-inspired post-apocalyptic wasteland theme, NES square wave and triangle wave instruments only, upbeat but melancholic minor key melody, 95 BPM, catchy retro video game music, no ambience, no sound effects, pure chiptune composition, classic RPG overworld feel with dark undertones',
                 durationSec: 90,
                 model: 'elevenlabs',
                 clientRef: 'promo-track-v1',
