@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { store, useStore } from '../state/store.ts';
 import { generateTraderInventory, CONSUMABLES } from '../game/items.ts';
-import { RARITY_COLORS, RARITY_LABELS, TRADER_REFRESH_MS } from '../game/types.ts';
+import { RARITY_COLORS, RARITY_LABELS, SLOT_COLORS, TRADER_REFRESH_MS } from '../game/types.ts';
 import type { Item } from '../game/types.ts';
 import { makeLogId } from '../game/loot.ts';
 import { updateSave, getSave } from '../state/save.ts';
 import { playBuy } from '../game/audio.ts';
+import { CRAFT_RECIPES } from '../game/crafting.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
+
+const CRAFT_INGREDIENT_IDS = new Set(CRAFT_RECIPES.flatMap(r => r.ingredients.map(i => i.itemId)));
 
 // Always-available staple items
 const STAPLE_ITEMS: Item[] = [
@@ -88,26 +91,43 @@ function ItemCard({
 
 function InventorySellCard({ item, onSell }: { item: Item; onSell: () => void }) {
     const color = RARITY_COLORS[item.rarity];
+    const isCraftIngredient = CRAFT_INGREDIENT_IDS.has(item.id);
     return (
-        <div className="flex items-center justify-between rounded p-3 gap-3"
-            style={{ background: '#0e2010', border: '1px solid #243e26' }}>
-            <div className="min-w-0 flex-1">
-                <div className="truncate text-[0.9rem] font-bold" style={{ color }}>{item.name}</div>
-                <div className="mt-0.5 text-[0.82rem] leading-snug" style={{ color: '#bcd4bd' }}>
-                    {item.description}
+        <div className="rounded p-[10px_12px]" style={{ background: '#0e2010', border: '1px solid #243e26' }}>
+            <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                    <div className="truncate text-[0.95rem] font-bold" style={{ color }}>{item.name}</div>
+                    <div className="mt-0.5 text-[0.8rem] leading-snug" style={{ color: '#bcd4bd' }}>{item.description}</div>
+                    <div className="mt-0.5 flex flex-wrap gap-1">
+                        <span className="text-[0.65rem] font-bold" style={{ color: color + 'aa' }}>{RARITY_LABELS[item.rarity]}</span>
+                        {item.equipSlot && item.type !== 'consumable' && (
+                            <span className="text-[0.62rem] font-bold rounded px-1"
+                                style={{ color: SLOT_COLORS[item.equipSlot], background: SLOT_COLORS[item.equipSlot] + '18' }}>
+                                {item.type === 'pack' ? 'PACK' : item.equipSlot.toUpperCase().replace('-', ' ')}
+                            </span>
+                        )}
+                        {isCraftIngredient && (
+                            <span className="text-[0.62rem] rounded px-1" style={{ color: '#a78bfa', background: '#a78bfa18' }}>⚙</span>
+                        )}
+                    </div>
                 </div>
-                <div className="mt-0.5 text-[0.68rem]" style={{ color: '#7aaa7c' }}>
-                    {RARITY_LABELS[item.rarity]} · PWR {item.power}
+                <div className="shrink-0 text-right space-y-0.5">
+                    {item.damage > 0 && (
+                        <div className="text-[0.7rem] font-bold tabular-nums" style={{ color: '#ffd060' }}>ATK {item.damage}</div>
+                    )}
+                    {item.defense > 0 && (
+                        <div className="text-[0.7rem] font-bold tabular-nums" style={{ color: '#60a5fa' }}>DEF {item.defense}</div>
+                    )}
+                    <button
+                        type="button"
+                        className="rounded px-3 py-1.5 text-[0.82rem] font-bold transition-transform active:scale-95"
+                        style={{ background: '#1f3e22', color: '#fb923c', border: '1px solid #2a5e2c' }}
+                        onClick={onSell}
+                    >
+                        +{item.sellValue}
+                    </button>
                 </div>
             </div>
-            <button
-                type="button"
-                className="shrink-0 rounded px-3 py-2 text-[0.88rem] font-bold transition-transform active:scale-95"
-                style={{ background: '#1f3e22', color: '#fb923c', border: '1px solid #2a5e2c' }}
-                onClick={onSell}
-            >
-                +{item.sellValue}
-            </button>
         </div>
     );
 }

@@ -24,9 +24,10 @@ function fmt(ms: number): string {
 
 function SurvivorCard({ survivor, onBanish }: { survivor: Survivor; onBanish: () => void }) {
     const data = SURVIVOR_ROLES[survivor.role];
+    const [confirming, setConfirming] = useState(false);
     return (
         <div className="rounded p-2.5 flex items-center justify-between gap-2"
-            style={{ background: '#0e2010', border: '1px solid #1a3e1c' }}>
+            style={{ background: '#0e2010', border: `1px solid ${confirming ? '#4a1e1e' : '#1a3e1c'}` }}>
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                     <span className="text-[0.9rem] font-bold text-white">{survivor.name}</span>
@@ -38,12 +39,32 @@ function SurvivorCard({ survivor, onBanish }: { survivor: Survivor; onBanish: ()
                 <div className="mt-0.5 text-[0.75rem]" style={{ color: '#7a9a7c' }}>{data.flavor}</div>
                 <div className="mt-0.5 text-[0.72rem] font-bold" style={{ color: data.color }}>{data.bonus}</div>
             </div>
-            <button type="button"
-                className="shrink-0 rounded px-2 py-1 text-[0.72rem] font-bold transition-transform active:scale-95"
-                style={{ background: '#1a0e0e', color: '#f87171', border: '1px solid #3a1e1e' }}
-                onClick={onBanish}>
-                BANISH
-            </button>
+            {confirming ? (
+                <div className="shrink-0 flex flex-col gap-1 items-end">
+                    <div className="text-[0.65rem] font-bold" style={{ color: '#f87171' }}>CONFIRM?</div>
+                    <div className="flex gap-1">
+                        <button type="button"
+                            className="rounded px-2 py-1 text-[0.7rem] font-bold transition-transform active:scale-95"
+                            style={{ background: '#1a0e0e', color: '#f87171', border: '1px solid #3a1e1e' }}
+                            onClick={onBanish}>
+                            YES
+                        </button>
+                        <button type="button"
+                            className="rounded px-2 py-1 text-[0.7rem] font-bold transition-transform active:scale-95"
+                            style={{ background: '#0e2010', color: '#6a9e6c', border: '1px solid #1a3e1c' }}
+                            onClick={() => setConfirming(false)}>
+                            NO
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <button type="button"
+                    className="shrink-0 rounded px-2 py-1 text-[0.72rem] font-bold transition-transform active:scale-95"
+                    style={{ background: '#1a0e0e', color: '#f87171', border: '1px solid #3a1e1e' }}
+                    onClick={() => setConfirming(true)}>
+                    BANISH
+                </button>
+            )}
         </div>
     );
 }

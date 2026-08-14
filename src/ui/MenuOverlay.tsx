@@ -3,6 +3,7 @@ import { store, useStore } from '../state/store.ts';
 import { updateSave } from '../state/save.ts';
 import HowToPlay from './HowToPlay.tsx';
 import ExplorerBoard from './ExplorerBoard.tsx';
+import LogScreen from './LogScreen.tsx';
 
 interface Props { onClose: () => void; }
 
@@ -11,6 +12,7 @@ export default function MenuOverlay({ onClose }: Props) {
     const muteSfx = useStore(s => s.muteSfx);
     const [showHtp, setShowHtp] = useState(false);
     const [showExplorer, setShowExplorer] = useState(false);
+    const [showLog, setShowLog] = useState(false);
 
     function toggleMusic() {
         const next = !muteMusic;
@@ -31,6 +33,22 @@ export default function MenuOverlay({ onClose }: Props) {
 
     if (showHtp) return <HowToPlay onClose={() => setShowHtp(false)} />;
     if (showExplorer) return <ExplorerBoard onClose={() => setShowExplorer(false)} />;
+    if (showLog) return (
+        <div className="absolute inset-0 flex flex-col" style={{ background: '#070e08', zIndex: 80 }}>
+            <div className="flex shrink-0 items-center gap-3 px-4 pt-4 pb-3" style={{ borderBottom: '1px solid #1a3e1c' }}>
+                <button type="button"
+                    className="rounded px-3 py-1.5 text-[0.88rem] font-bold transition-transform active:scale-95"
+                    style={{ background: '#0e2010', color: '#7ccf5a', border: '1px solid #2a5e2c' }}
+                    onClick={() => setShowLog(false)}>
+                    ← BACK
+                </button>
+                <h2 className="text-[1.1rem] font-bold tracking-widest text-primary">EVENT LOG</h2>
+            </div>
+            <div className="flex-1 overflow-hidden">
+                <LogScreen />
+            </div>
+        </div>
+    );
 
     return (
         <div className="absolute inset-0 flex flex-col" style={{ background: 'rgba(0,0,0,0.92)', zIndex: 80 }}>
@@ -49,6 +67,7 @@ export default function MenuOverlay({ onClose }: Props) {
             <div className="flex flex-col gap-2 p-4">
                 <MenuBtn label="HOW TO PLAY" onClick={() => setShowHtp(true)} />
                 <MenuBtn label="EXPLORER BOARD" sublabel="The 10 Paperclips" onClick={() => setShowExplorer(true)} />
+                <MenuBtn label="EVENT LOG" sublabel="Recent activity" onClick={() => setShowLog(true)} />
 
                 {/* Toggle rows */}
                 <div

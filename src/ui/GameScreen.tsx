@@ -10,7 +10,6 @@ import LootScreen from './LootScreen.tsx';
 import BackpackScreen from './BackpackScreen.tsx';
 import CodexScreen from './CodexScreen.tsx';
 import TraderScreen from './TraderScreen.tsx';
-import LogScreen from './LogScreen.tsx';
 import FactionScreen from './FactionScreen.tsx';
 import PassiveResultsPopup from './PassiveResultsPopup.tsx';
 import MenuOverlay from './MenuOverlay.tsx';
@@ -22,7 +21,6 @@ const TABS: { id: GameScreenType; label: string }[] = [
     { id: 'codex', label: 'CODEX' },
     { id: 'trader', label: 'OUTPOST' },
     { id: 'faction', label: 'FACTION' },
-    { id: 'log', label: 'LOG' },
 ];
 
 export default function GameScreen() {
@@ -120,7 +118,6 @@ export default function GameScreen() {
                 {screen === 'codex' && <CodexScreen />}
                 {screen === 'trader' && <TraderScreen />}
                 {screen === 'faction' && <FactionScreen />}
-                {screen === 'log' && <LogScreen />}
 
                 <PassiveResultsPopup />
                 <ExcursionModal />
