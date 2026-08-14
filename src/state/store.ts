@@ -8,6 +8,10 @@ import type {
     ResearchQueueItem,
     ExcursionRun,
     Loadout,
+    Survivor,
+    RivalFaction,
+    Bounty,
+    GlobalEvent,
 } from '../game/types.ts';
 import { MAX_ENERGY, emptyLoadout } from '../game/types.ts';
 
@@ -44,6 +48,16 @@ export interface AppState {
     selectedInventoryItemId: string | null;
     loginBonus: { scrip: number; streak: number } | null;
     activeExcursion: ExcursionRun | null;
+
+    // Faction system
+    survivors: Survivor[];
+    rivalFactions: RivalFaction[];
+    bounties: Bounty[];
+    bountiesRefreshedAt: number;
+    globalEvent: GlobalEvent | null;
+    pendingSurvivorEncounter: Survivor | null;
+    totalCrafts: number;
+    totalRaids: number;
 }
 
 const listeners = new Set<() => void>();
@@ -75,6 +89,15 @@ let state: AppState = {
     selectedInventoryItemId: null,
     loginBonus: null,
     activeExcursion: null,
+
+    survivors: [],
+    rivalFactions: [],
+    bounties: [],
+    bountiesRefreshedAt: 0,
+    globalEvent: null,
+    pendingSurvivorEncounter: null,
+    totalCrafts: 0,
+    totalRaids: 0,
 };
 
 export const store = {

@@ -6,6 +6,7 @@ import type { Item, ResearchQueueItem, Loadout, EquipSlot } from '../game/types.
 import { updateSave } from '../state/save.ts';
 import { primeEnergyRegenTimer } from '../game/energyRegen.ts';
 import StatsCard from './StatsCard.tsx';
+import WorkbenchTab from './WorkbenchTab.tsx';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 type LoadoutKey = keyof Loadout;
@@ -252,6 +253,7 @@ export default function BackpackScreen() {
     const inventory = useStore(s => s.inventory);
     const selectedId = useStore(s => s.selectedInventoryItemId);
     const [showStats, setShowStats] = useState(false);
+    const [loadoutTab, setLoadoutTab] = useState<'gear' | 'workbench'>('gear');
 
     const stats = getLoadoutStats(loadout);
     const wc = stats.wc;
@@ -300,6 +302,21 @@ export default function BackpackScreen() {
         store.patch({ loadout: newLoadout, inventory: newInventory, selectedInventoryItemId: null });
         updateSave({ loadout: newLoadout, inventory: newInventory });
         RundotGameAPI.analytics.recordCustomEvent('loadout_item_equipped', { itemId: item.id, slot: targetSlot, rarity: item.rarity }).catch(() => {});
+
+        // Bounty: loadout progress
+        const bSt = store.get();
+        const updatedBountiesL = bSt.bounties.map(b => {
+            if (b.type === 'loadout' && !b.completed) {
+                const equippedCount = Object.values(newLoadout).filter(Boolean).length;
+                const newProgress = Math.min(equippedCount, b.target);
+                return { ...b, progress: newProgress, completed: newProgress >= b.target };
+            }
+            return b;
+        });
+        if (updatedBountiesL.some((b, i) => b.progress !== bSt.bounties[i]?.progress)) {
+            store.patch({ bounties: updatedBountiesL });
+            updateSave({ bounties: updatedBountiesL });
+        }
     }
 
     function handleConsumableUse(item: Item) {
@@ -347,8 +364,8 @@ export default function BackpackScreen() {
     return (
         <div className="relative flex h-full flex-col" style={{ background: '#070e08' }}>
             {/* Header */}
-            <div className="shrink-0 px-4 pt-3 pb-2" style={{ borderBottom: '1px solid #142816' }}>
-                <div className="flex items-center justify-between">
+            <div className="shrink-0 px-4 pt-3 pb-0" style={{ borderBottom: '1px solid #142816' }}>
+                <div className="flex items-center justify-between mb-2">
                     <div className="text-[1rem] font-bold tracking-widest text-primary">LOADOUT</div>
                     <div className="flex items-center gap-3">
                         <button type="button"
@@ -366,8 +383,8 @@ export default function BackpackScreen() {
                         </div>
                     </div>
                 </div>
-                {combos.length > 0 && (
-                    <div className="mt-1 flex flex-wrap gap-1">
+                {combos.length > 0 && loadoutTab === 'gear' && (
+                    <div className="flex flex-wrap gap-1">
                         {combos.map(c => (
                             <span key={c} className="rounded px-2 py-0.5 text-[0.72rem] font-bold" style={{ background: '#0b2e0d', color: '#4ade80' }}>
                                 {c}
@@ -375,9 +392,25 @@ export default function BackpackScreen() {
                         ))}
                     </div>
                 )}
+                {/* Subtab bar */}
+                <div className="flex gap-0 mt-1">
+                    {(['gear', 'workbench'] as const).map(t => (
+                        <button key={t} type="button"
+                            className="flex-1 py-2 text-[0.75rem] font-bold tracking-widest transition-colors"
+                            style={{
+                                color: loadoutTab === t ? '#7ccf5a' : '#4a6a4c',
+                                borderBottom: loadoutTab === t ? '2px solid #7ccf5a' : '2px solid transparent',
+                            }}
+                            onClick={() => setLoadoutTab(t)}>
+                            {t === 'gear' ? 'GEAR' : 'WORKBENCH'}
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            <div className="scroll-area flex-1 px-3 pt-3 pb-2 space-y-4">
+            {loadoutTab === 'workbench' && <WorkbenchTab />}
+
+            {loadoutTab === 'gear' && <div className="scroll-area flex-1 px-3 pt-3 pb-2 space-y-4">
                 <ResearchQueueSection />
 
                 {/* Named equipment slots */}
@@ -434,7 +467,7 @@ export default function BackpackScreen() {
                         </div>
                     )}
                 </div>
-            </div>
+            </div>}
 
             {showStats && <StatsCard onClose={() => setShowStats(false)} />}
         </div>

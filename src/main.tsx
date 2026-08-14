@@ -10,6 +10,7 @@ import { getRandomNPCOpponent } from './game/opponents.ts';
 import { computeWeightClass } from './game/weightClass.ts';
 import type { PassiveResults } from './game/types.ts';
 import { MAX_ENERGY, ENERGY_REGEN_MINUTES } from './game/types.ts';
+import { initRivalFactions, passiveScripGained, passiveEnergyFromMedics, generateBounties, BOUNTY_REFRESH_MS } from './game/factions.ts';
 import { scheduleResearchNotif, scheduleEnergyNotif } from './game/notifications.ts';
 import './styles/app.css';
 
@@ -77,7 +78,30 @@ async function boot() {
         updateSave({ lastLoginDay: todayStr, loginStreak: streak });
     }
 
-    const newCurrency = save.currency + passiveCurrency + loginBonusScrip;
+    // Passive income from faction survivors
+    const savedSurvivors = save.survivors ?? [];
+    const passiveFactionScrip = passiveScripGained(savedSurvivors, msAway);
+    const passiveMedicEnergy = passiveEnergyFromMedics(savedSurvivors, msAway);
+
+    // Initialize rival factions if none saved
+    const savedRivals = (save.rivalFactions ?? []).length > 0
+        ? save.rivalFactions
+        : initRivalFactions();
+
+    // Initialize or refresh bounties
+    const bountiesRefreshedAt = save.bountiesRefreshedAt ?? 0;
+    const savedBounties = (save.bounties ?? []);
+    let activeBounties = savedBounties;
+    let activeBountiesRefreshedAt = bountiesRefreshedAt;
+    if (savedBounties.length === 0 || now - bountiesRefreshedAt > BOUNTY_REFRESH_MS) {
+        activeBounties = generateBounties(now);
+        activeBountiesRefreshedAt = now;
+    }
+
+    // Survivor upkeep: 2 scrip/survivor per session login
+    const upkeepCost = savedSurvivors.length * 2;
+    const newCurrency = Math.max(0, save.currency + passiveCurrency + loginBonusScrip + passiveFactionScrip - upkeepCost);
+    const newEnergyWithMedic = Math.min(newEnergy + passiveMedicEnergy, MAX_ENERGY);
 
     let passiveResults: PassiveResults | null = null;
     if (minutesAway >= ENERGY_REGEN_MINUTES && save.lastOnline > 0) {
@@ -92,17 +116,20 @@ async function boot() {
     }
 
     updateSave({
-        energy: newEnergy,
+        energy: newEnergyWithMedic,
         currency: newCurrency,
         inventory: newInventory,
         researchQueue: remainingQueue,
         totalBattles: save.totalBattles + passiveBattleCount,
         wins: save.wins + passiveWins,
+        rivalFactions: savedRivals,
+        bounties: activeBounties,
+        bountiesRefreshedAt: activeBountiesRefreshedAt,
         lastOnline: now,
     });
 
     store.patch({
-        energy: newEnergy,
+        energy: newEnergyWithMedic,
         maxEnergy: MAX_ENERGY,
         currency: newCurrency,
         inventory: newInventory,
@@ -118,6 +145,12 @@ async function boot() {
         eventLog: save.eventLog,
         passiveResults,
         loginBonus,
+        survivors: savedSurvivors,
+        rivalFactions: savedRivals,
+        bounties: activeBounties,
+        bountiesRefreshedAt: activeBountiesRefreshedAt,
+        totalCrafts: save.totalCrafts ?? 0,
+        totalRaids: save.totalRaids ?? 0,
     });
 
     // Schedule notifications for existing queued research and energy regen
@@ -169,6 +202,12 @@ async function boot() {
                 energyBoostUntil: s.energyBoostUntil,
                 foundUniqueIds: s.foundUniqueIds,
                 completedExcursionIds: s.completedExcursionIds,
+                survivors: s.survivors,
+                rivalFactions: s.rivalFactions,
+                bounties: s.bounties,
+                bountiesRefreshedAt: s.bountiesRefreshedAt,
+                totalCrafts: s.totalCrafts,
+                totalRaids: s.totalRaids,
                 lastOnline: Date.now(),
             });
             scheduleEnergyNotif(s.energy);

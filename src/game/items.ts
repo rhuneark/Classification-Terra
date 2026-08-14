@@ -201,8 +201,12 @@ export const CONSUMABLES: Item[] = [
 ];
 
 // ── LOOKUP & ROLLING ─────────────────────────────────────────────────────
+import { CRAFTED_ITEMS } from './crafting.ts';
+
 export function getItemById(id: string): Item | undefined {
-    return ALL_ITEMS.find(i => i.id === id) ?? CONSUMABLES.find(i => i.id === id);
+    return ALL_ITEMS.find(i => i.id === id)
+        ?? CONSUMABLES.find(i => i.id === id)
+        ?? CRAFTED_ITEMS.find(i => i.id === id);
 }
 
 const RARITY_ORDER: Record<string, number> = {

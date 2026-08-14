@@ -1,10 +1,10 @@
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { sdkReady } from '../sdk/runSdk.ts';
-import type { Item, LogEntry, ResearchQueueItem, Rarity, ItemType, SpecialTag, LogType, Loadout } from '../game/types.ts';
+import type { Item, LogEntry, ResearchQueueItem, Rarity, ItemType, SpecialTag, LogType, Loadout, Survivor, SurvivorRole, RivalFaction, Bounty } from '../game/types.ts';
 import { MAX_ENERGY, emptyLoadout } from '../game/types.ts';
 import { getItemById } from '../game/items.ts';
 
-const SAVE_KEY = 'spore-run:save:v3';
+const SAVE_KEY = 'spore-run:save:v4';
 
 export interface SaveData {
     currency: number;
@@ -30,6 +30,13 @@ export interface SaveData {
     collectedLoreIds: string[];
     completedExcursionIds: string[];
     totalExcursions: number;
+    // Faction system
+    survivors: Survivor[];
+    rivalFactions: RivalFaction[];
+    bounties: Bounty[];
+    bountiesRefreshedAt: number;
+    totalCrafts: number;
+    totalRaids: number;
 }
 
 function makeDefaultLoadout(): Loadout {
@@ -72,6 +79,12 @@ const DEFAULTS: SaveData = {
     collectedLoreIds: [],
     completedExcursionIds: [],
     totalExcursions: 0,
+    survivors: [],
+    rivalFactions: [],
+    bounties: [],
+    bountiesRefreshedAt: 0,
+    totalCrafts: 0,
+    totalRaids: 0,
 };
 
 function parseItem(raw: unknown): Item | null {
@@ -98,6 +111,7 @@ function parseItem(raw: unknown): Item | null {
         uniqueDropRate: r.uniqueDropRate != null ? Number(r.uniqueDropRate) : undefined,
         loreTerraId: typeof r.loreTerraId === 'string' ? r.loreTerraId : undefined,
         loreSnippetId: typeof r.loreSnippetId === 'string' ? r.loreSnippetId : undefined,
+        setId: typeof r.setId === 'string' ? r.setId : undefined,
     };
 }
 
@@ -143,6 +157,53 @@ function parseResearchItem(raw: unknown): ResearchQueueItem | null {
     };
 }
 
+function parseSurvivor(raw: unknown): Survivor | null {
+    if (!raw || typeof raw !== 'object') return null;
+    const r = raw as Record<string, unknown>;
+    if (typeof r.id !== 'string' || typeof r.name !== 'string' || typeof r.role !== 'string') return null;
+    return {
+        id: String(r.id),
+        name: String(r.name),
+        role: r.role as SurvivorRole,
+        joinedAt: Number(r.joinedAt) || 0,
+        grudge: Boolean(r.grudge),
+    };
+}
+
+function parseRivalFaction(raw: unknown): RivalFaction | null {
+    if (!raw || typeof raw !== 'object') return null;
+    const r = raw as Record<string, unknown>;
+    if (typeof r.id !== 'string') return null;
+    return {
+        id: String(r.id),
+        name: String(r.name ?? ''),
+        flavor: String(r.flavor ?? ''),
+        offense: Number(r.offense) || 0,
+        defense: Number(r.defense) || 0,
+        grudge: Math.max(0, Math.min(100, Number(r.grudge) || 0)),
+        lastRaidedByPlayerAt: r.lastRaidedByPlayerAt != null ? Number(r.lastRaidedByPlayerAt) : undefined,
+        lastRaidedUsAt: r.lastRaidedUsAt != null ? Number(r.lastRaidedUsAt) : undefined,
+    };
+}
+
+function parseBounty(raw: unknown): Bounty | null {
+    if (!raw || typeof raw !== 'object') return null;
+    const r = raw as Record<string, unknown>;
+    if (typeof r.id !== 'string') return null;
+    return {
+        id: String(r.id),
+        description: String(r.description ?? ''),
+        rewardScrip: Number(r.rewardScrip) || 0,
+        rewardItemRarity: typeof r.rewardItemRarity === 'string' ? (r.rewardItemRarity as Rarity) : undefined,
+        expiresAt: Number(r.expiresAt) || 0,
+        completed: Boolean(r.completed),
+        claimed: Boolean(r.claimed),
+        type: (r.type as Bounty['type']) ?? 'scavenge',
+        progress: Number(r.progress) || 0,
+        target: Number(r.target) || 1,
+    };
+}
+
 function parse(raw: string | null): SaveData | null {
     if (!raw) return null;
     try {
@@ -185,6 +246,18 @@ function parse(raw: string | null): SaveData | null {
                 ? (p.completedExcursionIds as unknown[]).filter(s => typeof s === 'string') as string[]
                 : [],
             totalExcursions: Math.max(0, Number(p.totalExcursions) || 0),
+            survivors: Array.isArray(p.survivors)
+                ? (p.survivors as unknown[]).map(parseSurvivor).filter(Boolean) as Survivor[]
+                : [],
+            rivalFactions: Array.isArray(p.rivalFactions)
+                ? (p.rivalFactions as unknown[]).map(parseRivalFaction).filter(Boolean) as RivalFaction[]
+                : [],
+            bounties: Array.isArray(p.bounties)
+                ? (p.bounties as unknown[]).map(parseBounty).filter(Boolean) as Bounty[]
+                : [],
+            bountiesRefreshedAt: Number(p.bountiesRefreshedAt) || 0,
+            totalCrafts: Math.max(0, Number(p.totalCrafts) || 0),
+            totalRaids: Math.max(0, Number(p.totalRaids) || 0),
         };
     } catch {
         return null;

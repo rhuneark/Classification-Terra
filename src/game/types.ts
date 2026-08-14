@@ -2,8 +2,9 @@ export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'un
 export type ItemType = 'weapon' | 'armor' | 'utility' | 'consumable' | 'lore';
 export type SpecialTag = 'bio' | 'hazmat' | 'bleed' | 'stun' | 'aoe' | 'nav' | 'cleanse' | 'growth';
 export type LocationDanger = 'low' | 'medium' | 'high' | 'extreme';
-export type LogType = 'loot' | 'ambush' | 'battle-win' | 'battle-loss' | 'trade' | 'info' | 'lore' | 'excursion';
-export type GameScreen = 'loot' | 'backpack' | 'codex' | 'trader' | 'log';
+export type LogType = 'loot' | 'ambush' | 'battle-win' | 'battle-loss' | 'trade' | 'info' | 'lore' | 'excursion' | 'faction' | 'recruit';
+export type GameScreen = 'loot' | 'backpack' | 'codex' | 'trader' | 'log' | 'faction';
+export type SurvivorRole = 'scavenger' | 'guard' | 'raider' | 'medic' | 'scout' | 'engineer' | 'enforcer';
 
 // Equipment slot system
 export type EquipSlot = 'head' | 'torso' | 'legs' | 'feet' | 'hand' | 'protection' | 'consumable-slot';
@@ -86,6 +87,67 @@ export interface Item {
     uniqueDropRate?: number;
     loreTerraId?: string;
     loreSnippetId?: string;
+    setId?: string;
+}
+
+export interface CraftIngredient {
+    itemId: string;
+    count: number;
+}
+
+export interface CraftRecipe {
+    id: string;
+    resultItemId: string;
+    ingredients: CraftIngredient[];
+    setId?: string;
+}
+
+export interface CraftSet {
+    id: string;
+    name: string;
+    members: string[];
+    bonusDescription: string;
+    bonusWcBoost: number;
+}
+
+export interface Survivor {
+    id: string;
+    name: string;
+    role: SurvivorRole;
+    joinedAt: number;
+    grudge?: boolean;
+}
+
+export interface RivalFaction {
+    id: string;
+    name: string;
+    flavor: string;
+    offense: number;
+    defense: number;
+    grudge: number;
+    lastRaidedByPlayerAt?: number;
+    lastRaidedUsAt?: number;
+}
+
+export interface Bounty {
+    id: string;
+    description: string;
+    rewardScrip: number;
+    rewardItemRarity?: Rarity;
+    expiresAt: number;
+    completed: boolean;
+    claimed: boolean;
+    type: 'raid' | 'scavenge' | 'survive' | 'recruit' | 'craft' | 'loadout';
+    progress: number;
+    target: number;
+}
+
+export interface GlobalEvent {
+    type: 'terra_surge' | 'market_crash' | 'rival_surge' | 'energy_drought' | 'bounty_rush' | 'safe_passage' | 'salvage_run';
+    name: string;
+    description: string;
+    effect: string;
+    activeUntil: number;
 }
 
 export interface ResearchQueueItem {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { store, useStore } from '../state/store.ts';
 import { ALL_LOCATIONS } from '../game/locations.ts';
 import { rollLootEvent, eventToLogEntry } from '../game/loot.ts';
-import type { LootEvent, Location } from '../game/types.ts';
+import type { LootEvent, Location, Survivor } from '../game/types.ts';
 import { DANGER_COLORS, DANGER_LABELS, RARITY_COLORS, RARITY_LABELS, randomResearchDuration } from '../game/types.ts';
 import { updateSave, getSave, markUniqueFound, addEarnedScrip } from '../state/save.ts';
 import { PAPERCLIPS } from '../game/items.ts';
@@ -12,6 +12,7 @@ import { playScavenge, playItemFound, playClick } from '../game/audio.ts';
 import { FORMAT_LABELS } from '../game/terras.ts';
 import { ALL_EXCURSIONS, DIFFICULTY_COLORS, DIFFICULTY_LABELS, startExcursion } from '../game/excursions.ts';
 import type { ExcursionDef } from '../game/excursions.ts';
+import { generateSurvivor, SURVIVOR_ROLES } from '../game/factions.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 const _dailyChallenge = getDailyChallengeLocation();
@@ -348,6 +349,7 @@ export default function LootScreen() {
     const completedExcursionIds = useStore(s => s.completedExcursionIds);
     const today = getTodayStr();
     const [, forceUpdate] = useState(0);
+    const [pendingSurvivor, setPendingSurvivor] = useState<Survivor | null>(null);
 
     useEffect(() => {
         const iv = setInterval(() => forceUpdate(n => n + 1), 10_000);
@@ -374,6 +376,24 @@ export default function LootScreen() {
         store.patch({ energy: newEnergy, currency: newCurrency, activeLootEvent: event, luckBonusActive: false });
         updateSave({ energy: newEnergy, currency: newCurrency, totalScavenges: (save.totalScavenges ?? 0) + 1 });
         RundotGameAPI.analytics.recordCustomEvent('loot_location_visited', { location: location.id, eventType: event.type }).catch(() => {});
+
+        // 1% chance survivor encounter on a successful loot (not ambush), capped at 10 survivors
+        if (event.type === 'loot' && s.survivors.length < 10 && Math.random() < 0.01) {
+            setPendingSurvivor(generateSurvivor());
+        }
+
+        // Bounty: scavenge progress
+        const updatedBounties = s.bounties.map(b => {
+            if (b.type === 'scavenge' && !b.completed) {
+                const newProgress = Math.min(b.progress + 1, b.target);
+                return { ...b, progress: newProgress, completed: newProgress >= b.target };
+            }
+            return b;
+        });
+        if (updatedBounties.some((b, i) => b.progress !== s.bounties[i]?.progress)) {
+            store.patch({ bounties: updatedBounties });
+            updateSave({ bounties: updatedBounties });
+        }
     }
 
     function handleTake() {
@@ -534,6 +554,44 @@ export default function LootScreen() {
             collectedLoreIds: newCollectedLoreIds,
         });
         RundotGameAPI.analytics.recordCustomEvent('loot_ambush_triggered', { locationName: event.locationName }).catch(() => {});
+
+        // Bounty: survive ambush progress
+        const updatedBountiesA = s.bounties.map(b => {
+            if (b.type === 'survive' && !b.completed) {
+                const newProgress = Math.min(b.progress + 1, b.target);
+                return { ...b, progress: newProgress, completed: newProgress >= b.target };
+            }
+            return b;
+        });
+        if (updatedBountiesA.some((b, i) => b.progress !== s.bounties[i]?.progress)) {
+            store.patch({ bounties: updatedBountiesA });
+            updateSave({ bounties: updatedBountiesA });
+        }
+    }
+
+    function handleAcceptSurvivor() {
+        if (!pendingSurvivor) return;
+        const s = store.get();
+        const newSurvivors = [...s.survivors, pendingSurvivor];
+        store.patch({ survivors: newSurvivors });
+        updateSave({ survivors: newSurvivors });
+        RundotGameAPI.analytics.recordCustomEvent('faction_recruit_accepted', { role: pendingSurvivor.role }).catch(() => {});
+        setPendingSurvivor(null);
+    }
+
+    function handleDeclineSurvivor() {
+        if (!pendingSurvivor) return;
+        const s = store.get();
+        if (Math.random() < 0.30 && s.rivalFactions.length > 0) {
+            const randIdx = Math.floor(Math.random() * s.rivalFactions.length);
+            const updatedRivals = s.rivalFactions.map((f, i) =>
+                i === randIdx ? { ...f, grudge: Math.min(100, f.grudge + 8) } : f
+            );
+            store.patch({ rivalFactions: updatedRivals });
+            updateSave({ rivalFactions: updatedRivals });
+        }
+        RundotGameAPI.analytics.recordCustomEvent('faction_recruit_declined', { role: pendingSurvivor.role }).catch(() => {});
+        setPendingSurvivor(null);
     }
 
     function handleExcursionTap(exc: ExcursionDef) {
@@ -605,6 +663,51 @@ export default function LootScreen() {
                     onScrap={handleScrap}
                     onDismiss={handleAmbushDismiss}
                 />
+            )}
+
+            {!activeLootEvent && pendingSurvivor && (
+                <div className="absolute inset-0 flex items-center justify-center px-5" style={{ background: 'rgba(0,0,0,0.92)', zIndex: 40 }}>
+                    <div className="w-full max-w-sm rounded p-5" style={{ background: '#0e1c14', border: '1px solid #2a5e3c' }}>
+                        <div className="text-[0.65rem] font-bold tracking-widest mb-3" style={{ color: '#4ade80' }}>SURVIVOR CONTACT</div>
+                        <div className="rounded p-3 mb-3" style={{ background: '#081410', border: '1px solid #1a3e2c' }}>
+                            <div className="flex items-start justify-between gap-2">
+                                <div>
+                                    <div className="text-[1.1rem] font-bold text-white">{pendingSurvivor.name}</div>
+                                    <div className="text-[0.72rem] font-bold mt-0.5" style={{ color: SURVIVOR_ROLES[pendingSurvivor.role].color }}>
+                                        {SURVIVOR_ROLES[pendingSurvivor.role].label.toUpperCase()}
+                                    </div>
+                                </div>
+                                <span className="rounded px-2 py-0.5 text-[0.65rem] font-bold shrink-0"
+                                    style={{ background: SURVIVOR_ROLES[pendingSurvivor.role].color + '22', color: SURVIVOR_ROLES[pendingSurvivor.role].color, border: `1px solid ${SURVIVOR_ROLES[pendingSurvivor.role].color}44` }}>
+                                    {pendingSurvivor.role.toUpperCase()}
+                                </span>
+                            </div>
+                            <div className="mt-2 text-[0.82rem] leading-snug" style={{ color: '#9ab09c' }}>
+                                {SURVIVOR_ROLES[pendingSurvivor.role].flavor}
+                            </div>
+                            <div className="mt-2 text-[0.78rem] rounded p-2" style={{ background: '#0a1e10', border: '1px solid #1a3e1c', color: '#7ccf5a' }}>
+                                {SURVIVOR_ROLES[pendingSurvivor.role].bonus}
+                            </div>
+                        </div>
+                        <div className="text-[0.82rem] leading-relaxed mb-4" style={{ color: '#8aaa8c' }}>
+                            They've been surviving alone. Offer shelter?
+                        </div>
+                        <div className="flex gap-2">
+                            <button type="button"
+                                className="flex-1 rounded py-3 text-[1rem] font-bold tracking-wide transition-transform active:scale-95"
+                                style={{ background: '#1a4e1c', color: '#7ccf5a', border: '1px solid #2a6e2c' }}
+                                onClick={handleAcceptSurvivor}>
+                                RECRUIT
+                            </button>
+                            <button type="button"
+                                className="flex-1 rounded py-3 text-[0.9rem] font-bold transition-transform active:scale-95"
+                                style={{ background: '#1a1a1a', color: '#6a7a6c', border: '1px solid #2a3a2c' }}
+                                onClick={handleDeclineSurvivor}>
+                                TURN AWAY
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
