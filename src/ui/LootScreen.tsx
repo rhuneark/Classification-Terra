@@ -3,7 +3,7 @@ import { store, useStore } from '../state/store.ts';
 import { ALL_LOCATIONS } from '../game/locations.ts';
 import { rollLootEvent, eventToLogEntry } from '../game/loot.ts';
 import type { LootEvent, Location, Survivor } from '../game/types.ts';
-import { DANGER_COLORS, DANGER_LABELS, RARITY_COLORS, RARITY_LABELS, randomResearchDuration } from '../game/types.ts';
+import { DANGER_COLORS, DANGER_LABELS, RARITY_COLORS, RARITY_LABELS, QUALITY_LABELS, randomResearchDuration } from '../game/types.ts';
 import { updateSave, getSave, markUniqueFound, addEarnedScrip } from '../state/save.ts';
 import { PAPERCLIPS } from '../game/items.ts';
 import { getDailyChallengeLocation, getTodayStr } from '../game/dailyChallenge.ts';
@@ -13,6 +13,7 @@ import { FORMAT_LABELS } from '../game/terras.ts';
 import { ALL_EXCURSIONS, DIFFICULTY_COLORS, DIFFICULTY_LABELS, startExcursion } from '../game/excursions.ts';
 import type { ExcursionDef } from '../game/excursions.ts';
 import { generateSurvivor, SURVIVOR_ROLES } from '../game/factions.ts';
+import { rollRandomNostalgicItem } from '../game/nostalgic.ts';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { HapticFeedbackStyle } from '@series-inc/rundot-game-sdk';
 
@@ -264,6 +265,30 @@ function LootEventModal({ event, onTake, onScrap, onDismiss }: {
                         </div>
                     )}
 
+                    {/* Nostalgic relic bonus find */}
+                    {event.nostalgicItem && (
+                        <div className="mt-2 rounded p-2.5" style={{ background: '#120a10', border: '1px solid #FF69B444' }}>
+                            <div className="text-[0.62rem] font-bold tracking-widest mb-1" style={{ color: '#FF69B4' }}>
+                                RELIC FOUND
+                            </div>
+                            <div className="text-[0.88rem] font-bold" style={{ color: '#FF69B4' }}>
+                                {event.nostalgicItem.name}
+                            </div>
+                            {event.nostalgicItem.qualityTier && (
+                                <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 text-[0.6rem] font-bold"
+                                    style={{ background: '#FF69B422', color: '#FF69B4', border: '1px solid #FF69B444' }}>
+                                    {QUALITY_LABELS[event.nostalgicItem.qualityTier]}
+                                </span>
+                            )}
+                            <div className="mt-0.5 text-[0.74rem]" style={{ color: '#8a6a8a' }}>
+                                {event.nostalgicItem.description}
+                            </div>
+                            <div className="mt-1 text-[0.65rem]" style={{ color: '#6a4a6c' }}>
+                                Added to your bag. Trophy it in LOADOUT.
+                            </div>
+                        </div>
+                    )}
+
                     {/* Secondary items */}
                     {event.secondaryItems.length > 0 && (
                         <div className="mt-3 rounded p-2.5" style={{ background: '#0a1810', border: '1px solid #1a3e1c' }}>
@@ -432,7 +457,16 @@ export default function LootScreen() {
             setScanning(null);
             const freshState = store.get();
             const newCurrency = freshState.currency + challengeBonus;
-            store.patch({ currency: newCurrency, activeLootEvent: event });
+
+            // Roll for nostalgic relic drop (only on loot events at medium+ danger)
+            const NOSTALGIC_RATES: Record<string, number> = { low: 0, medium: 0.008, high: 0.015, extreme: 0.025 };
+            const nostalgicRate = NOSTALGIC_RATES[location.danger] ?? 0;
+            let finalEvent = event;
+            if (nostalgicRate > 0 && event.type === 'loot' && Math.random() < nostalgicRate) {
+                finalEvent = { ...event, nostalgicItem: rollRandomNostalgicItem() };
+            }
+
+            store.patch({ currency: newCurrency, activeLootEvent: finalEvent });
             updateSave({ currency: newCurrency });
 
             // Haptics on item found
@@ -510,10 +544,15 @@ export default function LootScreen() {
             newQueue = [...s.researchQueue, ...secondaryQueueItems];
         }
 
+        // Nostalgic relic goes directly to bag (no research)
         let newInventory = s.inventory;
+        if (event.nostalgicItem) {
+            newInventory = [...newInventory, event.nostalgicItem];
+        }
+
         let finalQueue = newQueue;
-        if (item.type === 'consumable') {
-            newInventory = [...s.inventory, item];
+        if (item.type === 'consumable' || item.type === 'nostalgic') {
+            newInventory = [...newInventory, item];
         } else if (item.type !== 'lore') {
             finalQueue = [...newQueue, {
                 instanceId: newInstanceId(),

@@ -14,6 +14,10 @@ export default function ExplorerBoard({ onClose }: Props) {
     const [firstFinders, setFirstFinders] = useState<Record<string, string | null>>({});
     const [findersLoaded, setFindersLoaded] = useState(false);
 
+    const foundByAnyone = findersLoaded
+        ? PAPERCLIPS.filter(pc => !!firstFinders[pc.id]).length
+        : null;
+
     useEffect(() => {
         let alive = true;
         async function fetchFinders() {
@@ -45,6 +49,9 @@ export default function ExplorerBoard({ onClose }: Props) {
                     <h2 className="text-[1.1rem] font-bold tracking-widest text-primary">EXPLORER BOARD</h2>
                     <p className="text-[0.78rem]" style={{ color: '#8acc8c' }}>
                         The 10 Paperclips — {foundCount}/10 found
+                        {foundByAnyone !== null && (
+                            <span style={{ color: '#4a6a4c' }}> · {foundByAnyone}/10 globally discovered</span>
+                        )}
                     </p>
                 </div>
                 <button type="button"

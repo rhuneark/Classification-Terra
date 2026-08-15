@@ -1,10 +1,12 @@
-export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'unique';
-export type ItemType = 'weapon' | 'armor' | 'utility' | 'consumable' | 'lore' | 'pack';
+export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'unique' | 'nostalgic';
+export type ItemType = 'weapon' | 'armor' | 'utility' | 'consumable' | 'lore' | 'pack' | 'nostalgic';
 export type SpecialTag = 'bio' | 'hazmat' | 'bleed' | 'stun' | 'aoe' | 'nav' | 'cleanse' | 'growth';
 export type LocationDanger = 'low' | 'medium' | 'high' | 'extreme';
-export type LogType = 'loot' | 'ambush' | 'battle-win' | 'battle-loss' | 'trade' | 'info' | 'lore' | 'excursion' | 'faction' | 'recruit';
+export type LogType = 'loot' | 'ambush' | 'battle-win' | 'battle-loss' | 'trade' | 'info' | 'lore' | 'excursion' | 'faction' | 'recruit' | 'trophy';
 export type GameScreen = 'loot' | 'backpack' | 'codex' | 'trader' | 'log' | 'faction';
 export type SurvivorRole = 'scavenger' | 'guard' | 'raider' | 'medic' | 'scout' | 'engineer' | 'enforcer';
+export type QualityTier = 'broken' | 'worn' | 'used' | 'good' | 'perfect';
+export type BaseUpgradeId = 'walls' | 'watchtower' | 'depot' | 'barracks' | 'clinic';
 
 // Equipment slot system
 export type EquipSlot = 'head' | 'torso' | 'legs' | 'feet' | 'hand' | 'protection' | 'pack';
@@ -90,6 +92,8 @@ export interface Item {
     setId?: string;
     packMaxEnergy?: number;
     packAmbushReduction?: number;
+    qualityTier?: QualityTier;
+    nostalgicBaseId?: string;
 }
 
 export interface CraftIngredient {
@@ -128,8 +132,27 @@ export interface RivalFaction {
     offense: number;
     defense: number;
     grudge: number;
+    grudgeLevel: number;
+    grudgePoints: number;
+    lastGrudgeDecayAt: number;
     lastRaidedByPlayerAt?: number;
     lastRaidedUsAt?: number;
+}
+
+export interface TrophiedItem {
+    itemId: string;
+    baseItemId: string;
+    quality: QualityTier;
+    trophiedAt: number;
+    name: string;
+}
+
+export interface BaseUpgradeState {
+    walls: number;
+    watchtower: number;
+    depot: number;
+    barracks: number;
+    clinic: number;
 }
 
 export interface Bounty {
@@ -213,6 +236,7 @@ export interface LootEvent {
     terraSnippetId?: string;
     terraSnippetText?: string;
     terraSnippetFormat?: 'journal' | 'research' | 'radio' | 'cryptic';
+    nostalgicItem?: Item;
 }
 
 export interface PassiveResults {
@@ -235,6 +259,7 @@ export const RARITY_COLORS: Record<Rarity, string> = {
     epic: '#c084fc',
     legendary: '#fb923c',
     unique: '#ffd060',
+    nostalgic: '#ff69b4',
 };
 
 export const RARITY_LABELS: Record<Rarity, string> = {
@@ -244,6 +269,23 @@ export const RARITY_LABELS: Record<Rarity, string> = {
     epic: 'EPIC',
     legendary: 'LEGENDARY',
     unique: 'ONE-OF-A-KIND',
+    nostalgic: 'RELIC',
+};
+
+export const QUALITY_LABELS: Record<QualityTier, string> = {
+    broken: 'BROKEN',
+    worn: 'WORN',
+    used: 'USED',
+    good: 'GOOD',
+    perfect: 'PERFECT',
+};
+
+export const QUALITY_SELL_MULTIPLIERS: Record<QualityTier, number> = {
+    broken: 0.3,
+    worn: 0.6,
+    used: 1.0,
+    good: 1.5,
+    perfect: 2.5,
 };
 
 export const DANGER_LABELS: Record<LocationDanger, string> = {
@@ -272,6 +314,7 @@ export const RESEARCH_DURATION_MS: Record<Rarity, [number, number]> = {
     epic:      [600_000,  1_500_000],
     legendary: [1_200_000, 1_800_000],
     unique:    [1_500_000, 1_800_000],
+    nostalgic: [0, 0], // skips research queue
 };
 
 export function randomResearchDuration(rarity: Rarity): number {

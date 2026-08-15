@@ -12,6 +12,8 @@ import type {
     RivalFaction,
     Bounty,
     GlobalEvent,
+    TrophiedItem,
+    BaseUpgradeState,
 } from '../game/types.ts';
 import { MAX_ENERGY, emptyLoadout } from '../game/types.ts';
 
@@ -60,6 +62,15 @@ export interface AppState {
     pendingSurvivorEncounter: Survivor | null;
     totalCrafts: number;
     totalRaids: number;
+
+    // Base / morale system
+    baseUpgrades: BaseUpgradeState;
+    baseMorale: number;
+    baseResources: number;
+    lastBaseUpgradeAt: number;
+
+    // Trophy / nostalgic items
+    trophiedItems: TrophiedItem[];
 }
 
 const listeners = new Set<() => void>();
@@ -102,6 +113,13 @@ let state: AppState = {
     pendingSurvivorEncounter: null,
     totalCrafts: 0,
     totalRaids: 0,
+
+    baseUpgrades: { walls: 0, watchtower: 0, depot: 0, barracks: 0, clinic: 0 },
+    baseMorale: 50,
+    baseResources: 0,
+    lastBaseUpgradeAt: 0,
+
+    trophiedItems: [],
 };
 
 export const store = {

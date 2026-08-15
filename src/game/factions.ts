@@ -1,4 +1,5 @@
-import type { Survivor, SurvivorRole, RivalFaction, Bounty, GlobalEvent } from './types.ts';
+import type { Survivor, SurvivorRole, RivalFaction, Bounty, GlobalEvent, Loadout, BaseUpgradeState, BaseUpgradeId } from './types.ts';
+import { computeWeightClass } from './weightClass.ts';
 
 // ── SURVIVOR ROLES ─────────────────────────────────────────────────────────
 
@@ -155,7 +156,7 @@ export function computeBaseStats(survivors: Survivor[]): BaseStats {
 
 // ── RIVAL FACTIONS ────────────────────────────────────────────────────────────
 
-export const BASE_RIVAL_FACTIONS: Omit<RivalFaction, 'grudge' | 'lastRaidedByPlayerAt' | 'lastRaidedUsAt'>[] = [
+export const BASE_RIVAL_FACTIONS: Omit<RivalFaction, 'grudge' | 'grudgeLevel' | 'grudgePoints' | 'lastGrudgeDecayAt' | 'lastRaidedByPlayerAt' | 'lastRaidedUsAt'>[] = [
     {
         id: 'collectors',
         name: 'The Collectors',
@@ -187,7 +188,215 @@ export const BASE_RIVAL_FACTIONS: Omit<RivalFaction, 'grudge' | 'lastRaidedByPla
 ];
 
 export function initRivalFactions(): RivalFaction[] {
-    return BASE_RIVAL_FACTIONS.map(f => ({ ...f, grudge: 0 }));
+    return BASE_RIVAL_FACTIONS.map(f => ({
+        ...f,
+        grudge: 0,
+        grudgeLevel: 0,
+        grudgePoints: 0,
+        lastGrudgeDecayAt: Date.now(),
+    }));
+}
+
+// ── GRUDGE LEVEL SYSTEM ───────────────────────────────────────────────────────
+
+export const GRUDGE_PER_LEVEL = 100;
+export const GRUDGE_DECAY_INTERVAL_MS = 48 * 60 * 60 * 1000; // 48 hours
+export const GRUDGE_DECAY_PER_INTERVAL = 100; // 1 level per interval
+
+export function applyGrudgeDecay(faction: RivalFaction, now: number): RivalFaction {
+    const elapsed = now - (faction.lastGrudgeDecayAt ?? now);
+    const intervals = Math.floor(elapsed / GRUDGE_DECAY_INTERVAL_MS);
+    if (intervals <= 0) return faction;
+    const newPoints = Math.max(0, faction.grudgePoints - intervals * GRUDGE_DECAY_PER_INTERVAL);
+    const newLevel = Math.min(5, Math.floor(newPoints / GRUDGE_PER_LEVEL));
+    return {
+        ...faction,
+        grudgePoints: newPoints,
+        grudgeLevel: newLevel,
+        grudge: newPoints,
+        lastGrudgeDecayAt: faction.lastGrudgeDecayAt + intervals * GRUDGE_DECAY_INTERVAL_MS,
+    };
+}
+
+export function addGrudgePoints(faction: RivalFaction, points: number): RivalFaction {
+    const newPoints = Math.min(500, faction.grudgePoints + points);
+    const newLevel = Math.min(5, Math.floor(newPoints / GRUDGE_PER_LEVEL));
+    return { ...faction, grudgePoints: newPoints, grudgeLevel: newLevel, grudge: newPoints };
+}
+
+export function computeRivalEffectiveStats(faction: RivalFaction): { offense: number; defense: number } {
+    const mult = 1 + faction.grudgeLevel * 0.15;
+    return {
+        offense: Math.round(faction.offense * mult),
+        defense: Math.round(faction.defense * mult),
+    };
+}
+
+export function getRaidLootRarityBoost(grudgeLevel: number): number {
+    return Math.min(3, grudgeLevel);
+}
+
+// ── BASE UPGRADES ─────────────────────────────────────────────────────────────
+
+export interface BaseUpgradeTier {
+    tier: number;
+    cost: number;
+    label: string;
+    defBonus: number;
+    offBonus: number;
+    moraleBonus: number;
+    scripBonusPerHr: number;
+    survivorCapBonus: number;
+}
+
+export const BASE_UPGRADES: Record<BaseUpgradeId, BaseUpgradeTier[]> = {
+    walls: [
+        { tier: 1, cost: 50,   label: 'Reinforced Fence',    defBonus: 5,  offBonus: 0, moraleBonus: 2,  scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 2, cost: 150,  label: 'Concrete Walls',      defBonus: 12, offBonus: 0, moraleBonus: 5,  scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 3, cost: 300,  label: 'Fortified Ramparts',  defBonus: 22, offBonus: 0, moraleBonus: 8,  scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 4, cost: 600,  label: 'Watch Towers',        defBonus: 35, offBonus: 0, moraleBonus: 12, scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 5, cost: 1200, label: 'Iron Citadel',        defBonus: 50, offBonus: 0, moraleBonus: 18, scripBonusPerHr: 0, survivorCapBonus: 0 },
+    ],
+    watchtower: [
+        { tier: 1, cost: 60,   label: 'Scout Post',          defBonus: 0, offBonus: 4,  moraleBonus: 2,  scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 2, cost: 180,  label: 'Observation Platform',defBonus: 0, offBonus: 10, moraleBonus: 4,  scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 3, cost: 360,  label: 'Tactical Center',     defBonus: 0, offBonus: 18, moraleBonus: 7,  scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 4, cost: 720,  label: 'Strike Compound',     defBonus: 0, offBonus: 28, moraleBonus: 10, scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 5, cost: 1500, label: 'War Room',            defBonus: 0, offBonus: 40, moraleBonus: 15, scripBonusPerHr: 0, survivorCapBonus: 0 },
+    ],
+    depot: [
+        { tier: 1, cost: 80,   label: 'Supply Cache',        defBonus: 0, offBonus: 0, moraleBonus: 5,  scripBonusPerHr: 5,  survivorCapBonus: 0 },
+        { tier: 2, cost: 200,  label: 'Storage Depot',       defBonus: 0, offBonus: 0, moraleBonus: 8,  scripBonusPerHr: 12, survivorCapBonus: 0 },
+        { tier: 3, cost: 400,  label: 'Trade Hub',           defBonus: 0, offBonus: 0, moraleBonus: 10, scripBonusPerHr: 22, survivorCapBonus: 0 },
+        { tier: 4, cost: 800,  label: 'Distribution Center', defBonus: 0, offBonus: 0, moraleBonus: 14, scripBonusPerHr: 35, survivorCapBonus: 0 },
+        { tier: 5, cost: 1600, label: 'Black Market Node',   defBonus: 0, offBonus: 0, moraleBonus: 20, scripBonusPerHr: 50, survivorCapBonus: 0 },
+    ],
+    barracks: [
+        { tier: 1, cost: 100,  label: 'Bunk Room',           defBonus: 0, offBonus: 0, moraleBonus: 5,  scripBonusPerHr: 0, survivorCapBonus: 2 },
+        { tier: 2, cost: 250,  label: 'Expanded Quarters',   defBonus: 0, offBonus: 0, moraleBonus: 10, scripBonusPerHr: 0, survivorCapBonus: 4 },
+        { tier: 3, cost: 500,  label: 'Full Barracks',       defBonus: 0, offBonus: 0, moraleBonus: 15, scripBonusPerHr: 0, survivorCapBonus: 6 },
+        { tier: 4, cost: 1000, label: 'Garrison',            defBonus: 0, offBonus: 0, moraleBonus: 20, scripBonusPerHr: 0, survivorCapBonus: 8 },
+        { tier: 5, cost: 2000, label: 'Command Post',        defBonus: 0, offBonus: 0, moraleBonus: 25, scripBonusPerHr: 0, survivorCapBonus: 10 },
+    ],
+    clinic: [
+        { tier: 1, cost: 120,  label: 'First Aid Post',      defBonus: 0, offBonus: 0, moraleBonus: 10, scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 2, cost: 300,  label: 'Medical Bay',         defBonus: 0, offBonus: 0, moraleBonus: 20, scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 3, cost: 600,  label: 'Field Hospital',      defBonus: 0, offBonus: 0, moraleBonus: 35, scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 4, cost: 1200, label: 'Treatment Center',    defBonus: 0, offBonus: 0, moraleBonus: 50, scripBonusPerHr: 0, survivorCapBonus: 0 },
+        { tier: 5, cost: 2500, label: 'Full Medical Complex',defBonus: 0, offBonus: 0, moraleBonus: 70, scripBonusPerHr: 0, survivorCapBonus: 0 },
+    ],
+};
+
+export function getUpgradeTier(upgrades: BaseUpgradeState, id: BaseUpgradeId): BaseUpgradeTier | null {
+    const tier = upgrades[id];
+    if (tier === 0) return null;
+    return BASE_UPGRADES[id][tier - 1] ?? null;
+}
+
+export function getNextUpgradeTier(upgrades: BaseUpgradeState, id: BaseUpgradeId): BaseUpgradeTier | null {
+    const tier = upgrades[id];
+    if (tier >= 5) return null;
+    return BASE_UPGRADES[id][tier] ?? null;
+}
+
+export function computeUpgradesBonuses(upgrades: BaseUpgradeState): {
+    defBonus: number; offBonus: number; moraleBonus: number; scripBonusPerHr: number; survivorCapBonus: number;
+} {
+    let defBonus = 0, offBonus = 0, moraleBonus = 0, scripBonusPerHr = 0, survivorCapBonus = 0;
+    for (const id of Object.keys(upgrades) as BaseUpgradeId[]) {
+        const t = getUpgradeTier(upgrades, id);
+        if (t) {
+            defBonus += t.defBonus;
+            offBonus += t.offBonus;
+            moraleBonus += t.moraleBonus;
+            scripBonusPerHr += t.scripBonusPerHr;
+            survivorCapBonus += t.survivorCapBonus;
+        }
+    }
+    return { defBonus, offBonus, moraleBonus, scripBonusPerHr, survivorCapBonus };
+}
+
+export function computeBaseWC(survivors: Survivor[], loadout: Loadout, currency: number, upgrades: BaseUpgradeState): number {
+    const playerContrib = Math.floor(computeWeightClass(loadout) * 0.5);
+    const stats = computeBaseStats(survivors);
+    const survivorContrib = stats.defense + stats.offense;
+    const economyContrib = Math.floor(Math.sqrt(Math.max(0, currency)));
+    const upgradeContrib = (() => {
+        let sum = 0;
+        const b = computeUpgradesBonuses(upgrades);
+        sum += b.defBonus + b.offBonus;
+        return sum;
+    })();
+    return playerContrib + survivorContrib + economyContrib + upgradeContrib;
+}
+
+export function computeMorale(
+    survivors: Survivor[],
+    upgrades: BaseUpgradeState,
+    msAway: number
+): number {
+    const stats = computeBaseStats(survivors);
+    const upgradeBonuses = computeUpgradesBonuses(upgrades);
+    let morale = 50;
+
+    // Upkeep ratio: good income relative to upkeep boosts morale
+    if (survivors.length > 0) {
+        const passiveHrIncome = stats.scripPerHour + upgradeBonuses.scripBonusPerHr;
+        const upkeepPerHr = stats.upkeep / 2; // upkeep is per session (~2hrs)
+        const ratio = upkeepPerHr > 0 ? passiveHrIncome / upkeepPerHr : 2;
+        morale += Math.min(20, Math.floor(ratio * 10));
+    }
+
+    // Clinic bonus
+    morale += upgradeBonuses.moraleBonus;
+
+    // Neglect penalty
+    const hoursAway = msAway / 3_600_000;
+    if (hoursAway > 48) {
+        const overHours = hoursAway - 48;
+        const penalty = Math.floor(overHours / 24) * 5;
+        morale -= Math.min(30, penalty);
+    }
+
+    // Overcrowding
+    const capBonus = upgradeBonuses.survivorCapBonus;
+    const survivorCap = 10 + capBonus;
+    if (survivors.length > survivorCap) {
+        morale -= (survivors.length - survivorCap) * 5;
+    }
+
+    return Math.max(0, Math.min(100, morale));
+}
+
+export function getMoraleLabel(morale: number): string {
+    if (morale <= 20) return 'CRITICAL';
+    if (morale <= 40) return 'LOW';
+    if (morale <= 65) return 'STABLE';
+    if (morale <= 85) return 'HIGH';
+    return 'EXCELLENT';
+}
+
+export function getMoraleColor(morale: number): string {
+    if (morale <= 20) return '#ef4444';
+    if (morale <= 40) return '#f97316';
+    if (morale <= 65) return '#ffd060';
+    if (morale <= 85) return '#4ade80';
+    return '#34d399';
+}
+
+export function getMoraleEffects(morale: number): { defenseMultiplier: number; raidFreqMultiplier: number; survivorLeaveChance: number } {
+    if (morale <= 20) return { defenseMultiplier: 0.8, raidFreqMultiplier: 1.3, survivorLeaveChance: 0.08 };
+    if (morale <= 40) return { defenseMultiplier: 0.9, raidFreqMultiplier: 1.15, survivorLeaveChance: 0.03 };
+    if (morale <= 65) return { defenseMultiplier: 1.0, raidFreqMultiplier: 1.0, survivorLeaveChance: 0 };
+    if (morale <= 85) return { defenseMultiplier: 1.1, raidFreqMultiplier: 0.9, survivorLeaveChance: 0 };
+    return { defenseMultiplier: 1.2, raidFreqMultiplier: 0.8, survivorLeaveChance: 0 };
+}
+
+export function passiveDepotScripGained(upgrades: BaseUpgradeState, msAway: number): number {
+    const bonus = computeUpgradesBonuses(upgrades);
+    if (bonus.scripBonusPerHr === 0) return 0;
+    const hoursAway = Math.min(48, msAway / 3_600_000);
+    return Math.floor(hoursAway * bonus.scripBonusPerHr);
 }
 
 /** Probability of player successfully raiding (0–1) */
@@ -205,8 +414,7 @@ export function defenseSuccessChance(playerDefense: number, rivalOffense: number
 }
 
 /** Next raid time for a rival (ms timestamp). Call on login or after raid. */
-export function nextRivalRaidMs(factionId: string, grudge: number): number {
-    // Base interval varies by faction aggressiveness
+export function nextRivalRaidMs(factionId: string, grudgeLevel: number): number {
     const baseHours: Record<string, number> = {
         collectors: 10,
         'the-rot': 6,
@@ -214,7 +422,7 @@ export function nextRivalRaidMs(factionId: string, grudge: number): number {
         wanderers: 20,
     };
     const base = (baseHours[factionId] ?? 12) * 3_600_000;
-    const grudgeReduction = Math.floor(grudge / 20) * 3_600_000; // up to -5 hrs at max grudge
+    const grudgeReduction = grudgeLevel * 1.5 * 3_600_000; // up to -7.5 hrs at level 5
     return Math.max(2 * 3_600_000, base - grudgeReduction);
 }
 

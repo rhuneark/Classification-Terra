@@ -164,7 +164,7 @@ export default function CodexScreen() {
                         <div className="text-[0.85rem] font-bold" style={{ color: '#7ccf5a' }}>
                             {discoveredCount} / {TERRA_VARIANTS.length}
                         </div>
-                        <div className="text-[0.65rem]" style={{ color: '#4a6a4c' }}>ENTRIES FOUND</div>
+                        <div className="text-[0.65rem]" style={{ color: '#4a6a4c' }}>SPECIES DOCUMENTED</div>
                     </div>
                 </div>
                 <p className="mt-1 text-[0.72rem]" style={{ color: '#5a7a5c' }}>

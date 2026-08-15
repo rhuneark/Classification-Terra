@@ -4,6 +4,7 @@ import { updateSave } from '../state/save.ts';
 import HowToPlay from './HowToPlay.tsx';
 import ExplorerBoard from './ExplorerBoard.tsx';
 import LogScreen from './LogScreen.tsx';
+import TrophyScreen from './TrophyScreen.tsx';
 
 interface Props { onClose: () => void; }
 
@@ -13,6 +14,7 @@ export default function MenuOverlay({ onClose }: Props) {
     const [showHtp, setShowHtp] = useState(false);
     const [showExplorer, setShowExplorer] = useState(false);
     const [showLog, setShowLog] = useState(false);
+    const [showTrophy, setShowTrophy] = useState(false);
 
     function toggleMusic() {
         const next = !muteMusic;
@@ -33,6 +35,7 @@ export default function MenuOverlay({ onClose }: Props) {
 
     if (showHtp) return <HowToPlay onClose={() => setShowHtp(false)} />;
     if (showExplorer) return <ExplorerBoard onClose={() => setShowExplorer(false)} />;
+    if (showTrophy) return <TrophyScreen onClose={() => setShowTrophy(false)} />;
     if (showLog) return (
         <div className="absolute inset-0 flex flex-col" style={{ background: '#070e08', zIndex: 80 }}>
             <div className="flex shrink-0 items-center gap-3 px-4 pt-4 pb-3" style={{ borderBottom: '1px solid #1a3e1c' }}>
@@ -67,6 +70,7 @@ export default function MenuOverlay({ onClose }: Props) {
             <div className="flex flex-col gap-2 p-4">
                 <MenuBtn label="HOW TO PLAY" onClick={() => setShowHtp(true)} />
                 <MenuBtn label="EXPLORER BOARD" sublabel="The 10 Paperclips" onClick={() => setShowExplorer(true)} />
+                <MenuBtn label="RELIC ROOM" sublabel="Nostalgic trophies" onClick={() => setShowTrophy(true)} />
                 <MenuBtn label="EVENT LOG" sublabel="Recent activity" onClick={() => setShowLog(true)} />
 
                 {/* Toggle rows */}

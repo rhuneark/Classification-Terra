@@ -1,6 +1,6 @@
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { sdkReady } from '../sdk/runSdk.ts';
-import type { Item, LogEntry, ResearchQueueItem, Rarity, ItemType, SpecialTag, LogType, Loadout, Survivor, SurvivorRole, RivalFaction, Bounty } from '../game/types.ts';
+import type { Item, LogEntry, ResearchQueueItem, Rarity, ItemType, SpecialTag, LogType, Loadout, Survivor, SurvivorRole, RivalFaction, Bounty, TrophiedItem, QualityTier, BaseUpgradeState } from '../game/types.ts';
 import { MAX_ENERGY, emptyLoadout } from '../game/types.ts';
 import { getItemById } from '../game/items.ts';
 
@@ -39,6 +39,12 @@ export interface SaveData {
     bountiesRefreshedAt: number;
     totalCrafts: number;
     totalRaids: number;
+    // Base / morale
+    baseUpgrades: BaseUpgradeState;
+    baseResources: number;
+    lastBaseUpgradeAt: number;
+    // Trophy system
+    trophiedItems: TrophiedItem[];
 }
 
 function makeDefaultLoadout(): Loadout {
@@ -89,6 +95,10 @@ const DEFAULTS: SaveData = {
     bountiesRefreshedAt: 0,
     totalCrafts: 0,
     totalRaids: 0,
+    baseUpgrades: { walls: 0, watchtower: 0, depot: 0, barracks: 0, clinic: 0 },
+    baseResources: 0,
+    lastBaseUpgradeAt: 0,
+    trophiedItems: [],
 };
 
 function parseItem(raw: unknown): Item | null {
@@ -116,6 +126,8 @@ function parseItem(raw: unknown): Item | null {
         loreTerraId: typeof r.loreTerraId === 'string' ? r.loreTerraId : undefined,
         loreSnippetId: typeof r.loreSnippetId === 'string' ? r.loreSnippetId : undefined,
         setId: typeof r.setId === 'string' ? r.setId : undefined,
+        qualityTier: typeof r.qualityTier === 'string' ? (r.qualityTier as QualityTier) : undefined,
+        nostalgicBaseId: typeof r.nostalgicBaseId === 'string' ? r.nostalgicBaseId : undefined,
     };
 }
 
@@ -178,15 +190,48 @@ function parseRivalFaction(raw: unknown): RivalFaction | null {
     if (!raw || typeof raw !== 'object') return null;
     const r = raw as Record<string, unknown>;
     if (typeof r.id !== 'string') return null;
+    // Migrate old grudge (0-100) to new grudgePoints system
+    const oldGrudge = Math.max(0, Number(r.grudge) || 0);
+    const grudgePoints = r.grudgePoints != null ? Math.max(0, Number(r.grudgePoints)) : oldGrudge * 5;
+    const grudgeLevel = Math.min(5, Math.floor(grudgePoints / 100));
     return {
         id: String(r.id),
         name: String(r.name ?? ''),
         flavor: String(r.flavor ?? ''),
         offense: Number(r.offense) || 0,
         defense: Number(r.defense) || 0,
-        grudge: Math.max(0, Math.min(100, Number(r.grudge) || 0)),
+        grudge: grudgePoints,
+        grudgeLevel,
+        grudgePoints,
+        lastGrudgeDecayAt: r.lastGrudgeDecayAt != null ? Number(r.lastGrudgeDecayAt) : Date.now(),
         lastRaidedByPlayerAt: r.lastRaidedByPlayerAt != null ? Number(r.lastRaidedByPlayerAt) : undefined,
         lastRaidedUsAt: r.lastRaidedUsAt != null ? Number(r.lastRaidedUsAt) : undefined,
+    };
+}
+
+function parseTrophiedItem(raw: unknown): TrophiedItem | null {
+    if (!raw || typeof raw !== 'object') return null;
+    const r = raw as Record<string, unknown>;
+    if (typeof r.itemId !== 'string' || typeof r.baseItemId !== 'string') return null;
+    return {
+        itemId: String(r.itemId),
+        baseItemId: String(r.baseItemId),
+        quality: (r.quality as QualityTier) ?? 'used',
+        trophiedAt: Number(r.trophiedAt) || 0,
+        name: String(r.name ?? ''),
+    };
+}
+
+function parseBaseUpgrades(raw: unknown): BaseUpgradeState {
+    const def = { walls: 0, watchtower: 0, depot: 0, barracks: 0, clinic: 0 };
+    if (!raw || typeof raw !== 'object') return def;
+    const r = raw as Record<string, unknown>;
+    return {
+        walls: Math.min(5, Math.max(0, Number(r.walls) || 0)),
+        watchtower: Math.min(5, Math.max(0, Number(r.watchtower) || 0)),
+        depot: Math.min(5, Math.max(0, Number(r.depot) || 0)),
+        barracks: Math.min(5, Math.max(0, Number(r.barracks) || 0)),
+        clinic: Math.min(5, Math.max(0, Number(r.clinic) || 0)),
     };
 }
 
@@ -266,6 +311,12 @@ function parse(raw: string | null): SaveData | null {
             bountiesRefreshedAt: Number(p.bountiesRefreshedAt) || 0,
             totalCrafts: Math.max(0, Number(p.totalCrafts) || 0),
             totalRaids: Math.max(0, Number(p.totalRaids) || 0),
+            baseUpgrades: parseBaseUpgrades(p.baseUpgrades),
+            baseResources: Math.max(0, Number(p.baseResources) || 0),
+            lastBaseUpgradeAt: Number(p.lastBaseUpgradeAt) || 0,
+            trophiedItems: Array.isArray(p.trophiedItems)
+                ? (p.trophiedItems as unknown[]).map(parseTrophiedItem).filter(Boolean) as TrophiedItem[]
+                : [],
         };
     } catch {
         return null;

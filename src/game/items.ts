@@ -186,6 +186,54 @@ const LEGENDARY: Item[] = [
     itm('apex-leg-plates','Apex-Class Leg Plating',"Recovered from the only person who fought an Apex and walked out.",'legendary','armor',152,0,152,[],62,{equipSlot:'legs' as EquipSlot}),
 ];
 
+// ── EXPANSION BATCH (+30) ─────────────────────────────────────────────────
+// 4 common, 5 uncommon, 8 rare, 9 epic, 4 legendary — max 4 hand total added
+
+const COMMON_X: Item[] = [
+    itm('rag-wrap','Rag-Wrapped Boots',"Three layers of torn fabric around cracked soles. Better than barefoot.",'common','armor',6,0,6,[],4,{equipSlot:'feet' as EquipSlot}),
+    itm('salvage-cap','Salvage Cap',"Crudely stenciled with a skull. Provides almost no protection and full attitude.",'common','armor',5,0,5,[],3,{equipSlot:'head' as EquipSlot}),
+    itm('scrap-vest','Scrap-Plate Vest',"Pieces of a filing cabinet welded to denim. Heavy, effective, ugly.",'common','armor',7,0,7,[],5,{equipSlot:'torso' as EquipSlot}),
+    itm('wrapped-knees','Wrapped Knees',"Knee pads from a dead inline skater. Laughable protection. Better than nothing.",'common','armor',5,0,5,[],3,{equipSlot:'legs' as EquipSlot}),
+];
+
+const UNCOMMON_X: Item[] = [
+    itm('chem-gloves','Chemical Handling Gloves',"NIOSH-rated. Intact. Whoever left them behind didn't need them anymore.",'uncommon','armor',14,0,14,['hazmat'],9,{equipSlot:'protection' as EquipSlot}),
+    itm('work-harness','Work Harness (loaded)',"Tool loops still full. Whoever wore it didn't make it to the job site.",'uncommon','utility',15,0,18,[],10,{equipSlot:'legs' as EquipSlot}),
+    itm('riot-shinguards','Riot Shin Guards',"Police issue. Still marked LMPD. The department no longer exists.",'uncommon','armor',16,0,16,[],11,{equipSlot:'legs' as EquipSlot}),
+    itm('dust-mask','Industrial Dust Mask',"P100 rating. The filters are grey. They were white.",'uncommon','armor',14,0,12,['hazmat'],9,{equipSlot:'head' as EquipSlot}),
+    itm('signal-flares','Signal Flares (3-pack)',"Roadside emergency kit. Three chances to say you're still out there.",'uncommon','utility',13,0,16,[],8,{equipSlot:'legs' as EquipSlot}),
+];
+
+const RARE_X: Item[] = [
+    itm('cqb-vest','CQB Tactical Vest',"Close-quarters configured. Mag pouches stripped. Armor plates intact.",'rare','armor',35,0,35,[],20,{equipSlot:'protection' as EquipSlot}),
+    itm('iso-boots','Isolation Ward Boots',"Autoclave-resistant. Fluid-proof seals. Worn by someone who knew better.",'rare','armor',32,0,32,['hazmat'],18,{equipSlot:'feet' as EquipSlot}),
+    itm('nco-kit','NCO Field Kit',"Non-commissioned officer's loadout. Partial. Everything useful is still there.",'rare','utility',33,0,38,[],19,{equipSlot:'torso' as EquipSlot}),
+    itm('ppe-coverall','Level-C PPE Coverall',"Chemical-resistant full-body coverage. The hood seal is intact. Mostly.",'rare','armor',36,0,36,['hazmat'],20,{equipSlot:'torso' as EquipSlot}),
+    itm('titanium-shins','Titanium Shin Plating',"Spec-ops surplus. Shaped for a larger frame. Strap them tighter.",'rare','armor',34,0,34,[],19,{equipSlot:'legs' as EquipSlot}),
+    itm('exfil-jacket','Exfil Jacket',"Lined with cut-resistant material. Multiple hidden carry pockets.",'rare','armor',38,0,34,['nav'],21,{equipSlot:'torso' as EquipSlot}),
+    itm('recon-goggles','Recon Goggles',"Ballistic-rated lenses. Built-in UV filter. Strap replaced with paracord.",'rare','armor',35,0,35,[],20,{equipSlot:'head' as EquipSlot}),
+    itm('surplus-kneepad','Surplus Knee Pads (military spec)',"Ceramic impact plates inside. Someone removed the side panels. The core remains.",'rare','armor',33,0,33,[],19,{equipSlot:'legs' as EquipSlot}),
+];
+
+const EPIC_X: Item[] = [
+    itm('obsidian-shard','Obsidian Shard Baton',"Ground from volcanic glass. Not regulation. Extremely effective.",'epic','weapon',68,55,0,[],38,{equipSlot:'hand' as EquipSlot}),
+    itm('adaptive-plates','Adaptive Impact Plates',"Flex-rigid composite. Absorbs blunt force then returns rigid. Military prototype.",'epic','armor',72,0,72,[],40,{equipSlot:'protection' as EquipSlot}),
+    itm('exo-torso','Exo-Frame Torso Brace',"Partial exoskeleton. The servo assist still functions. Barely.",'epic','armor',75,0,65,[],42,{equipSlot:'torso' as EquipSlot}),
+    itm('hazmat-hood','CBRN Hazmat Hood',"Chemical/Biological/Radiological/Nuclear rated. Neck seal intact.",'epic','armor',70,0,70,['hazmat','bio'],39,{equipSlot:'head' as EquipSlot}),
+    itm('carbon-greaves','Carbon-Fiber Greaves',"Racing motorsport leg armor. Lightweight. Shockingly good deflection.",'epic','armor',73,0,73,[],41,{equipSlot:'legs' as EquipSlot}),
+    itm('mag-boots','Mag-Lock Boots',"Designed for zero-g environments. Surface traction is catastrophically good.",'epic','armor',71,0,71,[],40,{equipSlot:'feet' as EquipSlot}),
+    itm('xray-specs','Gen-3 Night Spec Headset',"Thermal overlay. Helmet-mounted. Battery holds six hours. Six good hours.",'epic','utility',85,0,60,[],47,{equipSlot:'head' as EquipSlot}),
+    itm('spinal-brace','Experimental Spinal Brace',"Trauma surgery prototype. It works. The ethics review never happened.",'epic','armor',78,0,78,['bio'],43,{equipSlot:'protection' as EquipSlot}),
+    itm('ghost-coat','Ghost Coat',"Radar-absorbing weave. Thermal suppression layer. Four pockets.",'epic','armor',80,0,72,['nav'],44,{equipSlot:'torso' as EquipSlot}),
+];
+
+const LEGENDARY_X: Item[] = [
+    itm('null-blade','Null-Field Blade',"Edge coated in a field that disrupts cellular cohesion. Handle insulated.",'legendary','weapon',145,108,0,['bio'],59,{equipSlot:'hand' as EquipSlot}),
+    itm('omnisuit','Omni-Purpose Containment Suit',"Rated for every environment catalogued before the collapse. And after.",'legendary','armor',158,0,158,['hazmat','bio','cleanse'],64,{equipSlot:'protection' as EquipSlot}),
+    itm('apex-helm','Apex-Specimen Helm Plate',"Pried off an Apex-class subject. Still has the impact crater from what took it down.",'legendary','armor',162,0,162,[],66,{equipSlot:'head' as EquipSlot}),
+    itm('crisis-legs','Crisis Response Leg System',"Hydraulic-assist legs from a first-responder exo. One actuator left.",'legendary','armor',155,0,155,[],63,{equipSlot:'legs' as EquipSlot}),
+];
+
 // ── UNIQUE: THE 10 PAPERCLIPS + 1 CLASSIFIED ──────────────────────────────
 export const CLASSIFIED_PAPERCLIP: Item =
     itm('paperclip-classified','CLASSIFIED: Paperclip',"Redacted. Its serial number has been removed from official records. This paperclip doesn't exist. You have it anyway.",'unique','utility',230,0,160,[],1,{equipSlot:'hand' as EquipSlot,setId:'classified-cache'});
@@ -205,11 +253,11 @@ export const PAPERCLIPS: Item[] = [
 
 // ── ALL ITEMS ──────────────────────────────────────────────────────────────
 export const ALL_ITEMS: Item[] = [
-    ...COMMON,
-    ...UNCOMMON,
-    ...RARE,
-    ...EPIC,
-    ...LEGENDARY,
+    ...COMMON,  ...COMMON_X,
+    ...UNCOMMON, ...UNCOMMON_X,
+    ...RARE,    ...RARE_X,
+    ...EPIC,    ...EPIC_X,
+    ...LEGENDARY, ...LEGENDARY_X,
     ...PAPERCLIPS,
 ];
 

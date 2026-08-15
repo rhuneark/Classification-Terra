@@ -10,7 +10,7 @@ import { getRandomNPCOpponent } from './game/opponents.ts';
 import { computeWeightClass } from './game/weightClass.ts';
 import type { PassiveResults } from './game/types.ts';
 import { MAX_ENERGY, ENERGY_REGEN_MINUTES } from './game/types.ts';
-import { initRivalFactions, passiveScripGained, passiveEnergyFromMedics, generateBounties, BOUNTY_REFRESH_MS } from './game/factions.ts';
+import { initRivalFactions, passiveScripGained, passiveEnergyFromMedics, generateBounties, BOUNTY_REFRESH_MS, applyGrudgeDecay, computeMorale, getMoraleEffects, passiveDepotScripGained } from './game/factions.ts';
 import { scheduleResearchNotif, scheduleEnergyNotif } from './game/notifications.ts';
 import './styles/app.css';
 
@@ -78,15 +78,26 @@ async function boot() {
         updateSave({ lastLoginDay: todayStr, loginStreak: streak });
     }
 
-    // Passive income from faction survivors
+    // Passive income from faction survivors and base upgrades
     const savedSurvivors = save.survivors ?? [];
+    const savedBaseUpgrades = save.baseUpgrades ?? { walls: 0, watchtower: 0, depot: 0, barracks: 0, clinic: 0 };
     const passiveFactionScrip = passiveScripGained(savedSurvivors, msAway);
     const passiveMedicEnergy = passiveEnergyFromMedics(savedSurvivors, msAway);
+    const passiveDepotScrip = passiveDepotScripGained(savedBaseUpgrades, msAway);
 
-    // Initialize rival factions if none saved
-    const savedRivals = (save.rivalFactions ?? []).length > 0
+    // Compute morale and apply survivor leave on low morale + extended absence
+    const baseMorale = computeMorale(savedSurvivors, savedBaseUpgrades, msAway);
+    const moraleEffects = getMoraleEffects(baseMorale);
+    let activeSurvivors = savedSurvivors;
+    if (moraleEffects.survivorLeaveChance > 0 && msAway > 24 * 3_600_000 && savedSurvivors.length > 0) {
+        activeSurvivors = savedSurvivors.filter(() => Math.random() > moraleEffects.survivorLeaveChance);
+    }
+
+    // Initialize rival factions if none saved; apply grudge decay
+    const rawRivals = (save.rivalFactions ?? []).length > 0
         ? save.rivalFactions
         : initRivalFactions();
+    const savedRivals = rawRivals.map(f => applyGrudgeDecay(f, now));
 
     // Initialize or refresh bounties
     const bountiesRefreshedAt = save.bountiesRefreshedAt ?? 0;
@@ -99,8 +110,8 @@ async function boot() {
     }
 
     // Survivor upkeep: 2 scrip/survivor per session login
-    const upkeepCost = savedSurvivors.length * 2;
-    const newCurrency = Math.max(0, save.currency + passiveCurrency + loginBonusScrip + passiveFactionScrip - upkeepCost);
+    const upkeepCost = activeSurvivors.length * 2;
+    const newCurrency = Math.max(0, save.currency + passiveCurrency + loginBonusScrip + passiveFactionScrip + passiveDepotScrip - upkeepCost);
     const newEnergyWithMedic = Math.min(newEnergy + passiveMedicEnergy, MAX_ENERGY);
 
     let passiveResults: PassiveResults | null = null;
@@ -122,6 +133,7 @@ async function boot() {
         researchQueue: remainingQueue,
         totalBattles: save.totalBattles + passiveBattleCount,
         wins: save.wins + passiveWins,
+        survivors: activeSurvivors,
         rivalFactions: savedRivals,
         bounties: activeBounties,
         bountiesRefreshedAt: activeBountiesRefreshedAt,
@@ -147,12 +159,17 @@ async function boot() {
         eventLog: save.eventLog,
         passiveResults,
         loginBonus,
-        survivors: savedSurvivors,
+        survivors: activeSurvivors,
         rivalFactions: savedRivals,
         bounties: activeBounties,
         bountiesRefreshedAt: activeBountiesRefreshedAt,
         totalCrafts: save.totalCrafts ?? 0,
         totalRaids: save.totalRaids ?? 0,
+        baseUpgrades: savedBaseUpgrades,
+        baseMorale,
+        baseResources: save.baseResources ?? 0,
+        lastBaseUpgradeAt: save.lastBaseUpgradeAt ?? 0,
+        trophiedItems: save.trophiedItems ?? [],
     });
 
     // Schedule notifications for existing queued research and energy regen
@@ -212,6 +229,10 @@ async function boot() {
                 bountiesRefreshedAt: s.bountiesRefreshedAt,
                 totalCrafts: s.totalCrafts,
                 totalRaids: s.totalRaids,
+                baseUpgrades: s.baseUpgrades,
+                baseResources: s.baseResources,
+                lastBaseUpgradeAt: s.lastBaseUpgradeAt,
+                trophiedItems: s.trophiedItems,
                 lastOnline: Date.now(),
             });
             scheduleEnergyNotif(s.energy);

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { store, useStore } from '../state/store.ts';
 import { getActiveComboLabels, getLoadoutStats } from '../game/weightClass.ts';
-import { RARITY_COLORS, RARITY_LABELS, SLOT_LABELS, SLOT_ACCEPT, SLOT_COLORS } from '../game/types.ts';
-import type { Item, ResearchQueueItem, Loadout, EquipSlot } from '../game/types.ts';
+import { RARITY_COLORS, RARITY_LABELS, SLOT_LABELS, SLOT_ACCEPT, SLOT_COLORS, QUALITY_LABELS } from '../game/types.ts';
+import type { Item, ResearchQueueItem, Loadout, EquipSlot, TrophiedItem } from '../game/types.ts';
 import { updateSave } from '../state/save.ts';
 import { primeEnergyRegenTimer } from '../game/energyRegen.ts';
 import StatsCard from './StatsCard.tsx';
@@ -274,7 +274,8 @@ export default function BackpackScreen() {
     const wc = stats.wc;
     const combos = getActiveComboLabels(loadout);
     const equippedCount = Object.values(loadout).filter(Boolean).length;
-    const gearInventory = inventory.filter(i => i.type !== 'consumable' && i.type !== 'lore' && i.type !== 'pack');
+    const gearInventory = inventory.filter(i => i.type !== 'consumable' && i.type !== 'lore' && i.type !== 'pack' && i.type !== 'nostalgic');
+    const nostalgicInventory = inventory.filter(i => i.type === 'nostalgic');
     const consumables = inventory.filter(i => i.type === 'consumable');
     const packItems = inventory.filter(i => i.type === 'pack');
 
@@ -436,6 +437,39 @@ export default function BackpackScreen() {
         updateSave({ inventory: newInventory });
     }
 
+    function handleDonate(item: Item) {
+        const s = store.get();
+        const donateValue = item.sellValue;
+        const newInventory = s.inventory.filter(i => i !== item);
+        const newBaseResources = s.baseResources + donateValue;
+        const entry = { id: `donate-${Date.now()}`, type: 'faction' as const, message: `Donated ${item.name} to the base. +${donateValue} base resources.`, timestamp: Date.now() };
+        const newLog = [entry, ...s.eventLog].slice(0, 50);
+        store.patch({ inventory: newInventory, baseResources: newBaseResources, eventLog: newLog });
+        updateSave({ inventory: newInventory, baseResources: newBaseResources, eventLog: newLog });
+        RundotGameAPI.analytics.recordCustomEvent('base_item_donated', { itemId: item.id, value: donateValue }).catch(() => {});
+    }
+
+    function handleTrophy(item: Item) {
+        if (!item.nostalgicBaseId || !item.qualityTier) return;
+        const s = store.get();
+        const newTrophied: TrophiedItem = { itemId: item.id, baseItemId: item.nostalgicBaseId, quality: item.qualityTier, trophiedAt: Date.now(), name: item.name };
+        const newInventory = s.inventory.filter(i => i !== item);
+        const newTrophiedItems = [...s.trophiedItems, newTrophied];
+        const entry = { id: `trophy-${Date.now()}`, type: 'trophy' as const, message: `Trophied ${item.name} (${QUALITY_LABELS[item.qualityTier]}).`, timestamp: Date.now() };
+        const newLog = [entry, ...s.eventLog].slice(0, 50);
+        store.patch({ inventory: newInventory, trophiedItems: newTrophiedItems, eventLog: newLog });
+        updateSave({ inventory: newInventory, trophiedItems: newTrophiedItems, eventLog: newLog });
+        if (item.qualityTier === 'perfect') {
+            RundotGameAPI.leaderboard.submitScore({
+                score: Math.floor((Date.now() - 1700000000000) / 1000),
+                duration: 1,
+                mode: `trophy-perfect-${item.nostalgicBaseId}`,
+                metadata: { baseItemId: item.nostalgicBaseId },
+            }).catch(() => {});
+        }
+        RundotGameAPI.analytics.recordCustomEvent('nostalgic_trophied', { baseItemId: item.nostalgicBaseId, quality: item.qualityTier }).catch(() => {});
+    }
+
     const selectedConsumable = selectedId ? consumables.find(i => i.id === selectedId) : undefined;
 
     return (
@@ -562,21 +596,67 @@ export default function BackpackScreen() {
                                 ))}
                             </div>
                         )}
-                        {gearInventory.length === 0 && packItems.length === 0 ? (
+                        {gearInventory.length === 0 && packItems.length === 0 && nostalgicInventory.length === 0 ? (
                             <p className="text-[0.88rem]" style={{ color: '#3a5a3c' }}>Bag empty. Researched items arrive here when ready.</p>
                         ) : (
                             <div className="space-y-2">
                                 {gearInventory.map(item => (
                                     <div key={item.id + item.name + 'bag'}>
                                         <ItemCard item={item} onClick={() => handleInventoryTap(item)} selected={selectedId === item.id} />
-                                        <button type="button"
-                                            className="mt-0.5 w-full rounded py-1 text-[0.72rem] font-bold tracking-wide transition-transform active:scale-95"
-                                            style={{ background: '#0a1a2e', color: '#60a5fa', border: '1px solid #1a3a5e' }}
-                                            onClick={() => handleStore(item)}>
-                                            STORE →
-                                        </button>
+                                        <div className="mt-0.5 flex gap-1">
+                                            <button type="button"
+                                                className="flex-1 rounded py-1 text-[0.72rem] font-bold tracking-wide transition-transform active:scale-95"
+                                                style={{ background: '#0a1a2e', color: '#60a5fa', border: '1px solid #1a3a5e' }}
+                                                onClick={() => handleStore(item)}>
+                                                STORE →
+                                            </button>
+                                            <button type="button"
+                                                className="rounded px-2 py-1 text-[0.72rem] font-bold tracking-wide transition-transform active:scale-95"
+                                                style={{ background: '#0a1810', color: '#8aaa6c', border: '1px solid #2a4e2c' }}
+                                                onClick={() => handleDonate(item)}>
+                                                DONATE
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
+                            </div>
+                        )}
+                        {nostalgicInventory.length > 0 && (
+                            <div className="mt-3">
+                                <div className="text-[0.68rem] font-bold tracking-widest mb-1.5" style={{ color: '#8a4a6c' }}>
+                                    RELICS · {nostalgicInventory.length} found
+                                </div>
+                                <div className="space-y-2">
+                                    {nostalgicInventory.map(item => (
+                                        <div key={item.id + 'relic'}>
+                                            <div className="rounded p-2.5" style={{ background: '#120a10', border: '1px solid #FF69B433' }}>
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="truncate text-[0.9rem] font-bold" style={{ color: '#FF69B4' }}>{item.name}</div>
+                                                        <div className="mt-0.5 text-[0.75rem] leading-snug" style={{ color: '#8a6a8a' }}>{item.description}</div>
+                                                        <div className="mt-0.5 flex gap-1.5 flex-wrap">
+                                                            <span className="rounded px-1.5 py-0.5 text-[0.6rem] font-bold"
+                                                                style={{ background: '#FF69B422', color: '#FF69B4', border: '1px solid #FF69B444' }}>
+                                                                {item.qualityTier ? QUALITY_LABELS[item.qualityTier] : 'RELIC'}
+                                                            </span>
+                                                            <span className="text-[0.65rem]" style={{ color: '#6a4a6c' }}>Sell value: {item.sellValue}s</span>
+                                                            {item.qualityTier === 'perfect' && (
+                                                                <span className="text-[0.65rem] font-bold" style={{ color: '#ffd060' }}>★ WORLD FIRST ELIGIBLE</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="button"
+                                                className="mt-0.5 w-full rounded py-1 text-[0.72rem] font-bold tracking-wide transition-transform active:scale-95"
+                                                style={{ background: '#1a0a14', color: '#FF69B4', border: '1px solid #FF69B444' }}
+                                                onClick={() => handleTrophy(item)}>
+                                                TROPHY
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="mt-1 text-[0.65rem]" style={{ color: '#5a3a5c' }}>Trophy relics to preserve them in the Relic Room. They can also be sold at the Outpost.</p>
                             </div>
                         )}
                     </div>
