@@ -25,6 +25,21 @@ function QualityBadge({ quality }: { quality: string }) {
     );
 }
 
+function RelicChip({ name, trophied, revealed }: { name: string; trophied: boolean; revealed: boolean }) {
+    return (
+        <div className="rounded px-2 py-0.5 text-[0.65rem]"
+            style={{
+                background: trophied ? RELIC_COLOR + '18' : '#141414',
+                color: trophied ? RELIC_COLOR : revealed ? '#6a4a6c' : '#2e2e2e',
+                border: `1px solid ${trophied ? RELIC_COLOR + '44' : revealed ? '#3a2a3c' : '#222'}`,
+                fontStyle: revealed && !trophied ? 'italic' : 'normal',
+            }}>
+            {revealed ? name.replace(/^"/, '').replace(/"$/, '') : '???'}
+            {trophied && <span style={{ color: '#4ade8088' }}> ✓</span>}
+        </div>
+    );
+}
+
 function SetCard({ setId, trophiedItems }: { setId: string; trophiedItems: TrophiedItem[] }) {
     const set = getNostalgicSetById(setId);
     if (!set) return null;
@@ -46,20 +61,17 @@ function SetCard({ setId, trophiedItems }: { setId: string; trophiedItems: Troph
                 </div>
             </div>
             <div className="flex flex-wrap gap-1 mb-1.5">
-                {set.members.map(memberId => {
+                {set.members.map((memberId, idx) => {
                     const base = NOSTALGIC_BASES.find(b => b.id === memberId);
-                    const trophy = trophiedItems.find(t => t.baseItemId === memberId);
+                    const trophied = !!trophiedItems.find(t => t.baseItemId === memberId);
+                    const revealed = idx === 0 || trophied;
                     return (
-                        <div key={memberId}
-                            className="rounded px-2 py-0.5 text-[0.65rem]"
-                            style={{
-                                background: trophy ? RELIC_COLOR + '18' : '#141414',
-                                color: trophy ? RELIC_COLOR : '#3a3a3a',
-                                border: `1px solid ${trophy ? RELIC_COLOR + '44' : '#2a2a2a'}`,
-                            }}>
-                            {base?.name.replace(/^"/, '').replace(/"$/, '') ?? memberId}
-                            {trophy && <span style={{ color: '#4ade8088' }}> ✓</span>}
-                        </div>
+                        <RelicChip
+                            key={memberId}
+                            name={base?.name ?? memberId}
+                            trophied={trophied}
+                            revealed={revealed}
+                        />
                     );
                 })}
             </div>
@@ -71,6 +83,41 @@ function SetCard({ setId, trophiedItems }: { setId: string; trophiedItems: Troph
             {!isComplete && (
                 <div className="text-[0.68rem]" style={{ color: '#5a4a5c' }}>{set.bonusDescription}</div>
             )}
+        </div>
+    );
+}
+
+function SoloRoster({ trophiedItems }: { trophiedItems: TrophiedItem[] }) {
+    const solos = NOSTALGIC_BASES.filter(b => !b.setId);
+    const trophiedBaseIds = new Set(trophiedItems.map(t => t.baseItemId));
+    const trophiedCount = solos.filter(b => trophiedBaseIds.has(b.id)).length;
+
+    return (
+        <div>
+            <div className="flex items-center justify-between mb-1.5">
+                <div className="text-[0.7rem] font-bold tracking-widest" style={{ color: '#5a3a5c' }}>
+                    SOLO RELICS
+                </div>
+                <div className="text-[0.68rem] font-bold" style={{ color: '#4a6a4c' }}>
+                    {trophiedCount}/{solos.length}
+                </div>
+            </div>
+            <div className="rounded p-3" style={{ background: '#0e100e', border: '1px solid #2a2a2a' }}>
+                <div className="flex flex-wrap gap-1">
+                    {solos.map((base, idx) => {
+                        const trophied = trophiedBaseIds.has(base.id);
+                        const revealed = idx === 0 || trophied;
+                        return (
+                            <RelicChip
+                                key={base.id}
+                                name={base.name}
+                                trophied={trophied}
+                                revealed={revealed}
+                            />
+                        );
+                    })}
+                </div>
+            </div>
         </div>
     );
 }
@@ -229,6 +276,9 @@ export default function TrophyScreen({ onClose }: Props) {
                         </div>
                     </div>
                 )}
+
+                {/* Solo relics roster */}
+                <SoloRoster trophiedItems={trophiedItems} />
 
                 {/* My trophied items */}
                 {trophiedItems.length > 0 ? (
