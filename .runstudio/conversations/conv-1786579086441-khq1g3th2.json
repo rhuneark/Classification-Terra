@@ -17119,11 +17119,29 @@
       "timestamp": 1786759691424,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1786759793472",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "Awesome. And I plan on making a post about the changes made from our 1.0 version to now. A quick snippet I can throw on Discord or insta, and I can make a promo out of. So can you help with that? A quick rundown of changes made",
+      "timestamp": 1786759793472,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1786759808034-w4m7igdku",
+      "role": "assistant",
+      "content": "Here's a punchy patch-notes style drop you can cut/trim for each platform:\n\n---\n\n**Classification: Terra — Major Update**\n\nA lot has changed since 1.0. Here's what's new:\n\n**YOUR BASE GOT REAL**\nYour Faction Base now has its own Weight Class, a live Morale score, and five upgrade tracks — Walls, Watchtower, Depot, Barracks, and Clinic — each with five tiers. A healthy base fights back. A neglected one falls apart. Survivors will actually leave if morale gets bad enough.\n\n**RIVAL GRUDGE SYSTEM**\nRivals now remember you. Hit them enough times and their Grudge climbs up to 5 levels — making them harder, more aggressive, and more rewarding. Let it sit 48 hours and it drops a level. Hit Level 5 and you might walk away with a new recruit.\n\n**NOSTALGIC RELICS**\n30 rare, flamingo-pink collectibles are now hiding in the ruins. Five quality tiers from Broken to Perfect. Four collectible Sets with completion bonuses. You can sell them, donate them to your base, or trophy them in your new Relic Room. First person in the world to trophy a Perfect relic gets their name in the global feed.\n\n**30 NEW ITEMS**\nThe loot pool just got significantly bigger across all rarity tiers.\n\n**EXPLORER BOARD UPDATE**\nYou can now see how many of the 10 Paperclips have been claimed globally — not just your own count.\n\n**CODEX PROGRESS**\nThe Field Codex now shows your species completion as X out of Y documented.\n\n**HOW TO PLAY — FULL REWRITE**\nEvery system is now explained. If something felt confusing before, check it again.\n\n---\n\nTrim the Relic section for Instagram (it's the most visual), lead with the Grudge system on Discord — that one always gets the \"wait really?\" reaction. Happy to punch up the tone or rewrite it as a shorter hype caption if you need something even more condensed.",
+      "isShownToUser": true,
+      "timestamp": 1786759818092,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1786579086441,
-  "updatedAt": 1786759691433,
-  "tokenUsage": 1834,
+  "updatedAt": 1786759818098,
+  "tokenUsage": 2676,
   "script": "ftue-remix",
   "claudeSessionId": "8471f7c6-c1e1-4563-86a1-cbfe1516d81d"
 }
