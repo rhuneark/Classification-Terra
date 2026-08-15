@@ -102,7 +102,7 @@ export default function MainMenu() {
                 </button>
 
                 <button type="button"
-                    className="w-full rounded px-6 py-3 text-[0.9rem] font-bold tracking-wide transition-transform active:scale-95"
+                    className="w-full rounded px-6 py-3 text-[0.9rem] font-bold tracking-wide transition-transform active:scale-95 htp-pulse"
                     style={{ background: '#102010', color: '#bcd4bd', border: '1px solid #2c4a2e' }}
                     onClick={() => setShowHtp(true)}>
                     HOW TO PLAY
