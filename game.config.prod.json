@@ -4,15 +4,11 @@
   "usesPreloader": false,
   "orientation": "both",
   "keywords": [
-    "survival",
-    "scavenger",
-    "post-apocalyptic",
-    "bestiary",
-    "lore",
-    "codex",
-    "dark",
-    "loot",
-    "exploration"
+    "auto-battler",
+    "base-building",
+    "collectibles",
+    "relics",
+    "idle"
   ],
   "kitId": "cant-stop-now-bare-bones"
 }
