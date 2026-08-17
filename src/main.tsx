@@ -5,6 +5,7 @@ import App from './ui/App.tsx';
 import { store } from './state/store.ts';
 import { loadSave, updateSave, flushSave } from './state/save.ts';
 import { initSdk, registerLifecycles, sdkReady } from './sdk/runSdk.ts';
+import { initFirebase, firebaseReady } from './sdk/firebaseSdk.ts';
 import { warmAssets } from './assets/preload.ts';
 import { getRandomNPCOpponent } from './game/opponents.ts';
 import { computeWeightClass } from './game/weightClass.ts';
@@ -15,8 +16,14 @@ import { scheduleResearchNotif, scheduleEnergyNotif } from './game/notifications
 import './styles/app.css';
 
 async function boot() {
-    // 1. SDK first.
+    // 1. SDKs first — RUN host, then Firebase (accounts/cloud saves).
+    // Both degrade gracefully: if either isn't available, the game boots
+    // and runs anyway, same as it always has.
     await initSdk();
+    await initFirebase();
+    if (!firebaseReady()) {
+        console.warn('[boot] Firebase not ready — running on local save only, no cloud sync/multiplayer this session.');
+    }
 
     // 2. Load save and calculate time-away effects.
     const save = await loadSave();
