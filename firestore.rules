@@ -1,0 +1,16 @@
+rules_version = '2';
+
+// Scope for now: accounts + cloud saves only. Real async PvP (a pool of
+// other players' builds, readable by anyone) and leaderboard writes will
+// need their own rules added when that phase starts — don't loosen this
+// file to "guess ahead" for those, add rules when the collections exist.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // One document per player, keyed by their auth uid. Only that player
+    // can ever read or write it — no cross-player access at this layer.
+    match /players/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
